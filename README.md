@@ -54,7 +54,7 @@ Dans le cas de l'axi stream on pourrait avoir
 0x12345678
 123         ; 4 ; !
 0b110011
-0x3456789Ab ; 3 ; !
+0x3456789A  ; 3 ; !
 ```
 mais aussi
 
