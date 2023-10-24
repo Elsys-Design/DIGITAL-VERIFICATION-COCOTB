@@ -52,8 +52,12 @@ Dans le cas de l'axi stream on pourrait avoir
 ```
 @  0x00000000;31;ascii; 4; big; !; 
 0x12345678
-123         ; 4 ; !
+123         ; !
 0b110011
+0x3456789A  ; 3 ; !
+```
+```
+@  0x00000000;31;ascii; 3; big; !; 
 0x3456789A  ; 3 ; !
 ```
 mais aussi
@@ -61,7 +65,7 @@ mais aussi
 ```
 @ 0x00000000 ; 31 ; ascii; 4; big; !;
 0x12345678
-123         ; 4 ; !
+123         ;  !
 0b110011
 0x3456789Ab ; 2 ; 
 ```
