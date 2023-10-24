@@ -41,6 +41,7 @@ Remarques :
             - Un champs descripteur unique (première ligne)
             - Un ou plusieurs blocs de données terminés séparés par un nombre et/ou un descripteur de fin de paquet.
 - Même si le format du descripteur est générique, dans le cadre de cette étude une seule configuration sera choisie (probablement Donnée binaire ; 4 octets ; big endian et descripteur de fin de paquet ! )
+- l'adresse des séquences dans ces fichiers sera une adresse relative par rapport à une adresse de base renseignée à un étage au dessus (bonne pratique). Si une personne veut renseigner une addresse absolue il faudra penser à mettre l'adresse de base dnas l'étage au dessus à 0. 
 
 
 ### exemple de format:
@@ -49,7 +50,7 @@ Remarques :
 Dans le cas de l'axi stream on pourrait avoir 
 
 ```
-@ ascii; 4; big; !; 0x00000000;31
+@  0x00000000;31;ascii; 4; big; !; 
 0x12345678
 123         ; 4 ; !
 0b110011
@@ -58,7 +59,7 @@ Dans le cas de l'axi stream on pourrait avoir
 mais aussi
 
 ```
-@ ascii; 4; big; !; 0x00000000;31
+@ 0x00000000 ; 31 ; ascii; 4; big; !;
 0x12345678
 123         ; 4 ; !
 0b110011
@@ -66,7 +67,7 @@ mais aussi
 ```
 et dans un autre fichier
 ```
-@ ascii; 4; big; !; 0x00000000;1
+@  0x00000000; 1; ascii; 4; big; !;
 0x12345678  ; 1 ; !
 ```
 
@@ -74,13 +75,13 @@ et dans un autre fichier
 
 Dans le cas de l'axi full on pourrait avoir 
 ```
-@ ascii; 4; big; !; 0x00000000;2048
+@ 0x00000000 ; 2048 ; ascii; 4; big; !; 
 0x12345678
 123        
 0b110011
 0x3456789Ab ;1
 
-@ ascii; 4; big; !; 0x00000000;3
+@ 0x00000000;3; ascii; 4; big; !; 
 0x12345678
 ```
 
