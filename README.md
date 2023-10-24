@@ -13,20 +13,25 @@ This framework allows AXI light, AXI full and AXI stream testbenches based on py
 
 ## Data format
 Le fichier data contiendra :
-- Un descripteur sur la nature des données identifié par le caractère spécial @ et dont les champs ci-dessous sont séparés par un point-virgule et sur une unique ligne.
+- Un descripteur sur la nature des données identifiées par le caractère spécial `@` et dont les champs ci-dessous sont séparés par un `;` et sur une unique ligne.
+    - L’adresse de base de démarrage de la séquence de données
+    - la taille en octet de la séquence de donnée
     - Donnée binaire ou ascii
     - Taille des mots en nombre d’octet
     - Convention d’écriture des octets (little endian ou big endian)
     - Le descripteur de fin de paquet (utilisé pour l’axi stream). Par défaut le caractère !
-    - L’adresse de base de démarrage de la séquence de données
 
 - Une donnée de la taille précédemment fixée et de la nature fixée par ligne.
 
-- Les adresses s’incrémentent en continue. En cas, de « trou d’adresse » un nouveau descripteur pourra être rajouter pour identifier la nouvelle adresse de base.
+- Les adresses s’incrémentent en continue (la taille des mots en nombre d’octets). En cas, de « trou d’adresse » un nouveau descripteur pourra être rajouter pour identifier la nouvelle adresse de base.
 
 - La fin d’un paquet est identifiée par un point-virgule suivi du descripteur de fin de paquet sur la même ligne que la dernière donnée.
 
 - Le dernier mot peut contenir un point-virgule suivi d’un nombre en fin de ligne pour indiquer le nombre d’octets à considérer. Si ce champ est manquant, le mot sera considéré comme complet avec la taille provenant du descripteur.
+
+- si la taille de la séquence est plus grande que le nombre de mot écrit dans le fichier, elle sera complétée avec une stratégie 0x00, OXFF, ou random.
+
+- si la taille de la séquence est plus petite que le nombre de mot écrit dans le fichier, les ligne en supplément seront ignorée (une erreur pourra être affichée)
 
 Remarques : 
 - L’analyse d’un fichier data doit pouvoir se faire de la manière suivante :
@@ -37,6 +42,47 @@ Remarques :
             - Un ou plusieurs blocs de données terminés séparés par un nombre et/ou un descripteur de fin de paquet.
 - Même si le format du descripteur est générique, dans le cadre de cette étude une seule configuration sera choisie (probablement Donnée binaire ; 4 octets ; big endian et descripteur de fin de paquet ! )
 
+
+### exemple de format:
+
+####  AXI stream
+Dans le cas de l'axi stream on pourrait avoir 
+
+```
+@ ascii; 4; big; !; 0x00000000;31
+0x12345678
+123         ; 4 ; !
+0b110011
+0x3456789Ab ; 3 ; !
+```
+mais aussi
+
+```
+@ ascii; 4; big; !; 0x00000000;31
+0x12345678
+123         ; 4 ; !
+0b110011
+0x3456789Ab ; 2 ; 
+```
+et dans un autre fichier
+```
+@ ascii; 4; big; !; 0x00000000;1
+0x12345678  ; 1 ; !
+```
+
+####  AXI Full
+
+Dans le cas de l'axi full on pourrait avoir 
+```
+@ ascii; 4; big; !; 0x00000000;2048
+0x12345678
+123        
+0b110011
+0x3456789Ab ;1
+
+@ ascii; 4; big; !; 0x00000000;3
+0x12345678
+```
 
 
 ### Stimuli files
