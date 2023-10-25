@@ -77,7 +77,7 @@ Il y a une donnée par ligne. La taille de chaque donnée considérée est fixé
 - si la taille associée à la valeur de la donnée est plus grande que celle définie dans le descripteur (un warning sera levé)
 - Seule la dernière ligne de donnée d'une séquence peut contenir un point-virgule suivi d’un nombre pour indiquer le nombre d’octets à considérer (dans la donnée). Si ce champ est manquant, le mot sera considéré comme complet par rapport à la taille provenant du descripteur. 
 
-_Note: le nombre final d'octet sur la dernière transaction d'une séquence prendra les octets en partant du LSB que la donnée soit en big ou en little endian. _
+_Note: le nombre final d'octet sur la dernière transaction d'une séquence prendra les octets en partant du LSB que la donnée soit en big ou en little endian._
 
 - A la fin de chaque ligne de donnée, il est possible de rajouter un `;` suivi d'un séparateur de paquet pour indiquer la fin d'un paquet (tlast en AXI stream) ou la fin d'un burst (en AXI full uniquement)   
 - un burst Axi Full se termine obligatoirement à la fin d'une séquence.
