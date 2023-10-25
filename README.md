@@ -37,7 +37,7 @@ Il donne l'adresse de début de la séquence.
 - S’incrémentent en continue (de la taille des mots en nombre d’octets) dans le cas Axi Full et light
 - Est utilisé comme `Tdest` dans le cas Axi Stream et donc ne s'incrémente pas.
 
-_Note: En cas, de « trou d’adresse » un nouveau descripteur pourra être rajouter pour identifier la nouvelle adresse de départ._   
+_Note: En cas, de « trou d’adresse » une nouvelle séquence pourra être rajouter pour identifier la nouvelle adresse de départ._   
 _Note: Une bonne pratique sera que l'adresse des séquences dans ces fichiers sera une adresse relative par rapport à une adresse de base renseignée à un étage au dessus (fichier Stim) . Si l'on veut renseigner une addresse absolue dans le fichier data, il faudra penser à mettre l'adresse de base dans le fichier stim à 0._
 
 ### champ longueur
