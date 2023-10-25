@@ -13,6 +13,7 @@ This framework allows AXI light, AXI full and AXI stream testbenches based on py
 
 ### limitations
 - le framework ne supporte pas la gestion des tuser dans l'AXI stream
+- le framework ne prend pas en considération la taille physique du bus AXI. Pour garantir les accès unitaires, il faut que le champ taille soit égale à la taille du bus AXI.
 
 
 # Data File format
