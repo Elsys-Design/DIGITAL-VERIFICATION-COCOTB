@@ -49,6 +49,7 @@ Défini la longueur effective en octets des données de la séquence.
     - binaire (0b11100011100101)   
 - si la taille de la séquence est plus grande que le nombre de données écrites dans la séquence, elle sera complétée avec une stratégie 0x00, OXFF, ou random.
 - si la taille de la séquence est plus petite que le nombre de données écrites dans la séquence, les lignes en supplément seront ignorée (un warning sera être affichée)
+- une taille à '0' correspond à une séquence complète
 
 ### Champ type
 - Le champ donnée ne supporte que le format `ASCII` pour le moment.
