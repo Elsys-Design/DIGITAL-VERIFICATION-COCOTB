@@ -11,6 +11,10 @@ This framework allows AXI light, AXI full and AXI stream testbenches based on py
 ### example
 ... 
 
+### limitations
+- le framework ne supporte pas la gestion des tuser dans l'AXI stream
+
+
 # Data File format
 Le fichier data contiendra une ou plusieurs séquences définies par:   
 
@@ -70,11 +74,10 @@ Il y a une donnée par ligne. La taille de chaque donnée considérée est fixé
     - hexadécimal (0x00ABCDEF)
     - entier  (12588)
     - binaire (0b11100011100101) 
-- si la taille associée à la valeur de la donnée est plus grande que celle définie dans le descripteur (une warning sera êlevée)
-  
+- si la taille associée à la valeur de la donnée est plus grande que celle définie dans le descripteur (un warning sera levé)
 - Seule la dernière ligne de donnée d'une séquence peut contenir un point-virgule suivi d’un nombre pour indiquer le nombre d’octets à considérer (dans la donnée). Si ce champ est manquant, le mot sera considéré comme complet par rapport à la taille provenant du descripteur. 
 
-_Note: le nombre final d'octet sur la dernière transaction d'une séquence prendra les octets en partant MSB si la donnée est en big endian et lsb si la donnée est en little._
+_Note: le nombre final d'octet sur la dernière transaction d'une séquence prendra les octets en partant du LSB que la donnée soit en big ou en little endian. _
 
 - A la fin de chaque ligne de donnée, il est possible de rajouter un `;` suivi d'un séparateur de paquet pour indiquer la fin d'un paquet (tlast en AXI stream) ou la fin d'un burst (en AXI full uniquement)   
 - un burst Axi Full se termine obligatoirement à la fin d'une séquence.
@@ -102,8 +105,8 @@ Dans le cas de l'axi stream on pourrait avoir :
 
 cela se traduit par l'émission ou la reception de :
 - 1 paquet axistream de taille `8` avec `0x12345678` et `123` avec `tdest =0`
-- 1 paquet axistream de taille `7` avec `0b110011` et `0x345678`  avec `tdest =0`
-- 1 paquet axistream de taille `3` avec `0x345678` avec `tdest =0`
+- 1 paquet axistream de taille `7` avec `0b110011` et `0x56789A`  avec `tdest =0`
+- 1 paquet axistream de taille `19` avec `0x56789A` avec `tdest =0`  (paquet est à cheval entre la première et la deuxième séquence)
 - 1 paquet axistream non finalisé avec `28` octets supplémentaires ... avec `tdest =0`
 
 mais aussi
@@ -122,7 +125,7 @@ et dans un autre fichier
 ```
 cela se traduit par l'émission ou la reception de :
 - 1 paquet axistream de taille `8` avec `0x12345678` et `123` avec `tdest =1`
-- 1 paquet axistream de taille `25` avec `0b110011` et `0x3456` et `18` octets supplémentaires et `0x12` avec `tdest =1`
+- 1 paquet axistream de taille `24` avec `0b110011` et `0x789A` et `17` octets supplémentaires et `0x78` avec `tdest =1`
 
 ###  AXI Full
 
@@ -139,8 +142,8 @@ Dans le cas de l'axi full on pourrait avoir
 ```
 cela se traduit par l'émission ou la reception de :
 - 1 burst axi full de taille `16` commençant à l'adresse `0`avec `0x12345678` et `123` 
-- 1 burst axi full de taille `2032` commençant à l'adresse `16`avec `0b110011` et `0x34`  et `2027` octets  
-- 1 accès unitaire à l'adresse `0` avec `0x123456` 
+- 1 burst axi full de taille `2032` commençant à l'adresse `16`avec `0b110011` et `0x9A`  et `2027` octets  
+- 1 accès unitaire à l'adresse `0` avec `0x345678` 
 
 ## Analyse de fichier Data
 L’analyse d’un fichier data doit pouvoir se faire de la manière suivante :
@@ -149,8 +152,6 @@ L’analyse d’un fichier data doit pouvoir se faire de la manière suivante :
     - Séparer les données avec comme délimiteur le point-virgule (fonction python split). On doit se retrouver avec : 
         - Un champs descripteur unique (première ligne)
         - Un ou plusieurs blocs de données terminés séparés par un nombre et/ou un descripteur de fin de paquet.
-
-
 
 # Stimuli files
 
