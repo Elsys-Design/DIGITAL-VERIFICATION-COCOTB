@@ -70,8 +70,7 @@ Il y a une donnée par ligne. La taille de chaque donnée considérée est fixé
     - hexadécimal (0x00ABCDEF)
     - entier  (12588)
     - binaire (0b11100011100101) 
-- si la taille de la donnée est plus grande que celle définie dans le descripteur seul les MSB (cas big endian) ou lsb ((cas little endian) seront prélevés et (un warning sera être affichée)
-- si la taille de la donnée est plus petite que celle définie dans le descripteur , elle sera complétée avec une stratégie 0x00. 
+- si la taille associée à la valeur de la donnée est plus grande que celle définie dans le descripteur (une warning sera êlevée)
   
 - Seule la dernière ligne de donnée d'une séquence peut contenir un point-virgule suivi d’un nombre pour indiquer le nombre d’octets à considérer (dans la donnée). Si ce champ est manquant, le mot sera considéré comme complet par rapport à la taille provenant du descripteur. 
 
