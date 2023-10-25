@@ -60,6 +60,12 @@ stimuli files are JSON  formated including the following fields:
     - Type : chemin vers un fichier
 - Time : Ce champs pourra être utilisé si besoin pour renseigner le temps depuis le début de la simulation Cocotb. Le temps sera exprimé en microseconde.
     - type : flottant 
+- Fill : remplissage des mots de données manquants
+    - type entier
+        - `0` : les octets manquants pour combler la taille de la séquence seront des `0`
+        - `1` : les octets manquants pour combler la taille de la séquence seront des `1`
+        - `-1` : les octets manquants pour combler la taille de la séquence seront des nombre aléatoires. La graine de random sera choisie aléatoirement (supérieur strictement à 1) et loggée .
+        - `i|i>1` : les octets manquants pour combler la taille de la séquence seront des nombre aléatoires. La graine de random sera le nombre `i` avec `i>1`.
 
 ### data files
 
