@@ -161,7 +161,8 @@ L’analyse d’un fichier data doit pouvoir se faire de la manière suivante :
     - `ID`   : Identifie le stimuli de manière unique dans un scénario
     - `Desc` : Défini un commentaire une description sur le scénario. 
     - `Access` : Définit le type d'accès sur le bus (lecture/écriture)
-    - `RelTime` : Renseigne le temps relatif entre deux stimuli. 
+    - `RelTime` : Renseigne le temps relatif entre deux stimuli.
+    - `AbsTime` : Dans le cas d'un log moniteur, renseigne le temps absolue depuis le début de la simulation. 
     - `Type` : Défini la nature de la donnée de stimuli (Simple ou fichier).
     - `Data` : Dans le cas d'un accès de type Simple, il traduit la donnée lue ou à écrire.
     - `Address` : Dans le cas d'un accès de type Simple, adresse de destination ou source. 
@@ -180,7 +181,7 @@ Si ce champ est vide, le framework utilisera une valeur par défault définie pa
 
 ## Champ Desc
 - Type : `String`
-- Obligatoire   
+- optionnel   
 
 Ce champ donne une description ou un commentaire relatif au stimuli.
 
@@ -213,6 +214,15 @@ _Note: Dans le cas d'un stimuli de testbench , le temps référencera le temps d
 
 _Note: Dans le cas d'un log de Moniteur , le temps référencera le temps de simulation cocotb au moment ou la data commencera à transiter sur le bus  (TBC)_
 
+## Champ AbsTime
+- Type : `String`
+- obligatoire en mode log moniteur uniquement
+
+Donne le delta temps absolu de simulation cocotb depuis le début de la simultation cocotb.
+Il adopte la notation de temps du VHDL (cf `RelTime`).
+
+_Note: Il n'est possible de référencer des stimuli de testbench avec le champ `AbsTime`_
+
 ## Champ Type
 - Type : `String`
 - obligatoire
@@ -223,7 +233,8 @@ Défini la nature de la donnée de stimuli. Les choix possible sont:
 
 ## Champ Data
 - Type : `String`
-- Présent et obligatoire uniquement si `Type=Simple`
+- Présent et obligatoire uniquement si `Type=Simple` et `Access=W` et en stimuli testbench
+- Présent et obligatoire uniquement si `Type=Simple`  et en log moniteur
 
 Il traduit la valeur de la donnée lue ou à écrire.
 - Supporte des tailles jusqu'à 64bits
@@ -291,18 +302,60 @@ Dans le cas d'un log de moniteur:
 Défini la stratégie à adopter pour finir les séquences de données définies dans le ficheir data (Stimuli de type `File` uniquement) si celui-ci est incomplet.   
 
 ## Exemple de fichier Stimuli:
+```json
+[
+  {
+    "ID":"",
+    "Desc":"",
+    "Access": "W",
+    "RelTime":"",
+    "Type": "Simple",
+    "Data": "",
+    "Address": "",
+    "Size": "",
+    "FileName":"",
+    "Fill":""
+  },
+```
+
 ### séquence de read/write en stimuli
 ```json
 [
   {
-    "ID": ,
-    "Desc": ,
+    "Desc":"exemple d'écriture de 4 octets 0xCAFECAFE @0x12345678 à T=100 ps",
     "Access": "W",
-    "RelTime":
-    "Type": "File",
-    "File": "data0.txt",
-    "Time": 0.1
+    "RelTime":"100 ps",
+    "Type": "Simple",
+    "Data": "0xCAFECAFE",
+    "Address": "0x12345678",
+    "Size": "4",
   },
+{
+    "ID":"TEST2",
+    "Desc":"exemple d'écriture de 1 octet 0xFE @0x12345678 à T=100,200 ns",
+    "Access": "W",
+    "RelTime":"100.1 ns",
+    "Type": "Simple",
+    "Data": "0xCAFECAFE",
+    "Address": "0x12345678",
+    "Size": "1",
+  },
+{
+    "Access": "R",
+    "RelTime":"1 ms",
+    "Type": "Simple",
+    "Address": "0x12345678",
+    "Size": "1",
+  }
+]
+```
+
+
+
+
+
+
+
 
   {
     "Access": "Write",
