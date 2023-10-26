@@ -247,7 +247,7 @@ _Note: La donnée est obligatoirement formatée en big endian_
 
 ## Champ Address
 - Type : `String`
-- Présent 
+- Obligatoire 
 
 Il traduit l'adresse de la donnée lue ou à écrire en mode `simple`.
 Il traduit une adresse de base en mode `File`
@@ -256,6 +256,9 @@ Il traduit une adresse de base en mode `File`
     - hexadécimal (0x00ABCDEF)
     - entier  (12588)
     - binaire (0b11100011100101) 
+
+_Note: dans le mode moniteur,pour un fichier,  l'adresse de base sera positionnée à l'adresse de départ du transfert car le moniteur ne peut pas déterminer l'adresse de base de l'adresse relative.   
+Cela signifie que le premier décorateur data associé au fichier aura l'adresse 0._
 
 ## Champ Size
 - Type : `number`
@@ -367,6 +370,7 @@ Stimuli:
     "RelTime":"1 ms",
     "Type": "File",
     "FileName":"./Golden/img.lum",
+    "Address": "0x10000000",
     "Fill":"0"
   }
 ]
@@ -414,7 +418,7 @@ log monitoré sur un bus AXI stream 16 bits:
     "RelTime":"1 ms",
     "AbsTime":"1000001.2001 ns",
     "Type": "File",
-    "FileName": "./AXIS_45/ID4.dat",
+    "FileName": "./AXIS_45/ID4_0.dat",
   },
   {
     "ID":"AXIS_5",
@@ -426,48 +430,20 @@ log monitoré sur un bus AXI stream 16 bits:
     "Address": "0x12345678",
     "Data": "0xC0C0",
     "Size": "2",
+  },
+      {
+    "ID":"AXIS_6",
+    "Desc":"W 4096",
+    "Access": "W",
+    "RelTime":"1 ms",
+    "AbsTime":"1000101.2001 ns",
+    "Type": "File",
+    "FileName": "./AXIS_45/ID4_1.dat",
+    "Address": "0x10000400"
   }
 ]
 _Note: l'ordre de découpage (MSB/LSB) du premier mot en deux accès est à confirmer_
 
-
-
-
-
-
-  {
-    "Access": "Write",
-    "Type": "File",
-    "File": "data1.txt",
-    "Time": 0.11
-  },
-
-  {
-    "Access": "Read",
-    "Time": 1,
-    "Address": "0x44A01000",
-    "Size": 8,
-    "File": "read0.txt"
-  },
-
-  {
-    "Access": "Write",
-    "Type": "Data",
-    "Time": 3.1,
-    "Address": "0x44A01001",
-    "Data": "0xFFFF",
-    "Size": 2
-  },
-
-  {
-    "Access": "Read",
-    "Time": 3.2,
-    "Address": "0x44A01000",
-    "Size": 8,
-    "File": "read2.txt"
-  }
-]
-```
 
 # License
 Copyright Elsys Design
