@@ -39,9 +39,10 @@ Remarques :
 
 
 
-### Stimuli files
+# Stimuli file format
 
-stimuli files are JSON  formated including the following fields:
+Un scénaraio de test est représenté par un fichier contenant un tableau d'élément stimuli JSON.
+Les élements stimuli disposent des champos suivants:
 - Access : Accès type
     - Type :String
         - Read : Read accès
@@ -67,7 +68,6 @@ stimuli files are JSON  formated including the following fields:
         - `-1` : les octets manquants pour combler la taille de la séquence seront des nombre aléatoires. La graine de random sera choisie aléatoirement (supérieur strictement à 1) et loggée .
         - `i|i>1` : les octets manquants pour combler la taille de la séquence seront des nombre aléatoires. La graine de random sera le nombre `i` avec `i>1`.
 
-### data files
 
 
 
