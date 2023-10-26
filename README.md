@@ -155,27 +155,18 @@ L’analyse d’un fichier data doit pouvoir se faire de la manière suivante :
         - Un ou plusieurs blocs de données terminés séparés par un nombre et/ou un descripteur de fin de paquet.
 
 # Stimuli files
-
-Un scénaraio de test est représenté par un fichier contenant un tableau d'élément stimuli JSON.
-Les élements stimuli disposent des champos suivants:
-- Access : Accès type
-    - Type :String
-        - Read : Read accès
-        - Write : accès écriture
-- Type : Nature de la donnée de stimuli
-    - Type :String
-        - File : données issues d’un fichier. 
-        - Data : donnée issue du champ data.
-- Address : adresse de destination ou source. Dans le cas d’un accès multiple, les adresses se suivront de manière continue
-    - type : entier sur 64 bits (décimal ou hexadécimal).
-        - Data : valeur à écrire ou lire
-        - type : entier sur 64 bits (décimal ou hexadécimal).
-- Size : taille du transfert en nombre d’octets
-    - type : entier sur 64 bits (décimal ou hexadécimal).
-- File :  dans le cas d’un accès type file, la source ou la destination est le fichier identifié par le chemin 
-    - Type : chemin vers un fichier
-- Time : Ce champs pourra être utilisé si besoin pour renseigner le temps depuis le début de la simulation Cocotb. Le temps sera exprimé en microseconde.
-    - type : flottant 
+- Un scénario de test est représenté par un fichier contenant un tableau d'élément stimuli JSON.
+- Ce format scénario est utilisé tant pour les stimuli de testbench que pour les moniteur de bus.
+- Les élements stimuli disposent des champs suivants:
+    - `Desc` : Défini un commentaire une description sur le scénario. 
+    - `Access` : Définit le type d'accès sur le bus (lecture/écriture)
+    - `RelTime` : Renseigne le temps relatif entre duex stimuli. 
+    - `Type` : Défini la nature de la donnée de stimuli (Simple ou fichier).
+    - `Data` : Dans le cas d'un accès de type Simple, il traduit la donnée lue ou à écrire.
+    - `Address` : Dans le cas d'un accès de type Simple, adresse de destination ou source. 
+    - `Size` : Dans le cas d'un accès de type Simple, taille du transfert en nombre d’octets.
+    - `FileName` : Dans le cas d’un accès type file, chemin du fichier data source ou destination.
+    - `Time` : Renseigne le temps depuis le début de la simulation Cocotb. 
 - Fill : remplissage des mots de données manquants
     - type entier
         - `0` : les octets manquants pour combler la taille de la séquence seront des `0`
@@ -183,6 +174,68 @@ Les élements stimuli disposent des champos suivants:
         - `-1` : les octets manquants pour combler la taille de la séquence seront des nombre aléatoires. La graine de random sera choisie aléatoirement (supérieur strictement à 1) et loggée .
         - `i|i>1` : les octets manquants pour combler la taille de la séquence seront des nombre aléatoires. La graine de random sera le nombre `i` avec `i>1`.
 
+- Lors d'un log sur un moniteur, Les accès unitaires sur le bus seront tous traduits dans le format Simple JSON. Seul les burst seront renseignés dans des données `Data` de type `File`.    
+_Note: il n'y a aucune contrainte au niveau stimuli de testbench concernant l'utilisation du Data stimuli ou de décorateur dans un fichier  `Data`_
+
+
+## Champ Desc
+- Type :`String`
+- Obligatoire
+Ce champ donne une description ou un commentaire relatif au stimuli
+## Champ accès
+- Type :`String`
+- obligatoire
+Défini le type d'accès éffectué (ou a effectué sur le bus). Les choix possible sont:
+- `Read` :  accès lecture
+- `Write` : accès écriture
+## Champ RelTime
+- Type :`String`
+- obligatoire
+Donne le delta temps relatif de simulation cocotb depuis le début du scénario de stimuli (pour le premier stimuli) ou depuis le précédent stimuli (pour les suivants).   
+Il adopte la notation de temps du VHDL (`fs faisant reférence à la fento seconde`):
+```
+    fs
+    ps = 1000 fs
+    ns = 1000 ps
+    us = 1000 ns
+    ms = 1000 us
+    sec = 1000 ms
+    min = 60 sec
+    hr = 60 min
+```
+
+## Champ Type
+- Type :`String`
+- obligatoire
+Défini la nature de la donnée de stimuli. Soit de type unitaire dans ce JSON. Les choix possible sont:
+- `File` : données issues d’un fichier.
+- `Simple` : donnée issue du stimuli
+## Champ Data
+- Type :`String`
+- Présent et obligatoire uniquement si `Type=Simple`
+Il traduit la donnée lue ou à écrire.
+- Supporte des tailles jusqu'à 64bits
+- Est écrit en ascii dans le format:
+    - hexadécimal (0x00ABCDEF)
+    - entier  (12588)
+    - binaire (0b11100011100101) 
+## Champ Address
+- Type :`String`
+- Présent et obligatoire uniquement si `Type=Simple`
+Il traduit la donnée lue ou à écrire.
+- Supporte des tailles jusqu'à 64bits
+- Est écrit en ascii dans le format:
+    - hexadécimal (0x00ABCDEF)
+    - entier  (12588)
+    - binaire (0b11100011100101) 
+## Champ Size
+- Type :`number`
+- Présent et obligatoire uniquement si `Type=Simple`
+Ce nombre indique le nombre d'octets à considérer dans le trasnfert de la donnée `Data` en partant du LSB de celui-ci (que cela soit en little endian ou big endian).
+## Champ FileName
+- Type :`String`
+- Présent et obligatoire uniquement si `Type=File`
+Défini le chemin avec le nom du fichier où est stocké le fichier data contenant les séquences 
 
 ## Authors and acknowledgment
 Show your appreciation to those who have contributed to the project.
