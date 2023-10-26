@@ -189,8 +189,8 @@ Ce champ donne une description ou un commentaire relatif au stimuli.
 - obligatoire
 
 Défini le type d'accès éffectué (ou à effectuer sur le bus). Les choix possible sont:
-- `Read` :  accès lecture
-- `Write` : accès écriture
+- `R` :  accès lecture
+- `W` : accès écriture
 
 ## Champ RelTime
 - Type : `String`
@@ -291,6 +291,52 @@ Dans le cas d'un log de moniteur:
 Défini la stratégie à adopter pour finir les séquences de données définies dans le ficheir data (Stimuli de type `File` uniquement) si celui-ci est incomplet.   
 
 ## Exemple de fichier Stimuli:
+### séquence de read/write en stimuli
+```json
+[
+  {
+    "ID": ,
+    "Desc": ,
+    "Access": "W",
+    "RelTime":
+    "Type": "File",
+    "File": "data0.txt",
+    "Time": 0.1
+  },
+
+  {
+    "Access": "Write",
+    "Type": "File",
+    "File": "data1.txt",
+    "Time": 0.11
+  },
+
+  {
+    "Access": "Read",
+    "Time": 1,
+    "Address": "0x44A01000",
+    "Size": 8,
+    "File": "read0.txt"
+  },
+
+  {
+    "Access": "Write",
+    "Type": "Data",
+    "Time": 3.1,
+    "Address": "0x44A01001",
+    "Data": "0xFFFF",
+    "Size": 2
+  },
+
+  {
+    "Access": "Read",
+    "Time": 3.2,
+    "Address": "0x44A01000",
+    "Size": 8,
+    "File": "read2.txt"
+  }
+]
+```
 
 # License
 Copyright Elsys Design
