@@ -292,7 +292,7 @@ Dans le cas d'un log de moniteur:
 
 ## Champ Fill
 - Type :`number`
-- Présent et obligatoire uniquement si `Type=File`
+- Présent et obligatoire uniquement si `Type=File` et en stimuli testbench
 - type entier
     - `0` : les octets manquants pour combler la taille de la séquence seront des `0`
     - `1` : les octets manquants pour combler la taille de la séquence seront des `1`
@@ -318,39 +318,104 @@ Défini la stratégie à adopter pour finir les séquences de données définies
   },
 ```
 
-### séquence de read/write en stimuli
+### séquence de read/write  
+Stimuli: 
 ```json
 [
   {
-    "Desc":"exemple d'écriture de 4 octets 0xCAFECAFE @0x12345678 à T=100 ps",
+    "Desc":"exemple d'écriture de 4 octets 125  @0x12345678 à T=100 ps",
     "Access": "W",
     "RelTime":"100 ps",
     "Type": "Simple",
-    "Data": "0xCAFECAFE",
+    "Data": "125",
     "Address": "0x12345678",
     "Size": "4",
   },
 {
     "ID":"TEST2",
-    "Desc":"exemple d'écriture de 1 octet 0xFE @0x12345678 à T=100,200 ns",
+    "Desc":"exemple d'écriture de 1 octet 0xFE @305419896 à T=100,200 ns",
     "Access": "W",
     "RelTime":"100.1 ns",
     "Type": "Simple",
     "Data": "0xCAFECAFE",
-    "Address": "0x12345678",
+    "Address": "305419896",
     "Size": "1",
   },
 {
     "Access": "R",
     "RelTime":"1 ms",
     "Type": "Simple",
-    "Address": "0x12345678",
-    "Size": "1",
+    "Address": "0b0",
+    "Size": "4096",
+  },
+{
+    "ID":"TEST4",
+    "Desc":"exemple de lecture de 2 octets  @305419896 à T=1101,200 ns",
+    "Access": "R",
+    "RelTime":"1 ns",
+    "Type": "Simple",
+    "Address": "305419896",
+    "Size": "2",
   }
 ]
 ```
-
-
+log monitoré sur un bus AXI stream 16 bits: 
+```json
+[
+  {
+    "ID":"AXIS_1",        
+    "Desc":"W 2 Bytes",
+    "Access": "W",
+    "RelTime":"100 ps",
+    "AbsTime":"100 ps",
+    "Type": "Simple",
+    "Data": "0x000000000",
+    "Address": "0x12345678",
+    "Size": "2",
+  },
+    {
+    "ID":"AXIS_2",        
+    "Desc":"W 2 Bytes",
+    "Access": "W",
+    "RelTime":"1 ns",
+    "AbsTime":"1.1 ns",
+    "Type": "Simple",
+    "Data": "0x0000007D",
+    "Address": "0x12345678",
+    "Size": "2",
+  },
+{
+    "ID":"AXIS_3",
+    "Desc":"W 1 Bytes",
+    "Access": "W",
+    "RelTime":"100.1 ns",
+    "AbsTime":"1.2001 ns",
+    "Type": "Simple",
+    "Data": "0xFE",
+    "Address": "0x12345678",
+    "Size": "1",
+  },
+{
+    "ID":"AXIS_4",
+    "Desc":"R 1 Byte",
+    "Access": "R",
+    "RelTime":"1 ms",
+    "AbsTime":"1000001.2001 ns",
+    "Type": "File",
+    "Address": "0x00000000",
+    "Size": "4096",
+  },
+  {
+    "ID":"TEST4",
+    "Desc":"exemple de lecture de 2 octets  @305419896 à T=1101,200 ns",
+    "Access": "R",
+    "RelTime":"1 ns",
+    "Type": "Simple",
+    "Address": "305419896",
+    "Size": "2",
+  }
+]
+_Note: l'ordre de découpage (MSB/LSB) du premier mot en deux accès est à confirmer_
 
 
 
