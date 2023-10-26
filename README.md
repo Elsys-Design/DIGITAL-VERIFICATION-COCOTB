@@ -155,44 +155,42 @@ L’analyse d’un fichier data doit pouvoir se faire de la manière suivante :
         - Un ou plusieurs blocs de données terminés séparés par un nombre et/ou un descripteur de fin de paquet.
 
 # Stimuli files
-- Un scénario de test est représenté par un fichier contenant un tableau d'élément stimuli JSON.
+- Un scénario de test est représenté par un fichier contenant un tableau d'éléments stimuli JSON.
 - Ce format scénario est utilisé tant pour les stimuli de testbench que pour les moniteur de bus.
 - Les élements stimuli disposent des champs suivants:
     - `Desc` : Défini un commentaire une description sur le scénario. 
     - `Access` : Définit le type d'accès sur le bus (lecture/écriture)
-    - `RelTime` : Renseigne le temps relatif entre duex stimuli. 
+    - `RelTime` : Renseigne le temps relatif entre deux stimuli. 
     - `Type` : Défini la nature de la donnée de stimuli (Simple ou fichier).
     - `Data` : Dans le cas d'un accès de type Simple, il traduit la donnée lue ou à écrire.
     - `Address` : Dans le cas d'un accès de type Simple, adresse de destination ou source. 
     - `Size` : Dans le cas d'un accès de type Simple, taille du transfert en nombre d’octets.
     - `FileName` : Dans le cas d’un accès type file, chemin du fichier data source ou destination.
-    - `Time` : Renseigne le temps depuis le début de la simulation Cocotb. 
-- Fill : remplissage des mots de données manquants
-    - type entier
-        - `0` : les octets manquants pour combler la taille de la séquence seront des `0`
-        - `1` : les octets manquants pour combler la taille de la séquence seront des `1`
-        - `-1` : les octets manquants pour combler la taille de la séquence seront des nombre aléatoires. La graine de random sera choisie aléatoirement (supérieur strictement à 1) et loggée .
-        - `i|i>1` : les octets manquants pour combler la taille de la séquence seront des nombre aléatoires. La graine de random sera le nombre `i` avec `i>1`.
-
-- Lors d'un log sur un moniteur, Les accès unitaires sur le bus seront tous traduits dans le format Simple JSON. Seul les burst seront renseignés dans des données `Data` de type `File`.    
-_Note: il n'y a aucune contrainte au niveau stimuli de testbench concernant l'utilisation du Data stimuli ou de décorateur dans un fichier  `Data`_
-
+    - `Fill` : Dans le cas d’un accès type file, stratégie de complétion des séquences du fichiers data non complètes 
+   
+- Lors d'un log sur un moniteur, Les accès unitaires sur le bus seront tous traduits dans le format Simple JSON. Seul les burst seront renseignés dans des fichiers de données `Data` de type `File`.       
+_Note: il n'y a aucune contrainte au niveau stimuli de testbench concernant l'utilisation du `Simple` stimuli ou de décorateur dans un fichier  `Data`_
 
 ## Champ Desc
-- Type :`String`
-- Obligatoire
-Ce champ donne une description ou un commentaire relatif au stimuli
-## Champ accès
-- Type :`String`
+- Type : `String`
+- Obligatoire   
+
+Ce champ donne une description ou un commentaire relatif au stimuli.
+
+## Champ Access
+- Type : `String`
 - obligatoire
-Défini le type d'accès éffectué (ou a effectué sur le bus). Les choix possible sont:
+
+Défini le type d'accès éffectué (ou à effectuer sur le bus). Les choix possible sont:
 - `Read` :  accès lecture
 - `Write` : accès écriture
+
 ## Champ RelTime
-- Type :`String`
+- Type : `String`
 - obligatoire
+
 Donne le delta temps relatif de simulation cocotb depuis le début du scénario de stimuli (pour le premier stimuli) ou depuis le précédent stimuli (pour les suivants).   
-Il adopte la notation de temps du VHDL (`fs faisant reférence à la fento seconde`):
+Il adopte la notation de temps du VHDL (`fs` faisant reférence à la fento seconde):
 ```
     fs
     ps = 1000 fs
@@ -202,44 +200,96 @@ Il adopte la notation de temps du VHDL (`fs faisant reférence à la fento secon
     sec = 1000 ms
     min = 60 sec
     hr = 60 min
-```
+```   
+
+_Note: Dans le cas d'un stimuli de testbench , le temps référencera le temps de simulation cocotb au moment ou la commande Read/write sera émise (TBC)_
+
+_Note: Dans le cas d'un log de Moniteur , le temps référencera le temps de simulation cocotb au moment ou la data commencera à transiter sur le bus  (TBC)_
 
 ## Champ Type
-- Type :`String`
+- Type : `String`
 - obligatoire
-Défini la nature de la donnée de stimuli. Soit de type unitaire dans ce JSON. Les choix possible sont:
+
+Défini la nature de la donnée de stimuli. Les choix possible sont:
 - `File` : données issues d’un fichier.
-- `Simple` : donnée issue du stimuli
+- `Simple` : donnée issue du présent JSON Stimuli. 
+
 ## Champ Data
-- Type :`String`
+- Type : `String`
 - Présent et obligatoire uniquement si `Type=Simple`
-Il traduit la donnée lue ou à écrire.
+
+Il traduit la valeur de la donnée lue ou à écrire.
 - Supporte des tailles jusqu'à 64bits
 - Est écrit en ascii dans le format:
     - hexadécimal (0x00ABCDEF)
     - entier  (12588)
     - binaire (0b11100011100101) 
+
+_Note: La donnée est obligatoirement formatée en big endian_
+
 ## Champ Address
-- Type :`String`
+- Type : `String`
 - Présent et obligatoire uniquement si `Type=Simple`
-Il traduit la donnée lue ou à écrire.
+
+Il traduit l'adresse de la donnée lue ou à écrire.
 - Supporte des tailles jusqu'à 64bits
 - Est écrit en ascii dans le format:
     - hexadécimal (0x00ABCDEF)
     - entier  (12588)
     - binaire (0b11100011100101) 
+
 ## Champ Size
-- Type :`number`
+- Type : `number`
 - Présent et obligatoire uniquement si `Type=Simple`
-Ce nombre indique le nombre d'octets à considérer dans le trasnfert de la donnée `Data` en partant du LSB de celui-ci (que cela soit en little endian ou big endian).
+
+Ce nombre indique le nombre d'octets à considérer dans le transfert de la donnée `Data` en partant du LSB de celui-ci (que cela soit en little endian ou big endian).  
+
+Dans le cas d'une écriture:   
+- elle ne peut pas dépasser la taille réelle du bus AXI (sinon une erreur sera levée) 
+- Pour l'AXI stream, la demande d'écriture :
+    - Pour un master AXI : provoque l'activation du `TValid` (i.e. autorise l'émission des octets sur le périphérique)
+    - Pour un slave AXI stream: cela lève une erreur.
+
+Dans le cas d'une lecture:
+- une taille inférieure ou égale à la taille du bus provoque:
+    - un accès unitaire (AXI light ou full), 
+    - l'envoie d'un paquet avec Tlast à la fin (AXI stream)
+- une taille supérieure à la taille du bus provoque:
+    - un accès burst (AXI full), 
+    - multi-unitaire (AXI light),
+    - d'un paquet avec Tlast à la fin (AXI stream)
+- Pour l'AXI stream, la demande de lecture provoque:
+    - Pour un slave AXI: l'activation du `Tready` (i.e. autorise la réception des octets sur le périphérique). 
+    - Pour un master AXI stream: cela lève une erreur.
+
 ## Champ FileName
 - Type :`String`
+- Présent et obligatoire uniquement si `Type=File` et l'on est dans un stimuli de testbench
+
+Défini le chemin avec le nom du fichier où est stocké le fichier data contenant les séquences de données.
+
+Dans le cas d'un log de moniteur:
+- A la première utilisation d'un fichier dans un scénario de plusieurs stimuli, celui ci est écrasé
+- Pour un même scénario de stimuli , l'appel à un fichier précédemment utilsé provoque l'ajout de données dnas celui-ci.
+
+## Champ Fill
+- Type :`number`
 - Présent et obligatoire uniquement si `Type=File`
-Défini le chemin avec le nom du fichier où est stocké le fichier data contenant les séquences 
+- type entier
+    - `0` : les octets manquants pour combler la taille de la séquence seront des `0`
+    - `1` : les octets manquants pour combler la taille de la séquence seront des `1`
+    - `-1` : les octets manquants pour combler la taille de la séquence seront des nombre aléatoires. La graine de random sera choisie aléatoirement (supérieure strictement à 1) et loggée .
+    - `i|i>1` : les octets manquants pour combler la taille de la séquence seront des nombre aléatoires. La graine de random sera le nombre `i` avec `i>1`.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Défini la stratégie à adopter pour finir les séquences de données définies dans le ficheir data (Stimuli de type `File` uniquement) si celui-ci est incomplet.   
 
-## License
-For open source projects, say how it is licensed.
+## Exemple de fichier Stimuli:
+
+# License
+Copyright Elsys Design
+License concédée au CNES pour ses besoins propre comprennant le droit : 
+- d'utilisation
+- de dupplicaiton 
+- de modification
+- de sous licencier à un tiers (se droit n'étant pas transférable)
 
