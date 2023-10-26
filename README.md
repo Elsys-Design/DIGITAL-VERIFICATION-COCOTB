@@ -247,9 +247,10 @@ _Note: La donnée est obligatoirement formatée en big endian_
 
 ## Champ Address
 - Type : `String`
-- Présent et obligatoire uniquement si `Type=Simple`
+- Présent 
 
-Il traduit l'adresse de la donnée lue ou à écrire.
+Il traduit l'adresse de la donnée lue ou à écrire en mode `simple`.
+Il traduit une adresse de base en mode `File`
 - Supporte des tailles jusqu'à 64bits
 - Est écrit en ascii dans le format:
     - hexadécimal (0x00ABCDEF)
@@ -302,6 +303,8 @@ Dans le cas d'un log de moniteur:
 Défini la stratégie à adopter pour finir les séquences de données définies dans le ficheir data (Stimuli de type `File` uniquement) si celui-ci est incomplet.   
 
 ## Exemple de fichier Stimuli:
+
+En mode Simple stimuli:
 ```json
 [
   {
@@ -356,6 +359,15 @@ Stimuli:
     "Type": "Simple",
     "Address": "305419896",
     "Size": "2",
+  },
+    {
+    "ID":"IMAGE_1",
+    "Desc":"envoie d'une image",
+    "Access": "W",
+    "RelTime":"1 ms",
+    "Type": "File",
+    "FileName":"./Golden/img.lum",
+    "Fill":"0"
   }
 ]
 ```
@@ -369,7 +381,7 @@ log monitoré sur un bus AXI stream 16 bits:
     "RelTime":"100 ps",
     "AbsTime":"100 ps",
     "Type": "Simple",
-    "Data": "0x000000000",
+    "Data": "0x0000",
     "Address": "0x12345678",
     "Size": "2",
   },
@@ -380,7 +392,7 @@ log monitoré sur un bus AXI stream 16 bits:
     "RelTime":"1 ns",
     "AbsTime":"1.1 ns",
     "Type": "Simple",
-    "Data": "0x0000007D",
+    "Data": "0x007D",
     "Address": "0x12345678",
     "Size": "2",
   },
@@ -391,7 +403,7 @@ log monitoré sur un bus AXI stream 16 bits:
     "RelTime":"100.1 ns",
     "AbsTime":"1.2001 ns",
     "Type": "Simple",
-    "Data": "0xFE",
+    "Data": "0x00FE",
     "Address": "0x12345678",
     "Size": "1",
   },
@@ -402,16 +414,17 @@ log monitoré sur un bus AXI stream 16 bits:
     "RelTime":"1 ms",
     "AbsTime":"1000001.2001 ns",
     "Type": "File",
-    "Address": "0x00000000",
-    "Size": "4096",
+    "FileName": "./AXIS_45/ID4.dat",
   },
   {
-    "ID":"TEST4",
-    "Desc":"exemple de lecture de 2 octets  @305419896 à T=1101,200 ns",
+    "ID":"AXIS_5",
+    "Desc":"R 2 Bytes",
     "Access": "R",
-    "RelTime":"1 ns",
+    "RelTime":"100 ns",
+    "AbsTime":"1000101.2001 ns",
     "Type": "Simple",
-    "Address": "305419896",
+    "Address": "0x12345678",
+    "Data": "0xC0C0",
     "Size": "2",
   }
 ]
