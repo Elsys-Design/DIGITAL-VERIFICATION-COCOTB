@@ -158,6 +158,7 @@ L’analyse d’un fichier data doit pouvoir se faire de la manière suivante :
 - Un scénario de test est représenté par un fichier contenant un tableau d'éléments stimuli JSON.
 - Ce format scénario est utilisé tant pour les stimuli de testbench que pour les moniteur de bus.
 - Les élements stimuli disposent des champs suivants:
+    - `ID`   : Identifie le stimuli de manière unique dans un scénario
     - `Desc` : Défini un commentaire une description sur le scénario. 
     - `Access` : Définit le type d'accès sur le bus (lecture/écriture)
     - `RelTime` : Renseigne le temps relatif entre deux stimuli. 
@@ -170,6 +171,12 @@ L’analyse d’un fichier data doit pouvoir se faire de la manière suivante :
    
 - Lors d'un log sur un moniteur, Les accès unitaires sur le bus seront tous traduits dans le format Simple JSON. Seul les burst seront renseignés dans des fichiers de données `Data` de type `File`.       
 _Note: il n'y a aucune contrainte au niveau stimuli de testbench concernant l'utilisation du `Simple` stimuli ou de décorateur dans un fichier  `Data`_
+## champ ID
+- Type : `String`
+- optionnel et unique dans un tableau de stimuli
+
+Ce champ permet de référencer clairement une séquence de donnée (read/write/burst). Il devra rester concis par exemple `CONFIGURATION_S1` le champ `Desc`étant destné à acceuillir les détails.
+Si ce champ est vide, le framework utilisera une valeur par défault définie par `nom du fichier stimuli sans l'extension + numéro du stimuli dans le fichier`.
 
 ## Champ Desc
 - Type : `String`
