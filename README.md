@@ -397,7 +397,7 @@ log monitoré sur un bus AXI stream 16 bits:
     "AbsTime":"1.1 ns",
     "Type": "Simple",
     "Data": "0x007D",
-    "Address": "0x12345678",
+    "Address": "0x1234567A",
     "Size": "2",
   },
 {
