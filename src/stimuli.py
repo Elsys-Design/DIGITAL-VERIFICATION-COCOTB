@@ -2,6 +2,7 @@ from enum import Enum
 from fill_strategy import FillStrategy
 from data_list import DataList
 from data import Data
+from duration import Duration
 
 
 class Access(Enum):
@@ -74,8 +75,7 @@ class Stimuli:
 
         # RelTime conversion to steps
         (value, unit) = json["RelTime"].split(' ')
-        # TODO: compute sim steps from value & unit
-        rel_time = value #cocotb.utils.get_sim_steps(value, units=unit)
+        rel_time = Duration(value, unit)
 
         access = Access.WRITE if json["Access"] == "W" else Access.READ
 
