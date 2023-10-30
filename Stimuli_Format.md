@@ -345,4 +345,5 @@ log monitoré sur un bus AXI full 16 bits:
     "Address": "0x10000400"
   }
 ]
+```
 _Note: l'ordre de découpage (MSB/LSB) du premier mot en deux accès est à confirmer_
