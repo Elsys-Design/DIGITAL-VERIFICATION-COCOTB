@@ -19,10 +19,7 @@ class DataFormat:
         return self.is_big_endian == True and self.encoding == Encoding.ASCII and self.tlast_char == '!'
 
     def to_bytes(self, nb, word_size = None):
-        val = int(nb, 0).to_bytes(self.word_size, 'big' if self.is_big_endian else 'little')
-        if word_size == None:
-            return val
-        return val[:word_size]
+        return int(nb, 0).to_bytes(word_size, 'big' if self.is_big_endian else 'little')
 
 
 class Data:
