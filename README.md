@@ -311,8 +311,8 @@ Les fichiers log moniteurs sont créer de manière informatiques. Il n'utilisent
 Ce paragraphae explicite la convention associée au ficheirs logs:
 
 - utilisation privilégiée des fichiers stimuli (accès unitaires) type `Simple`
-- seul les accès burst et axi stream (Je ne pense pas que l'on puisse définir un accès unitaire sur axi stream => **TODO** modifier l’exemple qui laisse penser que c'est un ASIstream) donnent lieu à un fichier data.
-- Je propose de ne faire qu'un seul décorateur par fichier data. Donc dans le cas de deux burst de read consécutifs, on aura deux entrée JSON et non pas 2 décorateurs dans le data.
+- seul les accès burst et axi stream donnent lieu à un fichier data.
+- Il n'y a qu'un seul décorateur par fichier data. Donc dans le cas de deux burst de read consécutifs, on aura deux entrée JSON et non pas 2 décorateurs dans le data.
 
 **ID**:
 - reprends le nom du moniteur en python (par exemple `MoniteurDMA`) et y rajoute un`_i` avec `i` s'incrémentant à chaque entrée JSON
@@ -330,14 +330,15 @@ Un commentaire sera rajouter dans `Desc` pour informer que c'est le même accès
 un commentaire sera mis dans  `Desc` pour indiquer que c'est un accès sans `tlast`. 
 
 **Address**:
-- on met l’adresse complète de base dans le champ `address` du JSON stimuli ( c'est déjà écrit dans une note en bas https://gitlab.cnes.fr/dso-tb-et/fpga_ip/Tools/framework_simulation_cocotb_axi/-/blob/stimuli_format/README.md#champ-address). Les fichier data aurons donc tous un décorateur avec une adresse à zero.
+- on met l’adresse complète de base dans le champ `address` du JSON stimuli.
+Les fichier data aurons donc tous un décorateur avec une adresse à zero.
 - on met l'adresse en hexadécimal avec la taille du bus d'adresse (on complète donc avec des zéros)
 
 **Size**:
 - géré en fonction du nombre d'octet à considérer (entier)
 
 **AbsTime**:
-- on utilise l'unité de base de la simulation cocotb ( donc ça donnerait `4555888999 ns` si cocotb simule en ns    
+- on utilise l'unité de base de la simulation cocotb (donc ça donnerait `4555888999 ns` si cocotb simule en `ns`    
 
 **RelTime**:
 -on prend la plus grande unité pouvant représenter le temps relatif avec juste 3 chiffres après la virgule. Par exemple `2.369 us` et non pas '2369 ns'
@@ -358,7 +359,6 @@ un commentaire sera mis dans  `Desc` pour indiquer que c'est un accès sans `tla
 **Filename**:
 - Le répertoire de stockage pour un moniteur est le `path` de celui-ci dans la simulation (par exemple `./TB_AXIS_M1/`). 
 - le nom du fichier est le nom de l'`ID` avec l'extension `dat`
-=> **TODO** mettre à jour le fichier d'exemple
 - Dans le cas d'un transfert axi stream sans Tlast, le fichier gardera le nom initial (du début du transfert) et les données y seront rajoutées à la suite (sans nouveau décorateur)
 
 
@@ -432,11 +432,11 @@ Stimuli:
   }
 ]
 ```
-log monitoré sur un bus AXI stream 16 bits: 
+log monitoré sur un bus AXI full 16 bits: 
 ```json
 [
   {
-    "ID":"AXIS_1",        
+    "ID":"AXIF_1",        
     "Desc":"W 2 Bytes",
     "Access": "W",
     "RelTime":"100 ps",
@@ -447,7 +447,7 @@ log monitoré sur un bus AXI stream 16 bits:
     "Size": "2",
   },
     {
-    "ID":"AXIS_2",        
+    "ID":"AXIF_2",        
     "Desc":"W 2 Bytes",
     "Access": "W",
     "RelTime":"1 ns",
@@ -458,7 +458,7 @@ log monitoré sur un bus AXI stream 16 bits:
     "Size": "2",
   },
 {
-    "ID":"AXIS_3",
+    "ID":"AXIF_3",
     "Desc":"W 1 Bytes",
     "Access": "W",
     "RelTime":"100.1 ns",
@@ -469,16 +469,16 @@ log monitoré sur un bus AXI stream 16 bits:
     "Size": "1",
   },
 {
-    "ID":"AXIS_4",
+    "ID":"AXIF_4",
     "Desc":"R 1 Byte",
     "Access": "R",
     "RelTime":"1 ms",
     "AbsTime":"1000001.2001 ns",
     "Type": "File",
-    "FileName": "./AXIS_45/ID4_0.dat",
+    "FileName": "./AXIS_45/AXIF_4.dat",
   },
   {
-    "ID":"AXIS_5",
+    "ID":"AXIF_5",
     "Desc":"R 2 Bytes",
     "Access": "R",
     "RelTime":"100 ns",
@@ -489,13 +489,13 @@ log monitoré sur un bus AXI stream 16 bits:
     "Size": "2",
   },
       {
-    "ID":"AXIS_6",
+    "ID":"AXIF_6",
     "Desc":"W 4096",
     "Access": "W",
     "RelTime":"1 ms",
     "AbsTime":"1000101.2001 ns",
     "Type": "File",
-    "FileName": "./AXIS_45/ID4_1.dat",
+    "FileName": "./AXIS_45/AXIF_6.dat",
     "Address": "0x10000400"
   }
 ]
