@@ -170,9 +170,10 @@ L’analyse d’un fichier data doit pouvoir se faire de la manière suivante :
     - `Size` : Dans le cas d'un accès de type Simple, taille du transfert en nombre d’octets.
     - `FileName` : Dans le cas d’un accès type file, chemin du fichier data source ou destination.
     - `Fill` : Dans le cas d’un accès type file, stratégie de complétion des séquences du fichiers data non complètes 
-   
-- Lors d'un log sur un moniteur, Les accès unitaires sur le bus seront tous traduits dans le format Simple JSON. Seul les burst seront renseignés dans des fichiers de données `Data` de type `File`.       
+        
 _Note: il n'y a aucune contrainte au niveau stimuli de testbench concernant l'utilisation du `Simple` stimuli ou de décorateur dans un fichier  `Data`_
+_Note: Pour les bus Axistream, il faudra surveiller qu'il n'y ai que des accès `write` pour les master (émission sur le bus) et des accès `Read` pour les slaves (autorisation de réception sur le bus).
+
 ## champ ID
 - Type : `String`
 - optionnel et unique dans un tableau de stimuli
