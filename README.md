@@ -319,14 +319,15 @@ Ce paragraphae explicite la convention associée au ficheirs logs:
 
 **Desc**:
 - A définir ultérieurement en détail
-- identifie déjà les accès wrt bhttps://gitlab.cnes.fr/dso-tb-et/fpga_ip/Tools/framework_simulation_cocotb_axi/-/issues/17#note_401199 
+- identifie déjà les accès `wrtb` (voir paragraphe `Data` suivant)
+- identifie les accès sans `tlast` (voir paragraphe `Data` suivant)
 
 **Data**:
 - on met la data en hexadécimal avec la taille du bus data (on complète donc avec des zéros)
 - Dans le cas d'un accès AXI  avec un byte enable (`wstrb` pour Axi full/light ou `tstrb` pour axi stream) non continue et non aligné sur le LSB (cas gérré via la notation `; + nombre entier`), le moniteur découpera l'accès en plusieurs accès de taille 1 octet (pour les byte enable activés).
 Un commentaire sera rajouter dans `Desc` pour informer que c'est le même accès initialement. Par exemple: `champ ID | wstrb = 0x81` 
 - Dans le cas d'un axi stream sans `tlast`, les multiplees accès (jusqu'au `tlast` final) donneront lieu à des entrée stimuli séparrés mais pointant vers le même fichier `Filename`. 
-un commentaire sera mis pour indiquer que c'est un accès sans `tlast`. 
+un commentaire sera mis dans  `Desc` pour indiquer que c'est un accès sans `tlast`. 
 
 **Address**:
 - on met l’adresse complète de base dans le champ `address` du JSON stimuli ( c'est déjà écrit dans une note en bas https://gitlab.cnes.fr/dso-tb-et/fpga_ip/Tools/framework_simulation_cocotb_axi/-/blob/stimuli_format/README.md#champ-address). Les fichier data aurons donc tous un décorateur avec une adresse à zero.
