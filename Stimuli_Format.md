@@ -17,7 +17,7 @@ The docmument décrit en détail le format du fichier de type Stimuli.
     - `Fill` : Dans le cas d’un accès type file, stratégie de complétion des séquences du fichiers data non complètes 
 
 _Note: il n'y a aucune contrainte au niveau stimuli de testbench concernant l'utilisation du `Simple` stimuli ou de décorateur dans un fichier  `Data`_
-_Note: Pour les bus Axistream, il faudra surveiller qu'il n'y ai que des accès `write` pour les master (émission sur le bus) et des accès `Read` pour les slaves (autorisation de réception sur le bus).   
+_Note: Pour les bus Axistream, il faudra surveiller qu'il n'y ai que des accès `write` pour les master (émission sur le bus) et des accès `Read` pour les slaves (autorisation de réception sur le bus)._   
 
 ## champ ID
 - Type : `String`
