@@ -12,6 +12,6 @@ class FillStrategy(IntEnum):
         if self == self.RANDOM:
             barray += bytearray(random.sample(range(0, 0xff), len_toadd))
         else:
-            barray += bytearray([self] * len_toadd)
+            barray += bytearray([self*0xff] * len_toadd)
 
 

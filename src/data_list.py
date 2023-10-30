@@ -6,7 +6,11 @@ class DataList(list):
         super().__init__(base)
 
     def __str__(self):
-        return str(self.__dict__)
+        out = "[\n"
+        for d in self:
+            out += str(d)
+        return out + "]"
+
 
     @classmethod
     def from_file(cls, filename, base_addr, fill_strategy):

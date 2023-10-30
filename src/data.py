@@ -18,10 +18,6 @@ class DataFormat:
     def is_supported(self):
         return self.is_big_endian == True and self.encoding == Encoding.ASCII and self.tlast_char == '!'
 
-    def __str__(self):
-        return str(self.__dict__)
-
-
     def to_bytes(self, nb, word_size = None):
         val = int(nb, 0).to_bytes(self.word_size, 'big' if self.is_big_endian else 'little')
         if word_size == None:
@@ -38,8 +34,7 @@ class Data:
         self.format = data_format
 
     def __str__(self):
-        return str(self.__dict__) + "\n" + '\n'.join(utils.bytes_to_string_list(self.data, self.format.word_size, self.addr
-                                                                      % self.format.word_size))
+        return self.to_raw()
 
     def first_word_padding(self):
         return self.addr%self.format.word_size
