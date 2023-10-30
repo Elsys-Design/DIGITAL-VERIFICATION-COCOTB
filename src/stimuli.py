@@ -26,7 +26,7 @@ class Stimuli:
         return out + "}"
 
     @classmethod
-    def _parse(cls, json, default_id):
+    def from_json(cls, json, data_dir_path, default_id = ""):
         mandatory = ["Access", "RelTime", "Type", "Address"]
 
 
@@ -79,46 +79,27 @@ class Stimuli:
 
         access = Access.WRITE if json["Access"] == "W" else Access.READ
 
-        size = None
-        data = None
-        fill_strategy = None
+        
+        # Creating the data_list
         if _type == "Simple":
             size = int(json["Size"], 0)
             if access == Access.WRITE:
                 data = int(json["Data"], 0)
-        else:
-            check_field("Fill", [-1, 0, 1])
-            fill_strategy = FillStrategy(json["Fill"])
-            if not isinstance(json["FileName"], str):
-                raise TypeError("FileName must be a string")
-
-        _id = json["ID"] if "ID" in json else default_id
-        desc = json["Desc"] if "Desc" in json else None
-
-
-        return _type, size, access, rel_time, addr, data, fill_strategy, _id, desc
-
-
-
-
-
-    @classmethod
-    def from_json(cls, json, data_dir_path, default_id = ""):
-        _type, size, access, rel_time, addr, data, fill_strategy, _id, desc = cls._parse(json, default_id)
-
-        # Creating the data_list
-        data_list = None
-        if _type == "Simple":
-            if access == Access.WRITE:
+                # Removing MSB to fit the size
                 data = data & (2**(8*size) - 1)
                 data = bytearray(data.to_bytes(size, 'big'))
-                FillStrategy.ZEROS.exec_on(data, size-len(data))
                 data_list = DataList([Data(addr, data, True)])
             else:
                 data = bytearray()
                 FillStrategy.ZEROS.exec_on(data, size)
                 data_list = DataList([Data(addr, data)])
-        else:
+        else: # Type = File
+            check_field("Fill", [-1, 0, 1])
+            fill_strategy = FillStrategy(json["Fill"])
+
+            if not isinstance(json["FileName"], str):
+                raise TypeError("FileName must be a string")
+
             if access == Access.WRITE:
                 data_list = DataList.from_file(data_dir_path + json["FileName"], addr, fill_strategy)
             else:
@@ -126,6 +107,10 @@ class Stimuli:
                 # See specs
                 raise NotImplementedError("Access: R and Type: File are not compatible (Read accesses are Simple only, see the"
                                  "monitor's output to get the data)")
+
+        _id = json["ID"] if "ID" in json else default_id
+        desc = json["Desc"] if "Desc" in json else None
+
      
         return cls(_id, access, rel_time, data_list, desc)
 
