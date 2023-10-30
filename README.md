@@ -308,14 +308,57 @@ Défini la stratégie à adopter pour finir les séquences de données définies
 
 ## cas particulier des logs de moniteur
 Les fichiers log moniteurs sont créer de manière informatiques. Il n'utilisent donc qu'une unique manière de faire parmis tous les paramétrages possible.   
-Ce paragraphae explicite la convention associée au ficheirs logs.
+Ce paragraphae explicite la convention associée au ficheirs logs:
 
-### Data
+- utilisation privilégiée des fichiers stimuli (accès unitaires) type `Simple`
+- seul les accès burst et axi stream (Je ne pense pas que l'on puisse définir un accès unitaire sur axi stream => **TODO** modifier l’exemple qui laisse penser que c'est un ASIstream) donnent lieu à un fichier data.
+- Je propose de ne faire qu'un seul décorateur par fichier data. Donc dans le cas de deux burst de read consécutifs, on aura deux entrée JSON et non pas 2 décorateurs dans le data.
+
+**ID**:
+- reprends le nom du moniteur en python (par exemple `MoniteurDMA`) et y rajoute un`_i` avec `i` s'incrémentant à chaque entrée JSON
+
+**Desc**:
+- A définir ultérieurement en détail
+- identifie déjà les accès wrt bhttps://gitlab.cnes.fr/dso-tb-et/fpga_ip/Tools/framework_simulation_cocotb_axi/-/issues/17#note_401199 
+
+**Data**:
+- on met la data en hexadécimal avec la taille du bus data (on complète donc avec des zéros)
 - Dans le cas d'un accès AXI  avec un byte enable (`wstrb` pour Axi full/light ou `tstrb` pour axi stream) non continue et non aligné sur le LSB (cas gérré via la notation `; + nombre entier`), le moniteur découpera l'accès en plusieurs accès de taille 1 octet (pour les byte enable activés).
 Un commentaire sera rajouter dans `Desc` pour informer que c'est le même accès initialement. Par exemple: `champ ID | wstrb = 0x81` 
+- Dans le cas d'un axi stream sans `tlast`, les multiplees accès (jusqu'au `tlast` final) donneront lieu à des entrée stimuli séparrés mais pointant vers le même fichier `Filename`. 
+un commentaire sera mis pour indiquer que c'est un accès sans `tlast`. 
 
+**Address**:
+- on met l’adresse complète de base dans le champ `address` du JSON stimuli ( c'est déjà écrit dans une note en bas https://gitlab.cnes.fr/dso-tb-et/fpga_ip/Tools/framework_simulation_cocotb_axi/-/blob/stimuli_format/README.md#champ-address). Les fichier data aurons donc tous un décorateur avec une adresse à zero.
+- on met l'adresse en hexadécimal avec la taille du bus d'adresse (on complète donc avec des zéros)
 
+**Size**:
+- géré en fonction du nombre d'octet à considérer (entier)
 
+**AbsTime**:
+- on utilise l'unité de base de la simulation cocotb ( donc ça donnerait `4555888999 ns` si cocotb simule en ns    
+
+**RelTime**:
+-on prend la plus grande unité pouvant représenter le temps relatif avec juste 3 chiffres après la virgule. Par exemple `2.369 us` et non pas '2369 ns'
+
+**Type**:
+- utilisation de `simple` pour tous les accès unitaires 
+- utilisation de `File` pour les burst (taille > taille du bus) et pour AXI stream
+- Pour l'axi stream :
+    - un fichier data = un paquet (jusqu'au tlast)
+    - l'`adresse` est toujours à zéro (elle est dans le json)
+    - la `longueur` donne la taille du paquet (attention s'il y a un accès sans tlast, le fichier sera complété et donc la taille devra être mise à jour)
+    - Type sera `ascii` `hexadecimal`
+    - la `taille` sera la taille du bus Axistream
+    - `endianness` : big endian
+    - le `!` de fin de paquet sera rajouté (il devrait être toujours à la fin du fichier sauf si le paquet n'est pas finalisé par un tlast.
+    - le `nombre d'octet` additionnel à la fin sera géré.
+
+**Filename**:
+- Le répertoire de stockage pour un moniteur est le `path` de celui-ci dans la simulation (par exemple `./TB_AXIS_M1/`). 
+- le nom du fichier est le nom de l'`ID` avec l'extension `dat`
+=> **TODO** mettre à jour le fichier d'exemple
+- Dans le cas d'un transfert axi stream sans Tlast, le fichier gardera le nom initial (du début du transfert) et les données y seront rajoutées à la suite (sans nouveau décorateur)
 
 
 ## Exemple de fichier Stimuli:
