@@ -14,7 +14,7 @@ This framework allows AXI light, AXI full and AXI stream testbenches based on py
 ### limitations
 - le framework ne supporte pas la gestion des tuser dans l'AXI stream
 - le framework ne prend pas en considération la taille physique du bus AXI. Pour garantir les accès unitaires, il faut que le champ taille soit égale à la taille du bus AXI.
-
+- Le framework ne gère pas le byte enable (`wstrb` pour Axi full/light ou `tstrb` pour axi stream) à l'intérieur des burst et des flux AXI stream (dnas ce cas le champ `Desc` sera rempli avec le valeur de `wstrb` ). Il ne gère les bytes enable qque sur les accès unitaire et sur le dernier mot d'une transaction (burst ou stream). 
 
 # Data File format
 Le fichier data contiendra une ou plusieurs séquences définies par:   
@@ -84,8 +84,9 @@ _Note: le nombre final d'octet sur la dernière transaction d'une séquence pren
 - un burst Axi Full se termine obligatoirement à la fin d'une séquence.
 - un paquet Axi Stream se termine uniquement sur présence du descripteur paquet. Il est possible de commencer un paquet dans une séquence et de le finir dans la séquence suivante.
 
-_Note: Dans le cadre d'un AXI light , tous les accès sont unitaires._   
+_Note: Dans le cadre d'un AXI light, tous les accès sont unitaires._   
 _Note: Dans le cadre d'un AXI full, les données sont en burst dès lors que les données à écrire sont supérieures à la taille du bus. Pour faire des accès unitaires, il faut mettre le séparateur de paquet à la fin de chaque ligne de donnée._
+
 
 ## Exemple de fichier data:
 
@@ -304,6 +305,18 @@ Dans le cas d'un log de moniteur:
     - `i|i>1` : les octets manquants pour combler la taille de la séquence seront des nombre aléatoires. La graine de random sera le nombre `i` avec `i>1`.
 
 Défini la stratégie à adopter pour finir les séquences de données définies dans le ficheir data (Stimuli de type `File` uniquement) si celui-ci est incomplet.   
+
+## cas particulier des logs de moniteur
+Les fichiers log moniteurs sont créer de manière informatiques. Il n'utilisent donc qu'une unique manière de faire parmis tous les paramétrages possible.   
+Ce paragraphae explicite la convention associée au ficheirs logs.
+
+### Data
+- Dans le cas d'un accès AXI  avec un byte enable (`wstrb` pour Axi full/light ou `tstrb` pour axi stream) non continue et non aligné sur le LSB (cas gérré via la notation `; + nombre entier`), le moniteur découpera l'accès en plusieurs accès de taille 1 octet (pour les byte enable activés).
+Un commentaire sera rajouter dans `Desc` pour informer que c'est le même accès initialement. Par exemple: `champ ID | wstrb = 0x81` 
+
+
+
+
 
 ## Exemple de fichier Stimuli:
 
