@@ -7,5 +7,4 @@ from framework.fill_strategy import FillStrategy
 
 stimlist = StimuliList.from_file(sys.argv[1])
 
-for s in stimlist:
-    print(json.dumps(s.to_json("outputs"), indent=4))
+stimlist.write_to_dir("outputs")

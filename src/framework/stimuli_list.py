@@ -10,7 +10,7 @@ class StimuliList(list):
 
     @classmethod
     def from_file(cls, filename):
-        f = open(filename)
+        f = open(filename, "r", encoding="utf-8")
         data = json.load(f)
         f.close()
 
@@ -22,6 +22,17 @@ class StimuliList(list):
 
         return stimulis
 
+
     def write_to_dir(self, output_dir_path):
-       raise NotImplementedError("See StimuliLog implementation to write to dir") 
+        if os.path.isdir(output_dir_path):
+            shutil.rmtree(output_dir_path)
+        os.makedirs(output_dir_path)
+
+        json_array = []
+        for i in range(len(self)):
+            json_array.append(self[i].to_json(output_dir_path))
+
+        json_file = open(os.path.join(output_dir_path, "stimulis.json"), "w", encoding="utf-8")
+        json.dump(json_array, json_file, indent=4)
+        json_file.close()
 

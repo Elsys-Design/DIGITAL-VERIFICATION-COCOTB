@@ -146,9 +146,8 @@ class Stimuli:
             json["Size"] = len(data.data)
         else:
             json["FileName"] = self._id + ".dat"
-            # writing data file in data_dir
-            if not os.path.isdir(data_dir_path):
-                os.mkdir(data_dir_path)
+            # Writing data file in data_dir
+            # We suppose the data_dir_path is a directory
             self.data_list.to_file(os.path.join(data_dir_path, json["FileName"]))
 
         return json
