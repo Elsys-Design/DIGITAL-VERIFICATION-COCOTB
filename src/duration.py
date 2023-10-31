@@ -24,14 +24,18 @@ class Duration:
     def __str__(self):
         val = self.value
         ten_power = 0
+        # Find the actual precision
         while val % 10 == 0:
             val /= 10
             ten_power += 1
 
-        while ten_power % 3 != 0:
-            val /= 10
-            ten_power += 1
+        # Move the power until finding a good unit
+        float_pow = 3 - ten_power % 3
+        # Actualise the value and the power
+        val /= 10**float_pow
+        ten_power += float_pow
 
+        # Printing format
         return "{:.3f} {}".format(val, list(self.supported_units.keys())[ten_power//3])
 
 
