@@ -1,7 +1,7 @@
 import os
 import shutil
 import json
-from stimuli import Stimuli
+from .stimuli import Stimuli
 
 class StimuliList(list):
 

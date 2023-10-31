@@ -1,10 +1,10 @@
 from enum import StrEnum
 import os
 
-from fill_strategy import FillStrategy
-from data_list import DataList
-from data import Data
-from duration import Duration
+from .fill_strategy import FillStrategy
+from .data_list import DataList
+from .data import Data
+from .time import Time
 
 
 class Access(StrEnum):
@@ -77,7 +77,7 @@ class Stimuli:
 
         # RelTime conversion to steps
         (value, unit) = json["RelTime"].split(' ')
-        rel_time = Duration(value, unit)
+        rel_time = Time(value, unit)
 
         access = Access.WRITE if json["Access"] == "W" else Access.READ
 

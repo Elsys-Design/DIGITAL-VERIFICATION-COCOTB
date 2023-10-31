@@ -1,6 +1,6 @@
 import sys
-from data_list import DataList
-from fill_strategy import FillStrategy
+from framework.data_list import DataList
+from framework.fill_strategy import FillStrategy
 
 
 datalist = DataList.from_file(sys.argv[1], 0, FillStrategy.ZEROS)

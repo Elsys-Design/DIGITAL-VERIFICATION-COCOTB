@@ -1,7 +1,7 @@
 from enum import Enum
-import utils
 import random
 import copy
+from . import utils
 
 class Encoding(Enum):
     ASCII = 0

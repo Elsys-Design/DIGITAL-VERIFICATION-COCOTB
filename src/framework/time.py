@@ -1,7 +1,7 @@
 import math
 
 
-class Duration:
+class Time:
 
     supported_units = {
             "fs" : 1,
