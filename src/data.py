@@ -33,22 +33,11 @@ class Data:
     def __str__(self):
         return self.to_raw()
 
-    def first_word_padding(self):
-        return self.addr%self.format.word_size
+    def is_word(self):
+        return len(self.data) <= self.format.word_size
 
-    def last_word_size(self):
-        """
-        ???????
-        """
-        val = len(self.data) % self.format.word_size
-        return val if val != 0 else self.format.word_size
-
-    def first_word_size(self):
-        return self.format.word_size - self.first_word_padding()
-
-    def last_word_padding(self):
-        return self.format.word_size - self.last_word_size()
-
+    def to_word_str(self):
+        return "0x{data:0{word_size}X}".format(data=int(self.data.hex(), 16), word_size=self.format.word_size*2)
 
     def to_raw(self):
         if not self.format.is_supported():
@@ -182,3 +171,22 @@ class Data:
 
     def __eq__(self, other):
         return self.represents_same_data_as(other)
+
+
+    def first_word_padding(self):
+        return self.addr%self.format.word_size
+
+    def last_word_size(self):
+        """
+        ???????
+        """
+        val = len(self.data) % self.format.word_size
+        return val if val != 0 else self.format.word_size
+
+    def first_word_size(self):
+        return self.format.word_size - self.first_word_padding()
+
+    def last_word_padding(self):
+        return self.format.word_size - self.last_word_size()
+
+

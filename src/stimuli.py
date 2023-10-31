@@ -1,28 +1,30 @@
-from enum import Enum
+from enum import StrEnum
+import os
+
 from fill_strategy import FillStrategy
 from data_list import DataList
 from data import Data
 from duration import Duration
 
 
-class Access(Enum):
-    READ = 0
-    WRITE = 1
+class Access(StrEnum):
+    READ = "R"
+    WRITE = "W"
 
 
 class Stimuli:
 
-    def __init__(self, _id, access, rel_time, data_list = DataList(), desc = None):
+    def __init__(self, _id, access, rel_time, data_list = DataList(), desc = ""):
+        self._id = _id
         self.access = access
         self.rel_time = rel_time
         self.data_list = data_list
-        self.abs_start_time = 0
-        self._id = _id
+        self.abs_time = 0
         self.desc = desc
 
     def __str__(self):
         out = "Stimuli {\n"
-        for attr in ["access", "rel_time", "abs_start_time", "_id", "desc", "data_list"]:
+        for attr in ["access", "rel_time", "abs_time", "_id", "desc", "data_list"]:
             out += "\t{} = {}\n".format(attr, str(getattr(self, attr)))
         return out + "}"
 
@@ -109,8 +111,41 @@ class Stimuli:
                                  "monitor's output to get the data)")
 
         _id = json["ID"] if "ID" in json else default_id
-        desc = json["Desc"] if "Desc" in json else None
+        desc = json["Desc"] if "Desc" in json else ""
 
      
         return cls(_id, access, rel_time, data_list, desc)
+
+    
+    def to_json(self):
+        if len(self.data_list) != 1:
+            raise NotImplementedError("Stimuli.to_json supports only one data item per stimuli")
+        
+        data = self.data_list[0]
+
+        json = {
+                "ID": self._id,
+                "Desc": self.desc,
+                "Access": self.access,
+                "RelTime": str(self.rel_time),
+                "AbsTime": str(self.abs_time),
+                "Type": "Simple" if data.is_word() else "File",
+                "Address": data.addr
+        }
+
+        # Addind desc anyway and removing it if it's empty
+        # Done in this order to because it's printed in the order it's filled
+        # and having Desc right after ID seems best
+        if not self.desc:
+            del json["Desc"]
+
+        if json["Type"] == "Simple":
+            # Data is always the size of a word
+            json["Data"] = data.to_word_str()
+            # Size isn't the size of a word but the actual data size
+            json["Size"] = len(data.data)
+        else:
+            json["FileName"] = self._id + ".dat"
+
+        return json
 
