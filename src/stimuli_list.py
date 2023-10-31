@@ -22,4 +22,6 @@ class StimuliList(list):
 
         return stimulis
 
+    def write_to_dir(self, output_dir_path):
+       raise NotImplementedError("See StimuliLog implementation to write to dir") 
 
