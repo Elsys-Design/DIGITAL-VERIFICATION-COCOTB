@@ -45,7 +45,7 @@ class Data:
             hex_data.append(
                 "0x{data:0{word_size}X}".format(data=int(self.data[x:end_x].hex(), 16), word_size=self.format.word_size*2)
             )
-            x += end_x
+            x = end_x
         return hex_data
 
 

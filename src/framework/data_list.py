@@ -29,6 +29,12 @@ class DataList(list):
         return data_list
 
 
+    def to_file(self, file_path):
+        f = open(file_path, "w")
+        for d in self:
+            f.write(d.to_raw())
+        f.close()
+
     def represents_same_data_as(self, other, addr_offset = 0):
         for i in range(len(self)):
             if not self[i].represents_same_data_as(other[i], addr_offset):

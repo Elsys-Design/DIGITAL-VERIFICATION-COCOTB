@@ -117,7 +117,7 @@ class Stimuli:
         return cls(_id, access, rel_time, data_list, desc)
 
     
-    def to_json(self):
+    def to_json(self, data_dir_path):
         if len(self.data_list) != 1:
             raise NotImplementedError("Stimuli.to_json supports only one data item per stimuli")
         
@@ -146,6 +146,10 @@ class Stimuli:
             json["Size"] = len(data.data)
         else:
             json["FileName"] = self._id + ".dat"
+            # writing data file in data_dir
+            if not os.path.isdir(data_dir_path):
+                os.mkdir(data_dir_path)
+            self.data_list.to_file(os.path.join(data_dir_path, json["FileName"]))
 
         return json
 
