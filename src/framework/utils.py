@@ -10,28 +10,6 @@ def int_list_to_bytearray(data, is_big_endian, word_size=1, last_word_size=None)
     return hex_data
 
 
-def bytes_to_string_list(data, word_size=4, first_size=0):
-    """
-    Converts data (array of bytes) to a list of strings representing hexadecimal numbers of word_size bytes
-    """
-    hex_data = []
-    #for d in data:
-    #    hex_data.append(hex(d))
-    #return hex_data
-
-    x = 0
-    while x < len(data):
-        tot = 0
-        end_x = min(x+word_size, len(data))
-        while x < end_x:
-            tot = (tot << 8) + data[x]
-            x += 1
-        # Formatting to hex string with zero padding (to arrive to the word size)
-        formatted_string = "0x{0:0{1}X}".format(tot, word_size*2)
-        hex_data.append(formatted_string)
-    return hex_data
-
-
 def bytes_to_word_list(data, word_size=4, is_big_endian = True):
     hex_data = []
     for x in range(0, len(data), word_size):

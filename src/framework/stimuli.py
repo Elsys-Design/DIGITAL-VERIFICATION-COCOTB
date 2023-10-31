@@ -141,7 +141,7 @@ class Stimuli:
 
         if json["Type"] == "Simple":
             # Data is always the size of a word
-            json["Data"] = data.to_word_str()
+            json["Data"] = data.to_words()[0]
             # Size isn't the size of a word but the actual data size
             json["Size"] = len(data.data)
         else:

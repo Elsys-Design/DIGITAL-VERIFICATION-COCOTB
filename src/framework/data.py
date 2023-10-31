@@ -18,9 +18,6 @@ class DataFormat:
     def is_supported(self):
         return self.is_big_endian == True and self.encoding == Encoding.ASCII and self.tlast_char == '!'
 
-    def to_bytes(self, nb, word_size = None):
-        return int(nb, 0).to_bytes(word_size, 'big' if self.is_big_endian else 'little')
-
 
 class Data:
 
@@ -36,15 +33,29 @@ class Data:
     def is_word(self):
         return len(self.data) <= self.format.word_size
 
-    def to_word_str(self):
-        return "0x{data:0{word_size}X}".format(data=int(self.data.hex(), 16), word_size=self.format.word_size*2)
+    def to_words(self):
+        """
+        Converts data (array of bytes) to a list of strings representing hexadecimal numbers of word_size bytes
+        """
+        hex_data = []
+
+        x = 0
+        while x < len(self.data):
+            end_x = min(x+self.format.word_size, len(self.data))
+            hex_data.append(
+                "0x{data:0{word_size}X}".format(data=int(self.data[x:end_x].hex(), 16), word_size=self.format.word_size*2)
+            )
+            x += end_x
+        return hex_data
+
+
+        return 
 
     def to_raw(self):
         if not self.format.is_supported():
             raise NotImplementedError("Unsupported format: \n{}".format(self.format))
         
-        hex_data = utils.bytes_to_string_list(self.data, self.format.word_size, self.addr % self.format.word_size)
-        formatted_data = "\n" + "\n".join(hex_data)
+        formatted_data = "\n" + "\n".join(self.to_words())
 
         last_fields = []
 
@@ -109,10 +120,10 @@ class Data:
             
             # Handling optional fields 1&2 (last word size and end of packet descriptor)
             i = 1
-            last_defined_word_size = current_data.format.word_size
+            word_size = current_data.format.word_size
             if i < len(df):
                 try:
-                    last_defined_word_size = int(df[i])
+                    word_size = int(df[i])
                     i += 1
                     if x != len(data_fields)-1:
                         raise NotImplementedError("A smaller size can only be defined for the last data word")
@@ -129,7 +140,9 @@ class Data:
                     raise ValueError("Too many fields on this data line (max is 3: data; last_word_size;"
                                      "end_descriptor but current is {})".format(len(df)))
 
-            current_data.data += current_data.format.to_bytes(df[0], last_defined_word_size)
+
+            word = int(df[0], 0) & (2**(8*word_size) - 1)
+            current_data.data += word.to_bytes(word_size, 'big' if current_data.format.is_big_endian else 'little')
 
             if current_data.stream_tlast_end or x == len(data_fields)-1:
                 out.append(current_data)
