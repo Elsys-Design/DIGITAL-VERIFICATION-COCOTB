@@ -112,7 +112,7 @@ class Data:
         base_data.addr = int(descriptor_fields[0], 0) + base_addr
         input_length = int(descriptor_fields[1], 0)
         base_data.dformat.encoding = Encoding.ASCII if descriptor_fields[2] == "ascii" else Encoding.BINARY
-        base_data.dformat.word_size = int(descriptor_fields[3], 0)
+        base_data.dformat.word_size = int(descriptor_fields[3])
         if descriptor_fields[4] not in ["Big", "Little"]:
             raise ValueError("Wrong endianness: {} should be either Big or Little".format(descriptor_fields[4]))
         base_data.dformat.is_big_endian = descriptor_fields[4] == "Big"
@@ -136,6 +136,9 @@ class Data:
             if i < len(df):
                 try:
                     word_size = int(df[i])
+                    if word_size > current_data.dformat.word_size:
+                        raise ValueError("The last word size ({}) cannot be superior to the base word size({})" \
+                                .format(word_size, current_data.dformat.word_size))
                     i += 1
                     if x != len(data_fields)-1:
                         raise NotImplementedError("A smaller size can only be defined for the last data word")

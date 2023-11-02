@@ -17,6 +17,9 @@ class DataList(list):
         if data[0] == '' or data[0].isspace():
             data = data[1:]
 
+        if len(data) == 0:
+            raise ValueError("File {} doesn't contain any valid data description")
+
         data_list = cls()
         for d in data:
             data_list += Data.from_raw(d, base_addr, fill_strategy)
