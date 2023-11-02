@@ -14,13 +14,16 @@ class Time(int):
             }
 
     def __new__(cls, value : float, unit : str, *args, **kwargs):
+        """
+        value is a float but only the first 3 floating digits are used
+        """
         if value < 0:
             raise ValueError("positive types must not be less than zero")
 
         if unit not in cls.supported_units:
             raise ValueError("{} unit isn't supported (supported units: {})".format(unit, *cls.supported_units))
 
-        return super(cls, cls).__new__(cls, int(float(value) * cls.supported_units[unit]))
+        return super(cls, cls).__new__(cls, int(value*1000) * cls.supported_units[unit]/10**3)
 
 
     def __str__(self):
