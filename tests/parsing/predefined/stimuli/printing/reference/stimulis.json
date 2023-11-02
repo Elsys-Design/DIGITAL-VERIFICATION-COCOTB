@@ -1,6 +1,6 @@
 [
     {
-        "ID": "0_0",
+        "ID": "stimulis_0",
         "Access": "W",
         "RelTime": "0.100 ns",
         "AbsTime": "0.100 ns",
@@ -21,13 +21,13 @@
         "Size": 1
     },
     {
-        "ID": "0_2",
+        "ID": "stimulis_2",
         "Access": "R",
         "RelTime": "0.001 ms",
         "AbsTime": "1100.200 ns",
         "Type": "File",
         "Address": 0,
-        "FileName": "0_2.dat"
+        "FileName": "stimulis_2.dat"
     },
     {
         "ID": "TEST4",

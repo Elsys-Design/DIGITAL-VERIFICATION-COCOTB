@@ -8,7 +8,7 @@ from framework.fill_strategy import FillStrategy
 from framework.time import Time
 
 
-file = "0"
+file = "stimulis"
 
 reference_stimlist = StimuliList([
     Stimuli(
@@ -77,11 +77,17 @@ reference_stimlist = StimuliList([
 ])
 
 
-stimlist = StimuliList.from_file("0.json")
+print("StimuliList parsing test started")
+
+print("Parsing stimuli file")
+stimlist = StimuliList.from_file(file + ".json")
+
+print("Testing against reference design")
 
 for i in range(len(reference_stimlist)):
     assert stimlist[i] == reference_stimlist[i], \
             "Stimuli nb {} is different from reference:\n{}\n{}".format(i, stimlist[i], reference_stimlist[i])
 
+print("StimuliList parsing test passed")
 
 

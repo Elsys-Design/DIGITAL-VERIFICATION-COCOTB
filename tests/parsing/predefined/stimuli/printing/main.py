@@ -10,7 +10,7 @@ from framework.fill_strategy import FillStrategy
 from framework.time import Time
 
 
-file = "0"
+file = "stimulis"
 
 print_stimlist = StimuliList([
     Stimuli(
