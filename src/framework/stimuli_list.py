@@ -33,6 +33,6 @@ class StimuliList(list):
             json_array.append(self[i].to_json(output_dir_path))
 
         json_file = open(os.path.join(output_dir_path, "stimulis.json"), "w", encoding="utf-8")
-        json.dump(json_array, json_file, indent=4)
+        json.dump(json_array, json_file, indent=4, ensure_ascii=False)
         json_file.close()
 
