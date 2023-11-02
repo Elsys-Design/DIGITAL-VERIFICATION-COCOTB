@@ -1,0 +1,5 @@
+
+# Allows to have multiple test_main.py files
+# (the same test file names can make pytest throw errors)
+[tool.pytest.ini_options]
+addopts = "--import-mode=importlib" 

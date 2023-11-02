@@ -1,4 +1,4 @@
-from enum import StrEnum
+from enum import Enum
 import random
 import os
 from dataclasses import dataclass
@@ -9,10 +9,13 @@ from .data import Data
 from .time import Time
 
 
-class Access(StrEnum):
-    READ = "R"
-    WRITE = "W"
-    ALL = "A" # Should only be used for random stimuli generation
+class Access(Enum):
+    READ = 0
+    WRITE = 1
+    ALL = 2 # Should only be used for random stimuli generation
+
+    def __str__(self):
+        return "R" if self == Access.READ else "W"
 
 
 @dataclass
@@ -102,7 +105,7 @@ class Stimuli:
                 raise TypeError("FileName must be a string")
 
             if access == Access.WRITE:
-                data_list = DataList.from_file(data_dir_path + json["FileName"], addr, fill_strategy)
+                data_list = DataList.from_file(os.path.join(data_dir_path, json["FileName"]), addr, fill_strategy)
             else:
                 # TODO: Should this be implemented ?
                 # See specs
@@ -125,7 +128,7 @@ class Stimuli:
         json = {
                 "ID": self._id,
                 "Desc": self.desc,
-                "Access": self.access,
+                "Access": str(self.access),
                 "RelTime": str(self.rel_time),
                 "AbsTime": str(self.abs_time),
                 "Type": "Simple" if data.is_word() else "File",

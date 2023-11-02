@@ -1,5 +1,9 @@
+#!/bin/env python
+
 import sys
+import os
 import json
+
 from framework.data import Data, DataFormat
 from framework.data_list import DataList
 from framework.stimuli import Stimuli, Access
@@ -9,6 +13,7 @@ from framework.time import Time
 
 
 file = "stimulis"
+
 
 reference_stimlist = StimuliList([
     Stimuli(
@@ -77,17 +82,21 @@ reference_stimlist = StimuliList([
 ])
 
 
-print("StimuliList parsing test started")
 
-print("Parsing stimuli file")
-stimlist = StimuliList.from_file(file + ".json")
+def test_stim_parsing():
+    print("StimuliList parsing test started")
 
-print("Testing against reference design")
+    print("Parsing stimuli file")
+    stimlist = StimuliList.from_file(file + ".json")
 
-for i in range(len(reference_stimlist)):
-    assert stimlist[i] == reference_stimlist[i], \
-            "Stimuli nb {} is different from reference:\n{}\n{}".format(i, stimlist[i], reference_stimlist[i])
+    print("Testing against reference design")
 
-print("StimuliList parsing test passed")
+    for i in range(len(reference_stimlist)):
+        assert stimlist[i] == reference_stimlist[i], \
+                "Stimuli nb {} is different from reference:\n{}\n{}".format(i, stimlist[i], reference_stimlist[i])
+
+    print("StimuliList parsing test passed")
 
 
+if __name__ == "__main__":
+    test_stim_parsing()

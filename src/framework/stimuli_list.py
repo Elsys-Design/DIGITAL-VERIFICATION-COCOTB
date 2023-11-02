@@ -2,6 +2,7 @@ import os
 import shutil
 import json
 import random
+from pathlib import Path 
 from .stimuli import Stimuli
 
 class StimuliList(list):
@@ -18,7 +19,7 @@ class StimuliList(list):
         stimulis = cls()
         for i in range(len(data)):
             stimulis.append(
-                Stimuli.from_json(data[i], os.path.dirname(filename), os.path.splitext(filename)[0] + "_{}".format(i))
+                Stimuli.from_json(data[i], os.path.dirname(filename), Path(filename).stem + "_{}".format(i))
             )
 
         return stimulis
