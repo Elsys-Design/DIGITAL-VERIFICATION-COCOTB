@@ -1,3 +1,4 @@
+import random
 from .data import Data
 
 class DataList(list):
@@ -49,3 +50,12 @@ class DataList(list):
         No addr offset here
         """
         return self.represents_same_data_as(other)
+
+
+def datalist_default_generator(data_generator, size_range):
+    size = random.choice(size_range)
+    out = DataList()
+    for i in range(size):
+        out.append(data_generator())
+    return out
+

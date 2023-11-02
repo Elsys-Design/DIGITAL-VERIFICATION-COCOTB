@@ -1,4 +1,5 @@
 from enum import StrEnum
+import random
 import os
 
 from .fill_strategy import FillStrategy
@@ -10,6 +11,7 @@ from .time import Time
 class Access(StrEnum):
     READ = "R"
     WRITE = "W"
+    ALL = "A" # Should only be used for random stimuli generation
 
 
 class Stimuli:
@@ -151,4 +153,18 @@ class Stimuli:
             self.data_list.to_file(os.path.join(data_dir_path, json["FileName"]))
 
         return json
+
+
+def stimuli_default_generator(data_list_generator, delay_range, access = Access.ALL,
+                        desc = "Stimuli {} generated using the default generator", _id = ""):
+    if access == Access.ALL:
+        access = random.choice([Access.WRITE, Access.READ])
+
+    return Stimuli(
+            _id,
+            access,
+            Time(random.choice(delay_range), "fs"),
+            data_list_generator(),
+            desc.format(_id)
+    )
 

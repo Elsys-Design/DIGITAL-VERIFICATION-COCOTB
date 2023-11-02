@@ -1,6 +1,7 @@
 import os
 import shutil
 import json
+import random
 from .stimuli import Stimuli
 
 class StimuliList(list):
@@ -35,4 +36,12 @@ class StimuliList(list):
         json_file = open(os.path.join(output_dir_path, "stimulis.json"), "w", encoding="utf-8")
         json.dump(json_array, json_file, indent=4, ensure_ascii=False)
         json_file.close()
+
+
+def stimulilist_default_generator(stimuli_generator, size_range):
+    size = random.choice(size_range)
+    out = StimuliList()
+    for i in range(size):
+        out.append(stimuli_generator(_id = str(i)))
+    return out
 

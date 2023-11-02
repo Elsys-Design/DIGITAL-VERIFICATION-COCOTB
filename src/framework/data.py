@@ -179,12 +179,6 @@ class Data:
         return out
 
 
-    @classmethod
-    def from_json(cls, json, parse_data):
-        raise NotImplementedError("TODO")
-
-
-
     def represents_same_data_as(self, other, addr_offset = 0):
         return self.data == other.data and self.addr == other.addr+addr_offset
 
@@ -207,5 +201,16 @@ class Data:
 
     def last_word_padding(self):
         return self.format.word_size - self.last_word_size()
+
+
+def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4]):
+    out = Data()
+
+    out.size = random.choice(size_range)
+    out.addr = random.choice(range(min_addr, max_addr-out.size))
+    out.format.word_size = random.choice(word_size_range)
+    out.data = utils.int_list_to_bytearray(random.sample(range(2**8), out.size), True)
+
+    return out
 
 

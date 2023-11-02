@@ -18,7 +18,7 @@ class Time:
         if unit not in self.supported_units:
             raise ValueError("{} unit isn't supported (supported units: {})".format(unit, *self.supported_units))
 
-        self.value = float(value) * self.supported_units[unit]
+        self.value = int(float(value) * self.supported_units[unit])
 
 
     def __str__(self):
