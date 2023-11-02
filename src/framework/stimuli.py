@@ -1,6 +1,7 @@
 from enum import StrEnum
 import random
 import os
+from dataclasses import dataclass
 
 from .fill_strategy import FillStrategy
 from .data_list import DataList
@@ -14,21 +15,17 @@ class Access(StrEnum):
     ALL = "A" # Should only be used for random stimuli generation
 
 
+@dataclass
 class Stimuli:
 
-    def __init__(self, _id, access, rel_time, data_list = DataList(), desc = ""):
-        self._id = _id
-        self.access = access
-        self.rel_time = rel_time
-        self.data_list = data_list
-        self.abs_time = 0
-        self.desc = desc
+    _id : str
+    access : Access
+    rel_time : Time
+    data_list : DataList
+    desc : str = ""
+    
+    abs_time : int = 0
 
-    def __str__(self):
-        out = "Stimuli {\n"
-        for attr in ["access", "rel_time", "abs_time", "_id", "desc", "data_list"]:
-            out += "\t{} = {}\n".format(attr, str(getattr(self, attr)))
-        return out + "}"
 
     @classmethod
     def from_json(cls, json, data_dir_path, default_id = ""):
@@ -79,7 +76,7 @@ class Stimuli:
 
         # RelTime conversion to steps
         (value, unit) = json["RelTime"].split(' ')
-        rel_time = Time(value, unit)
+        rel_time = Time(float(value), unit)
 
         access = Access.WRITE if json["Access"] == "W" else Access.READ
 

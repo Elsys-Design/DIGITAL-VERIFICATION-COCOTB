@@ -1,7 +1,6 @@
-import math
 
 
-class Time:
+class Time(int):
 
     supported_units = {
             "fs" : 1,
@@ -14,15 +13,18 @@ class Time:
             #"hr": 60*60*10**15
             }
 
-    def __init__(self, value, unit):
-        if unit not in self.supported_units:
-            raise ValueError("{} unit isn't supported (supported units: {})".format(unit, *self.supported_units))
+    def __new__(cls, value : float, unit : str, *args, **kwargs):
+        if value < 0:
+            raise ValueError("positive types must not be less than zero")
 
-        self.value = int(float(value) * self.supported_units[unit])
+        if unit not in cls.supported_units:
+            raise ValueError("{} unit isn't supported (supported units: {})".format(unit, *cls.supported_units))
+
+        return super(cls, cls).__new__(cls, int(float(value) * cls.supported_units[unit]))
 
 
     def __str__(self):
-        val = self.value
+        val = self
         ten_power = 0
         # Find the actual precision
         while val % 10 == 0:
@@ -37,5 +39,3 @@ class Time:
 
         # Printing format
         return "{:.3f} {}".format(val, list(self.supported_units.keys())[ten_power//3])
-
-
