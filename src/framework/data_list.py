@@ -1,4 +1,5 @@
 import random
+from .fill_strategy import FillStrategy
 from .data import Data
 
 class DataList(list):
@@ -6,15 +7,8 @@ class DataList(list):
     def __init__(self, base=[]):
         super().__init__(base)
 
-    def __str__(self):
-        out = "[\n"
-        for d in self:
-            out += str(d)
-        return out + "]"
-
-
     @classmethod
-    def from_file(cls, filename, base_addr, fill_strategy):
+    def from_file(cls, filename, base_addr = 0, fill_strategy = FillStrategy.ZEROS):
         f = open(filename)
         data = f.read()
         f.close()
@@ -30,13 +24,16 @@ class DataList(list):
         return data_list
 
 
-    def to_file(self, file_path):
+    def __str__(self):
         string_list = []
         for d in self:
             string_list.append(d.to_raw())
 
+        return "\n".join(string_list) + "\n"
+
+    def to_file(self, file_path):
         f = open(file_path, "w")
-        f.write("\n".join(string_list) + "\n")
+        f.write(str(self))
         f.close()
 
     def represents_same_data_as(self, other, addr_offset = 0):
@@ -44,12 +41,6 @@ class DataList(list):
             if not self[i].represents_same_data_as(other[i], addr_offset):
                 return False
         return True
-
-    def __eq__(self, other):
-        """
-        No addr offset here
-        """
-        return self.represents_same_data_as(other)
 
 
 def datalist_default_generator(data_generator, size_range):
