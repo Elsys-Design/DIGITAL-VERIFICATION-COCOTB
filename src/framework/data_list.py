@@ -30,9 +30,12 @@ class DataList(list):
 
 
     def to_file(self, file_path):
-        f = open(file_path, "w")
+        string_list = []
         for d in self:
-            f.write(d.to_raw())
+            string_list.append(d.to_raw())
+
+        f = open(file_path, "w")
+        f.write("\n".join(string_list) + "\n")
         f.close()
 
     def represents_same_data_as(self, other, addr_offset = 0):

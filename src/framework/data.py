@@ -21,11 +21,15 @@ class DataFormat:
 
 class Data:
 
-    def __init__(self, addr=0, data=bytearray(), stream_tlast_end = False, data_format = DataFormat()):
+    def __init__(self, addr=0, data=None, stream_tlast_end = False, data_format = None):
         self.addr = addr
         self.data = data
+        if not self.data:
+            self.data = bytearray()
         self.stream_tlast_end = stream_tlast_end
         self.format = data_format
+        if not self.format:
+            self.format = DataFormat()
 
     def __str__(self):
         return self.to_raw()
@@ -55,7 +59,6 @@ class Data:
         if not self.format.is_supported():
             raise NotImplementedError("Unsupported format: \n{}".format(self.format))
         
-        formatted_data = "\n" + "\n".join(self.to_words())
 
         last_fields = []
 
@@ -67,18 +70,20 @@ class Data:
             last_fields.append(self.format.tlast_char)
 
 
-        fields = [
-                hex(self.addr),
-                str(len(self.data)),
-                "ascii" if self.format.encoding == Encoding.ASCII else "binary",
-                str(self.format.word_size),
-                "Big" if self.format.is_big_endian else "Little",
-                self.format.tlast_char,
-                formatted_data,
-                " ".join(last_fields)
-        ]
+        out = "@ {addr}; {length}; {encoding}; {word_size}; {endianness}; {packet_separator};\n{data}".format(
+                addr = "0x{data:X}".format(data=self.addr),
+                length = str(len(self.data)),
+                encoding = "ascii" if self.format.encoding == Encoding.ASCII else "binary",
+                word_size = str(self.format.word_size),
+                endianness = "Big" if self.format.is_big_endian else "Little",
+                packet_separator = self.format.tlast_char,
+                data = "\n".join(self.to_words())
+        )
 
-        return "@ " + ";".join(fields) + "\n\n"
+        if len(last_fields) > 0:
+            out += "; " +  "; ".join(last_fields)
+
+        return out + "\n"
 
 
 
@@ -162,8 +167,9 @@ class Data:
             out.append(base_data)
 
         # Handling input_length vs current_length (cutting or filling data) 
-        if input_length < current_length:
-            while current_length - len(out[-1].data) >= input_length:
+        if current_length > input_length:
+            while len(out) > 0 and current_length - len(out[-1].data) >= input_length:
+                current_length -= len(out[-1].data)
                 out.pop()
             if current_length > input_length:
                 del out[-1].data[-(current_length-input_length):]
