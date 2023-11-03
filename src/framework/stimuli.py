@@ -36,56 +36,66 @@ class Stimuli:
 
 
     @classmethod
-    def from_json(cls, json, data_dir_path, default_id = ""):
-        mandatory = [("Access", str), ("RelTime", str), ("Type", str), ("Address", str)]
+    def base_json_checks(cls, json):
+        checked_fields = []
 
+        def check_existance(field):
+            if field not in json:
+                raise KeyError("{} mandatory field is missing".format(field))
+            checked_fields.append(field)
 
-        def check_fields_existance(mandatory, optional):
-            for field in mandatory:
-                if field[0] not in json:
-                    raise KeyError("{} mandatory field is missing".format(field[0]))
-                if not isinstance(json[field[0]], field[1]):
-                    raise ValueError("Field {} has a value of type {} instead of {}".format(field[0],
-                                                                                            type(json[field[0]]),
-                                                                                            field[1]))
-            for field in optional:
-                if field[0] in json and not isinstance(json[field[0]], field[1]):
-                    raise ValueError("Field {} has a value of type {} instead of {}".format(field[0],
-                                                                                            type(json[field[0]]),
-                                                                                            field[1]))
-            all_fields = [f[0] for f in mandatory] + [f[0] for f in optional]
-            for field in json.keys():
-                if field not in all_fields:
-                    raise KeyError("{} field isn't recognised".format(field))
+        def check_type(field, _type):
+            # We need to check the existance before checking the type
+            check_existance(field)
+            if not isinstance(json[field], _type):
+                raise ValueError("Field {} has a value of type {} instead of {}" \
+                        .format(field, type(json[field]), _type))
 
-        def check_field(field, values):
+        def check_value(field, _type, values):
+            check_type(field, _type)
             if json[field] not in values:
                 raise ValueError("{}: {} isn't valid".format(field, json[field]))
 
+        def check_optional(field, _type):
+            if field in json:
+                # this call check_existance even though we already tested it
+                # it's clearer and doesn't really affect performances
+                check_type(field, _type)
 
-        if "Type" not in json.keys():
-            raise KeyError("Type mandatory field is missing")
-        _type = json["Type"]
+        check_value("Type", str, ["Simple", "File"])
+        check_value("Access", str, ["W", "R"])
+        check_type("Address", str)
+        check_type("RelTime", str)
 
-
-        if "Access" not in json.keys():
-            raise KeyError("Access mandatory field is missing")
         access = Access.WRITE if json["Access"] == "W" else Access.READ
 
-        if _type == "Simple":
-            mandatory += [("Size", int)]
+        if json["Type"] == "Simple":
+            check_type("Size", int)
             if access == Access.WRITE:
-                mandatory += [("Data", str)]
-        elif _type == "File":
-            mandatory += [("FileName", str), ("Fill", int)]
-        else:
-            raise ValueError("Type {} isn't valid".format(_type))
+                check_type("Data", str)
+        else: # type = File
+            check_type("FileName", str)
+            check_type("Fill", int)
 
-        optional = [("ID", str), ("Desc", str)]
-        check_fields_existance(mandatory, optional)
+        check_optional("ID", str)
+        check_optional("Desc", str)
 
-        check_field("Type", ["Simple", "File"])
-        check_field("Access", ["W", "R"])
+        unchecked_keys = set(json.keys()) - set(checked_fields)
+        type_fields = unchecked_keys.intersection(set(["Size", "Data", "FileName", "Fill"]))
+        if type_fields:
+            raise KeyError("Fields {} are not valid for this Type ({})".format(type_fields, json["Type"]))
+
+        unknown_fields = unchecked_keys - type_fields
+        if unknown_fields:
+            raise KeyError("Fields {} are not valid".format(unknown_fields))
+
+
+
+
+    @classmethod
+    def from_json(cls, json, data_dir_path, default_id = ""):
+
+        cls.base_json_checks(json)
 
         # Throws an error if cannot convert Address to int
         # This is the base address added to the Data's address, any other check on this field is performed in Data
@@ -100,9 +110,12 @@ class Stimuli:
 
         access = Access.WRITE if json["Access"] == "W" else Access.READ
 
-        
+        _id = json["ID"] if "ID" in json else default_id
+        desc = json["Desc"] if "Desc" in json else ""
+
         # Creating the data_list
-        if _type == "Simple":
+        # Maybe this should be in Data ?
+        if json["Type"] == "Simple":
             size = json["Size"]
             if access == Access.WRITE:
                 data = int(json["Data"], 0)
@@ -117,7 +130,6 @@ class Stimuli:
                 FillStrategy.exec_on(FillStrategy.ZEROS, data, size)
                 data_list = DataList([Data(addr, data, False, data_format=DataFormat(1))])
         else: # Type = File
-            check_field("Fill", [-1, 0, 1])
             fill_strategy = json["Fill"]
 
             if not isinstance(json["FileName"], str):
@@ -130,10 +142,6 @@ class Stimuli:
                 # See specs
                 raise NotImplementedError("Access: R and Type: File are not compatible (Read accesses are Simple only, see the"
                                  "monitor's output to get the data)")
-
-        _id = json["ID"] if "ID" in json else default_id
-        desc = json["Desc"] if "Desc" in json else ""
-
      
         return cls(_id, access, rel_time, data_list, desc)
 
