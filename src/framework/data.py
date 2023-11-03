@@ -21,6 +21,10 @@ class DataFormat:
     addr_size : int = 4
 
     def is_supported(self):
+        """
+        Returns True if the DataFormat is currently supported.
+        This method should be updated as functionalities are added.
+        """
         return self.is_big_endian == True and self.encoding == Encoding.ASCII and self.tlast_char == '!'
 
 
@@ -58,11 +62,14 @@ class Data:
         return self.to_raw()
 
     def is_word(self):
+        """
+        Returns True is the data can be represented as a single word
+        """
         return len(self.data) <= self.dformat.word_size
 
     def to_words(self):
         """
-        Converts data (array of bytes) to a list of strings representing hexadecimal numbers of word_size bytes
+        Returns self.data (an array of bytes) as a list of strings representing hexadecimal numbers of word_size bytes
         """
         hex_data = []
 
@@ -76,6 +83,9 @@ class Data:
         return hex_data
 
     def to_raw(self, addr_to_zero = False):
+        """
+        Returns the representation of 'self' as a sequence
+        """
         if not self.dformat.is_supported():
             raise NotImplementedError("Unsupported format: \n{}".format(self.dformat))
         
@@ -113,7 +123,11 @@ class Data:
     @classmethod
     def from_raw(cls, raw, base_addr, fill_strategy):
         """
-        TODO: catch exceptions & give proper error messages
+        Reads a sequence with a descriptor and returns a list of Data.
+        At every end of packet ('!'), we create a new Data object that is put into the 'out' list.
+        At the end of the sequence, a new Data object is created whether or not there is an end of packet.
+
+        Once the whole sequence has been read, we either cut it or expand it depending on the 'size' parameter.
         """
         fields = raw.split('\n')
         fields = list(filter(None, fields))
@@ -180,12 +194,16 @@ class Data:
                                      "end_descriptor but current is {})".format(len(dfields)))
 
 
+            # Handling the actual data (field 0)
             word = int(dfields[0], 0)
             if word.bit_length() > 8*word_size:
                 # TODO: log warning
                 word &= (2**(8*word_size) - 1)
             data += word.to_bytes(word_size, 'big' if dformat.is_big_endian else 'little')
 
+
+            # Cutting the sequence in multiple Data if we have an end of packet in the middle of it
+            # Also handle the last data (even if it doesn't end with an end of packet)
             if stream_tlast_end or x == len(data_fields)-1:
                 out.append(Data(base_addr + current_length, data, stream_tlast_end, dformat))
             
@@ -194,6 +212,8 @@ class Data:
                 data = bytearray()
                 stream_tlast_end = False
         
+
+        # Expansion or Cutting of the data
 
         # In case it's just a descriptor with no data defined
         if len(out) == 0:
@@ -216,6 +236,9 @@ class Data:
 
 
     def represents_same_data_as(self, other, addr_offset = 0):
+        """
+        Almost like the == operator but checking only what's meaningfull
+        """
         return self.data == other.data and self.addr == other.addr+addr_offset
 
 
@@ -223,9 +246,6 @@ class Data:
         return self.addr%self.dformat.word_size
 
     def last_word_size(self):
-        """
-        ???????
-        """
         val = len(self.data) % self.dformat.word_size
         return val if val != 0 else self.dformat.word_size
 
@@ -237,6 +257,10 @@ class Data:
 
 
 def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True):
+    """
+    Default random data generator
+    Provided as an example that can fit many usecases
+    """
     size = random.choice(size_range)
     word_size = random.choice(word_size_range)
     addr = random.choice(range(min_addr, max_addr-size))
