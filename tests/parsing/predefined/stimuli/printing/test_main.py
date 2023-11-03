@@ -18,7 +18,7 @@ file = "stimulis"
 
 print_stimlist = StimuliList([
     Stimuli(
-        _id = file + "_0",
+        id_ = file + "_0",
         access = Access.WRITE,
         rel_time = Time(100, "ps"),
         abs_time = Time(100, "ps"),
@@ -31,7 +31,7 @@ print_stimlist = StimuliList([
     ),
 
     Stimuli(
-        _id = "TEST2",
+        id_ = "TEST2",
         access = Access.WRITE,
         rel_time = Time(100.1, "ns"),
         abs_time = Time(100.2, "ns"),
@@ -45,7 +45,7 @@ print_stimlist = StimuliList([
     ),
 
     Stimuli(
-        _id = file + "_2",
+        id_ = file + "_2",
         access = Access.READ,
         rel_time = Time(1, "us"),
         abs_time = Time(1100.2, "ns"),
@@ -58,7 +58,7 @@ print_stimlist = StimuliList([
     ),
 
     Stimuli(
-        _id = "TEST4",
+        id_ = "TEST4",
         access = Access.READ,
         rel_time = Time(1, "ns"),
         abs_time = Time(1101.2, "ns"),
@@ -72,7 +72,7 @@ print_stimlist = StimuliList([
     ),
 
     Stimuli(
-        _id = "IMAGE_1",
+        id_ = "IMAGE_1",
         access = Access.WRITE,
         rel_time = Time(1, "us"),
         abs_time = Time(2101.2, "ns"),

@@ -21,19 +21,18 @@ class Access(Enum):
 
 @dataclass
 class Stimuli:
-    _id : str
+    """
+    Represents a single json object in Stimuli files
+    """
+
+    # id is a keyword in python
+    id_ : str
     access : Access
     rel_time : Time
     data_list : DataList
     desc : str = ""
     
     abs_time : int = 0
-
-
-    @property
-    def id(self):
-        return self._id
-
 
     @classmethod
     def base_json_checks(cls, json):
@@ -91,7 +90,7 @@ class Stimuli:
 
 
     @classmethod
-    def from_json(cls, json, data_dir_path, default_id = ""):
+    def from_json(cls, json, data_dir_path, defaultid_ = ""):
 
         cls.base_json_checks(json)
 
@@ -108,7 +107,7 @@ class Stimuli:
 
         access = Access.WRITE if json["Access"] == "W" else Access.READ
 
-        _id = json["ID"] if "ID" in json else default_id
+        id_ = json["ID"] if "ID" in json else defaultid_
         desc = json["Desc"] if "Desc" in json else ""
 
         # Creating the data_list
@@ -137,7 +136,7 @@ class Stimuli:
                 raise NotImplementedError("Access: R and Type: File are not compatible (Read accesses are Simple only, see the"
                                  "monitor's output to get the data)")
      
-        return cls(_id, access, rel_time, data_list, desc)
+        return cls(id_, access, rel_time, data_list, desc)
 
     
     def to_json(self, data_dir_path):
@@ -147,7 +146,7 @@ class Stimuli:
         data = self.data_list[0]
 
         json = {
-                "ID": self._id,
+                "ID": self.id_,
                 "Desc": self.desc,
                 "Access": str(self.access),
                 "RelTime": str(self.rel_time),
@@ -168,7 +167,7 @@ class Stimuli:
             # Size isn't the size of a word but the actual data size
             json["Size"] = len(data.data)
         else:
-            json["FileName"] = self._id + ".dat"
+            json["FileName"] = self.id_ + ".dat"
             # Writing data file in data_dir
             # We suppose the data_dir_path is a directory
             self.data_list.to_file(os.path.join(data_dir_path, json["FileName"]), addr_to_zero = True)
@@ -177,15 +176,15 @@ class Stimuli:
 
 
 def stimuli_default_generator(data_list_generator, delay_range, access = Access.ALL,
-                        desc = "Stimuli {} generated using the default generator", _id = ""):
+                        desc = "Stimuli {} generated using the default generator", id_ = ""):
     if access == Access.ALL:
         access = random.choice([Access.WRITE, Access.READ])
 
     return Stimuli(
-            _id,
+            id_,
             access,
             Time(random.choice(delay_range), "fs"),
             data_list_generator(),
-            desc.format(_id)
+            desc.format(id_)
     )
 

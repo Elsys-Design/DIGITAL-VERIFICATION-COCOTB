@@ -17,7 +17,7 @@ file = "stimulis"
 
 reference_stimlist = StimuliList([
     Stimuli(
-        _id = file + "_0",
+        id_ = file + "_0",
         access = Access.WRITE,
         rel_time = Time(100, "ps"),
         desc = "exemple d'écriture de 4 octets 125  @0x12345678 à T=100 ps",
@@ -30,7 +30,7 @@ reference_stimlist = StimuliList([
     ),
 
     Stimuli(
-        _id = "TEST2",
+        id_ = "TEST2",
         access = Access.WRITE,
         rel_time = Time(100.1, "ns"),
         desc = "exemple d'écriture de 1 octet 0xFE @305419896 à T=100,200 ns",
@@ -43,7 +43,7 @@ reference_stimlist = StimuliList([
     ),
 
     Stimuli(
-        _id = file + "_2",
+        id_ = file + "_2",
         access = Access.READ,
         rel_time = Time(1, "ms"),
         data_list = DataList([Data(
@@ -55,7 +55,7 @@ reference_stimlist = StimuliList([
     ),
 
     Stimuli(
-        _id = "TEST4",
+        id_ = "TEST4",
         access = Access.READ,
         rel_time = Time(1, "ns"),
         desc = "exemple de lecture de 2 octets  @305419896 à T=1101,200 ns",
@@ -68,7 +68,7 @@ reference_stimlist = StimuliList([
     ),
 
     Stimuli(
-        _id = "IMAGE_1",
+        id_ = "IMAGE_1",
         access = Access.WRITE,
         rel_time = Time(1, "ms"),
         desc = "envoie d'une image",
