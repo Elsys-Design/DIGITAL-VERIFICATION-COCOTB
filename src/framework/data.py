@@ -259,7 +259,7 @@ class Data:
 def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True):
     """
     Default random data generator
-    Provided as an example that can fit many usecases
+    Provided as an example but it fits many usecases
     """
     size = random.choice(size_range)
     word_size = random.choice(word_size_range)

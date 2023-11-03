@@ -36,6 +36,13 @@ class Stimuli:
 
     @classmethod
     def base_json_checks(cls, json):
+        """
+        Only checks:
+        - the required fields existance
+        - their types
+        - the optional fields types
+        - that there is no other field present
+        """
         checked_fields = []
 
         def check_existance(field):
@@ -91,6 +98,9 @@ class Stimuli:
 
     @classmethod
     def from_json(cls, json, data_dir_path, defaultid_ = ""):
+        """
+        Creates a Stimuli object from a json object.
+        """
 
         cls.base_json_checks(json)
 
@@ -112,6 +122,7 @@ class Stimuli:
 
         # Creating the data_list
         # Maybe this should be in Data ?
+        # TODO: clean this up
         if json["Type"] == "Simple":
             size = json["Size"]
             if access == Access.WRITE:
@@ -140,6 +151,13 @@ class Stimuli:
 
     
     def to_json(self, data_dir_path):
+        """
+        Transforms a Stimuli object to a json object.
+
+        Only supports Stimuli objects that contain one and only one Data.
+        This is because it's specified the address should be in the JSON so there is only one place for it but it's
+        stored in the Data object. (With multiple Data, which Data's address should be used ?)
+        """
         if len(self.data_list) != 1:
             raise NotImplementedError("Stimuli.to_json supports only one data item per stimuli")
         
@@ -177,6 +195,10 @@ class Stimuli:
 
 def stimuli_default_generator(data_list_generator, delay_range, access = Access.ALL,
                         desc = "Stimuli {} generated using the default generator", id_ = ""):
+    """
+    Default random stimuli generator
+    Provided as an example but it fits many usecases
+    """
     if access == Access.ALL:
         access = random.choice([Access.WRITE, Access.READ])
 
