@@ -34,7 +34,7 @@ def test_random():
 
     for i in range(tests_nb):
         generated = datalist_gen()
-        generated.to_file(tmp_filepath)
+        generated.to_file(tmp_filepath, addr_to_zero = False)
         parsed = DataList.from_file(tmp_filepath)
 
         for c in range(len(generated)):

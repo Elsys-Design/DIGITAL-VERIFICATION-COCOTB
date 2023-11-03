@@ -28,15 +28,18 @@ class DataList(list):
 
 
     def __str__(self):
+        return to_str()
+
+    def to_str(self, addr_to_zero = False):
         string_list = []
         for d in self:
-            string_list.append(d.to_raw())
+            string_list.append(d.to_raw(addr_to_zero))
 
         return "\n".join(string_list) + "\n"
 
-    def to_file(self, file_path):
+    def to_file(self, file_path, addr_to_zero = False):
         f = open(file_path, "w")
-        f.write(str(self))
+        f.write(self.to_str(addr_to_zero))
         f.close()
 
     def represents_same_data_as(self, other, addr_offset = 0):

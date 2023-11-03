@@ -7,6 +7,7 @@ from .fill_strategy import FillStrategy
 from .data_list import DataList
 from .data import Data
 from .time import Time
+from . import utils
 
 
 class Access(Enum):
@@ -132,7 +133,7 @@ class Stimuli:
                 "RelTime": str(self.rel_time),
                 "AbsTime": str(self.abs_time),
                 "Type": "Simple" if data.is_word() else "File",
-                "Address": data.addr
+                "Address": utils.int_to_hex_string(data.addr, data.dformat.addr_size)
         }
 
         # Addind desc anyway and removing it if it's empty
@@ -150,7 +151,7 @@ class Stimuli:
             json["FileName"] = self._id + ".dat"
             # Writing data file in data_dir
             # We suppose the data_dir_path is a directory
-            self.data_list.to_file(os.path.join(data_dir_path, json["FileName"]))
+            self.data_list.to_file(os.path.join(data_dir_path, json["FileName"]), addr_to_zero = True)
 
         return json
 

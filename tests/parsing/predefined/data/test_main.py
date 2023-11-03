@@ -23,9 +23,9 @@ def test_data():
                 filepath = os.path.join(subdir, file)
                 print("Testing {}".format(filepath))
                 datalist = DataList.from_file(filepath, 0, FillStrategy.ZEROS)
-                datalist.to_file(tmp_filepath)
+                datalist.to_file(tmp_filepath, addr_to_zero = False)
                 assert filecmp.cmp(res_path, tmp_filepath), \
-                        "Parsed & printed {} isn't conform to the associated res.dat, printed file is{}" \
+                        "Parsed & printed {} isn't conform to the associated res.dat, printed file is {}" \
                         .format(filepath, tmp_filepath)
 
 

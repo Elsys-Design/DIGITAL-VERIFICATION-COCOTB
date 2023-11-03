@@ -1,4 +1,11 @@
 
+
+
+def int_to_hex_string(word, word_size):
+    return "0x{word:0{word_size}X}".format(word=word, word_size=word_size*2)
+
+
+
 def int_list_to_bytearray(data, is_big_endian, word_size=1, last_word_size=None):
     if last_word_size == None:
         last_word_size = word_size

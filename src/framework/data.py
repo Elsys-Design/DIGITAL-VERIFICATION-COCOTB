@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from . import utils
 
+
 class Encoding(Enum):
     ASCII = 0
     BINARY = 1
@@ -16,6 +17,7 @@ class DataFormat:
     is_big_endian : bool = True
     encoding : Encoding = Encoding.ASCII
     tlast_char : str = '!'
+    addr_size : int = 4
 
     def is_supported(self):
         return self.is_big_endian == True and self.encoding == Encoding.ASCII and self.tlast_char == '!'
@@ -54,7 +56,7 @@ class Data:
         while x < len(self.data):
             end_x = min(x+self.dformat.word_size, len(self.data))
             hex_data.append(
-                "0x{data:0{word_size}X}".format(data=int(self.data[x:end_x].hex(), 16), word_size=self.dformat.word_size*2)
+                utils.int_to_hex_string(int(self.data[x:end_x].hex(), 16), self.dformat.word_size)
             )
             x = end_x
         return hex_data
@@ -62,7 +64,7 @@ class Data:
 
         return 
 
-    def to_raw(self):
+    def to_raw(self, addr_to_zero = False):
         if not self.dformat.is_supported():
             raise NotImplementedError("Unsupported format: \n{}".format(self.dformat))
         
@@ -77,8 +79,10 @@ class Data:
             last_fields.append(self.dformat.tlast_char)
 
 
+        data_file_addr = 0 if addr_to_zero else self.addr
+
         out = "@ {addr}; {length}; {encoding}; {word_size}; {endianness}; {packet_separator};\n{data}".format(
-                addr = "0x{data:X}".format(data=self.addr),
+                addr = utils.int_to_hex_string(data_file_addr, self.dformat.addr_size),
                 length = str(len(self.data)),
                 encoding = "ascii" if self.dformat.encoding == Encoding.ASCII else "binary",
                 word_size = str(self.dformat.word_size),
