@@ -14,6 +14,12 @@ class Encoding(Enum):
 
 @dataclass
 class DataFormat:
+    """
+    Represents the format of a Data.
+    This has no implications on the actual transfers but helps:
+        - determine how to understand the Data (is_big_endian, word_size)
+        - determine how to print back the Data (tlast_char, encoding, ...)
+    """
     word_size : int = 4
     is_big_endian : bool = True
     encoding : Encoding = Encoding.ASCII
@@ -30,6 +36,15 @@ class DataFormat:
 
 @dataclass(init=False)
 class Data:
+    """
+    Represents either:
+    - an AXI Burst
+    - multiple consecutive AXI-Lite transfers
+    - multiple AXI-Stream 'transfers' with an optional tlast during the last transfer
+
+    In any case, the transfer is continuous (for AXI/AXI-Lite, the addresses increment by the word size and in any case
+    the wstrb/tstrb is continuous)
+    """
     addr : int
     data : bytearray
     stream_tlast_end : bool
