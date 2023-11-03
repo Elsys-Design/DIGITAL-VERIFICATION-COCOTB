@@ -3,10 +3,13 @@ import random
 
 
 class FillStrategy:
+    """
+    Namespace more than a class because it only contains class attributes & a static method.
+    Helper that represents a fill strategy as a int and can execute it on a bytearray.
+    """
     RANDOM = -1
     ZEROS = 0
     ONES = 1
-    RANDOM_SEED = 2
 
     @staticmethod
     def exec_on(strategy, barray, len_toadd):

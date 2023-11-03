@@ -1,6 +1,12 @@
 
 
 class Time(int):
+    """
+    Represents a Time as a single value in fs (=10**(-15) s).
+    It can be constructed using a value and an unit.
+
+    Note: min and hr units aren't supported yet.
+    """
 
     supported_units = {
             "fs" : 1,
