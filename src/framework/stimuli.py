@@ -35,7 +35,7 @@ class Stimuli:
     abs_time : int = 0
 
     @classmethod
-    def base_json_checks(cls, json):
+    def _base_json_checks(cls, json):
         """
         Only checks:
         - the required fields existance
@@ -94,6 +94,37 @@ class Stimuli:
             raise KeyError("Fields {} are not valid".format(unknown_fields))
 
 
+    @classmethod
+    def _build_data_list(cls, json, access, data_dir_path):
+        """
+        Builds the data_list, either from JSON fields or from a file depending on the Type.
+        """
+        # TODO: clean this up
+        addr = int(json["Address"], 0)
+        if json["Type"] == "Simple":
+            size = json["Size"]
+            if access == Access.WRITE:
+                data = int(json["Data"], 0)
+                if data.bit_length() > 8*size:
+                    # TODO: log warning
+                    # Removing MSB to fit the size
+                    data = data & (2**(8*size) - 1)
+                data = bytearray(data.to_bytes(size, 'big'))
+                return DataList([Data(addr, data, True, data_format=DataFormat(size))])
+            else:
+                data = bytearray()
+                FillStrategy.exec_on(FillStrategy.ZEROS, data, size)
+                return DataList([Data(addr, data, False, data_format=DataFormat(1))])
+        else: # Type = File
+            fill_strategy = json["Fill"]
+            if access == Access.WRITE:
+                return DataList.from_file(os.path.join(data_dir_path, json["FileName"]), addr, fill_strategy)
+            else:
+                # TODO: Should this be implemented ?
+                # See specs
+                raise NotImplementedError("Access: R and Type: File are not compatible (Read accesses are Simple only, see the"
+                                 "monitor's output to get the data)")
+
 
 
     @classmethod
@@ -102,11 +133,7 @@ class Stimuli:
         Creates a Stimuli object from a json object.
         """
 
-        cls.base_json_checks(json)
-
-        # Throws an error if cannot convert Address to int
-        # This is the base address added to the Data's address, any other check on this field is performed in Data
-        addr = int(json["Address"], 0)
+        cls._base_json_checks(json)
 
         # RelTime conversion to steps
         try:
@@ -121,32 +148,8 @@ class Stimuli:
         desc = json["Desc"] if "Desc" in json else ""
 
         # Creating the data_list
-        # Maybe this should be in Data ?
-        # TODO: clean this up
-        if json["Type"] == "Simple":
-            size = json["Size"]
-            if access == Access.WRITE:
-                data = int(json["Data"], 0)
-                if data.bit_length() > 8*size:
-                    # TODO: log warning
-                    # Removing MSB to fit the size
-                    data = data & (2**(8*size) - 1)
-                data = bytearray(data.to_bytes(size, 'big'))
-                data_list = DataList([Data(addr, data, True, data_format=DataFormat(size))])
-            else:
-                data = bytearray()
-                FillStrategy.exec_on(FillStrategy.ZEROS, data, size)
-                data_list = DataList([Data(addr, data, False, data_format=DataFormat(1))])
-        else: # Type = File
-            fill_strategy = json["Fill"]
-            if access == Access.WRITE:
-                data_list = DataList.from_file(os.path.join(data_dir_path, json["FileName"]), addr, fill_strategy)
-            else:
-                # TODO: Should this be implemented ?
-                # See specs
-                raise NotImplementedError("Access: R and Type: File are not compatible (Read accesses are Simple only, see the"
-                                 "monitor's output to get the data)")
-     
+        data_list = cls._build_data_list(json, access, data_dir_path)
+             
         return cls(id_, access, rel_time, data_list, desc)
 
     
