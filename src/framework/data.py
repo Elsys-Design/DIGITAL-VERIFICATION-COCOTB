@@ -266,7 +266,7 @@ def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4]
     addr = random.choice(range(min_addr, max_addr-size))
     if word_aligned:
         addr = addr - (addr % word_size)
-    data = utils.int_list_to_bytearray(random.sample(range(2**8), size), True)
+    data = bytearray(random.sample(range(2**8), size))
 
     return Data(addr, data, False, DataFormat(word_size))
 
