@@ -4,6 +4,7 @@ import copy
 from dataclasses import dataclass
 
 from . import utils
+from .fill_strategy import FillStrategy
 
 
 class Encoding(Enum):
@@ -188,7 +189,7 @@ class Data:
             if current_length > input_length:
                 del out[-1].data[-(current_length-input_length):]
         else:
-            fill_strategy.exec_on(out[-1].data, input_length-current_length)
+            FillStrategy.exec_on(fill_strategy, out[-1].data, input_length-current_length)
 
         return out
 

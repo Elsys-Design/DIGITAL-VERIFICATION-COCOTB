@@ -96,11 +96,11 @@ class Stimuli:
                 data_list = DataList([Data(addr, data, True)])
             else:
                 data = bytearray()
-                FillStrategy.ZEROS.exec_on(data, size)
+                FillStrategy.exec_on(FillStrategy.ZEROS, data, size)
                 data_list = DataList([Data(addr, data)])
         else: # Type = File
             check_field("Fill", [-1, 0, 1])
-            fill_strategy = FillStrategy(json["Fill"])
+            fill_strategy = json["Fill"]
 
             if not isinstance(json["FileName"], str):
                 raise TypeError("FileName must be a string")
