@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from .fill_strategy import FillStrategy
 from .data_list import DataList
-from .data import Data
+from .data import Data, DataFormat
 from .time import Time
 from . import utils
 
@@ -93,7 +93,7 @@ class Stimuli:
                 # Removing MSB to fit the size
                 data = data & (2**(8*size) - 1)
                 data = bytearray(data.to_bytes(size, 'big'))
-                data_list = DataList([Data(addr, data, True)])
+                data_list = DataList([Data(addr, data, True, data_format=DataFormat(size))])
             else:
                 data = bytearray()
                 FillStrategy.exec_on(FillStrategy.ZEROS, data, size)

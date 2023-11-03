@@ -38,7 +38,7 @@ reference_stimlist = StimuliList([
             addr = 305419896,
             data = bytearray(int(0xFE).to_bytes(1, 'big')),
             stream_tlast_end = True,
-            data_format = DataFormat(4)
+            data_format = DataFormat(1)
         )])
     ),
 
