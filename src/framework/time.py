@@ -23,7 +23,7 @@ class Time(int):
         if unit not in cls.supported_units:
             raise ValueError("{} unit isn't supported (supported units: {})".format(unit, *cls.supported_units))
 
-        return super(cls, cls).__new__(cls, int(value*1000) * cls.supported_units[unit]/10**3)
+        return super(cls, cls).__new__(cls, round(value * cls.supported_units[unit]))
 
 
     def __str__(self):
