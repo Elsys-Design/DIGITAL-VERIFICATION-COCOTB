@@ -3,12 +3,19 @@ from .fill_strategy import FillStrategy
 from .data import Data
 
 class DataList(list):
+    """
+    This class represents a whole Data file.
+    """
 
     def __init__(self, base=[]):
         super().__init__(base)
 
     @classmethod
     def from_file(cls, filename, base_addr = 0, fill_strategy = FillStrategy.ZEROS):
+        """
+        Creates a data list from a data text file.
+        Raises an error if there is no sequence in that file.
+        """
         f = open(filename)
         data = f.read()
         f.close()
@@ -31,6 +38,10 @@ class DataList(list):
         return to_str()
 
     def to_str(self, addr_to_zero = False):
+        """
+        Returns a string describing the data list in the data format.
+        addr_to_zero parameter allows to force the address to be printed as '0x00000000' (if addr_size == 4).
+        """
         string_list = []
         for d in self:
             string_list.append(d.to_raw(addr_to_zero))
@@ -38,11 +49,17 @@ class DataList(list):
         return "\n".join(string_list) + "\n"
 
     def to_file(self, file_path, addr_to_zero = False):
+        """
+        Writes a whole data list to a file.
+        """
         f = open(file_path, "w")
         f.write(self.to_str(addr_to_zero))
         f.close()
 
     def represents_same_data_as(self, other, addr_offset = 0):
+        """
+        Almost like the == operator but checking only what's meaningfull
+        """
         for i in range(len(self)):
             if not self[i].represents_same_data_as(other[i], addr_offset):
                 return False
@@ -50,6 +67,9 @@ class DataList(list):
 
 
 def datalist_default_generator(data_generator, size_range):
+    """
+    Random data list generator
+    """
     size = random.choice(size_range)
     out = DataList()
     for i in range(size):

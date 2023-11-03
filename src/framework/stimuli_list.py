@@ -6,12 +6,19 @@ from pathlib import Path
 from .stimuli import Stimuli
 
 class StimuliList(list):
+    """
+    This class represents a stimulis.json file (an array of json objects, each representing a Stimuli).
+    """
 
     def __init__(self, base=[]):
         super().__init__(base)
 
     @classmethod
     def from_file(cls, filename):
+        """
+        Creates a StimuliList from a json file (filename).
+        The FileName attributes in json are relative to the directory in which the json file is.
+        """
         f = open(filename, "r", encoding="utf-8")
         data = json.load(f)
         f.close()
@@ -30,6 +37,10 @@ class StimuliList(list):
 
 
     def write_to_dir(self, output_dir_path):
+        """
+        Writes a whole StimuliList to a directory.
+        The stimuli file is named 'stimuli.json'.
+        """
         if os.path.isdir(output_dir_path):
             shutil.rmtree(output_dir_path)
         os.makedirs(output_dir_path)
@@ -44,6 +55,9 @@ class StimuliList(list):
 
 
 def stimulilist_default_generator(stimuli_generator, size_range):
+    """
+    Random stimuli list generator
+    """
     size = random.choice(size_range)
     out = StimuliList()
     for i in range(size):
