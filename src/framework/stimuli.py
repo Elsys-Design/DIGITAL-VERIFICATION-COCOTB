@@ -67,11 +67,9 @@ class Stimuli:
         check_type("Address", str)
         check_type("RelTime", str)
 
-        access = Access.WRITE if json["Access"] == "W" else Access.READ
-
         if json["Type"] == "Simple":
             check_type("Size", int)
-            if access == Access.WRITE:
+            if json["Access"] == "W":
                 check_type("Data", str)
         else: # type = File
             check_type("FileName", str)
@@ -131,10 +129,6 @@ class Stimuli:
                 data_list = DataList([Data(addr, data, False, data_format=DataFormat(1))])
         else: # Type = File
             fill_strategy = json["Fill"]
-
-            if not isinstance(json["FileName"], str):
-                raise TypeError("FileName must be a string")
-
             if access == Access.WRITE:
                 data_list = DataList.from_file(os.path.join(data_dir_path, json["FileName"]), addr, fill_strategy)
             else:
