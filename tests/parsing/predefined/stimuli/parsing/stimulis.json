@@ -6,7 +6,7 @@
     "Type": "Simple",
     "Data": "125",
     "Address": "0x12345678",
-    "Size": "4"
+    "Size": 4
   },
 {
     "ID":"TEST2",
@@ -16,14 +16,14 @@
     "Type": "Simple",
     "Data": "0xCAFECAFE",
     "Address": "305419896",
-    "Size": "1"
+    "Size": 1
   },
 {
     "Access": "R",
     "RelTime":"1 ms",
     "Type": "Simple",
     "Address": "0b0",
-    "Size": "4096"
+    "Size": 4096
   },
 {
     "ID":"TEST4",
@@ -32,7 +32,7 @@
     "RelTime":"1 ns",
     "Type": "Simple",
     "Address": "305419896",
-    "Size": "2"
+    "Size": 2
   },
     {
     "ID":"IMAGE_1",

@@ -18,7 +18,7 @@ class DataList(list):
             data = data[1:]
 
         if len(data) == 0:
-            raise ValueError("File {} doesn't contain any valid data description")
+            raise ValueError("File {} doesn't contain any valid data description".format(filename))
 
         data_list = cls()
         for d in data:

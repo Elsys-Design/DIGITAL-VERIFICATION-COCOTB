@@ -17,10 +17,14 @@ class StimuliList(list):
         f.close()
 
         stimulis = cls()
+        id_list = []
         for i in range(len(data)):
             stimulis.append(
                 Stimuli.from_json(data[i], os.path.dirname(filename), Path(filename).stem + "_{}".format(i))
             )
+            if stimulis[-1].id in id_list:
+                raise ValueError("Stimuli ID {} already exists in this stimuli list".format(stimulis[-1].id))
+            id_list.append(stimulis[-1].id)
 
         return stimulis
 

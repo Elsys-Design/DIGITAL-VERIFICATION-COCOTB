@@ -5,6 +5,7 @@ import filecmp
 
 from framework.data import Data
 from framework.data_list import DataList
+from framework.stimuli_list import StimuliList
 from framework.fill_strategy import FillStrategy
 
 
@@ -15,6 +16,7 @@ def _test_data_file(filepath):
         DataList.from_file(filepath, 0, FillStrategy.ZEROS)
     except Exception as ex:
         e = ex
+        print("--------\n{}\n{}".format(filepath, ex))
     finally:
         assert e, "File {} was parsed without raising any exception".format(filepath)
 
@@ -24,6 +26,7 @@ def _test_stimuli_file(filepath):
         StimuliList.from_file(filepath)
     except Exception as ex:
         e = ex
+        print("--------\n{}\n{}".format(filepath, ex))
     finally:
         assert e, "File {} was parsed without raising any exception".format(filepath)
 
@@ -40,7 +43,6 @@ def test_errors():
                 _test_stimuli_file(filepath)
 
     print("Error parsing tests passed")
-
 
 
 if __name__ == "__main__":

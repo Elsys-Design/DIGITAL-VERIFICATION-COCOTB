@@ -21,7 +21,6 @@ class Access(Enum):
 
 @dataclass
 class Stimuli:
-
     _id : str
     access : Access
     rel_time : Time
@@ -31,19 +30,33 @@ class Stimuli:
     abs_time : int = 0
 
 
+    @property
+    def id(self):
+        return self._id
+
+
     @classmethod
     def from_json(cls, json, data_dir_path, default_id = ""):
-        mandatory = ["Access", "RelTime", "Type", "Address"]
+        mandatory = [("Access", str), ("RelTime", str), ("Type", str), ("Address", str)]
 
 
         def check_fields_existance(mandatory, optional):
             for field in mandatory:
-                if field not in json.keys():
-                    raise KeyError("{} mandatory field is missing".format(field))
-            all_fields = mandatory + optional
+                if field[0] not in json:
+                    raise KeyError("{} mandatory field is missing".format(field[0]))
+                if not isinstance(json[field[0]], field[1]):
+                    raise ValueError("Field {} has a value of type {} instead of {}".format(field[0],
+                                                                                            type(json[field[0]]),
+                                                                                            field[1]))
+            for field in optional:
+                if field[0] in json and not isinstance(json[field[0]], field[1]):
+                    raise ValueError("Field {} has a value of type {} instead of {}".format(field[0],
+                                                                                            type(json[field[0]]),
+                                                                                            field[1]))
+            all_fields = [f[0] for f in mandatory] + [f[0] for f in optional]
             for field in json.keys():
                 if field not in all_fields:
-                    raise KeyError("{} field isn't recognised")
+                    raise KeyError("{} field isn't recognised".format(field))
 
         def check_field(field, values):
             if json[field] not in values:
@@ -60,15 +73,15 @@ class Stimuli:
         access = Access.WRITE if json["Access"] == "W" else Access.READ
 
         if _type == "Simple":
-            mandatory += ["Size"]
+            mandatory += [("Size", int)]
             if access == Access.WRITE:
-                mandatory += ["Data"]
+                mandatory += [("Data", str)]
         elif _type == "File":
-            mandatory += ["FileName", "Fill"]
+            mandatory += [("FileName", str), ("Fill", int)]
         else:
             raise ValueError("Type {} isn't valid".format(_type))
 
-        optional = ["ID", "Desc"]
+        optional = [("ID", str), ("Desc", str)]
         check_fields_existance(mandatory, optional)
 
         check_field("Type", ["Simple", "File"])
@@ -79,15 +92,18 @@ class Stimuli:
         addr = int(json["Address"], 0)
 
         # RelTime conversion to steps
-        (value, unit) = json["RelTime"].split(' ')
-        rel_time = Time(float(value), unit)
+        try:
+            (value, unit) = json["RelTime"].split(' ')
+            rel_time = Time(float(value), unit)
+        except Exception as e:
+            raise ValueError("RelTime field isn't properly formatted ({})".format(json["RelTime"]))
 
         access = Access.WRITE if json["Access"] == "W" else Access.READ
 
         
         # Creating the data_list
         if _type == "Simple":
-            size = int(json["Size"], 0)
+            size = json["Size"]
             if access == Access.WRITE:
                 data = int(json["Data"], 0)
                 if data.bit_length() > 8*size:

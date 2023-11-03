@@ -153,16 +153,20 @@ class Data:
             i = 1
             word_size = dformat.word_size
             if i < len(dfields):
+                ex = None
                 try:
                     word_size = int(dfields[i])
-                    if word_size > dformat.word_size:
-                        raise ValueError("The last word size ({}) cannot be superior to the base word size({})" \
-                                .format(word_size, dformat.word_size))
-                    i += 1
-                    if x != len(data_fields)-1:
-                        raise NotImplementedError("A smaller size can only be defined for the last data word")
-                except ValueError:
-                    pass
+                except ValueError as e:
+                    ex = e
+                finally:
+                    if not ex:
+                        if word_size > dformat.word_size:
+                            raise ValueError("The last word size ({}) cannot be superior to the base word size ({})" \
+                                    .format(word_size, dformat.word_size))
+                        i += 1
+                        if x != len(data_fields)-1:
+                            raise NotImplementedError("A smaller size can only be defined for the last data word")
+
 
                 if i < len(dfields):
                     if dfields[i] != dformat.tlast_char:
