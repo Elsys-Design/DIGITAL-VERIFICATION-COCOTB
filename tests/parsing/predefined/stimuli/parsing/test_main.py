@@ -50,7 +50,7 @@ reference_stimlist = StimuliList([
             addr = 0,
             data = bytearray([0] * 4096),
             stream_tlast_end = False,
-            data_format = DataFormat()
+            data_format = DataFormat(1)
         )])
     ),
 
@@ -63,7 +63,7 @@ reference_stimlist = StimuliList([
             addr = 305419896,
             data = bytearray([0] * 2),
             stream_tlast_end = False,
-            data_format = DataFormat(4)
+            data_format = DataFormat(1)
         )])
     ),
 

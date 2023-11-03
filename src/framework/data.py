@@ -31,15 +31,28 @@ class Data:
     stream_tlast_end : bool
     dformat : DataFormat
 
-    def __init__(self, addr=0, data=None, stream_tlast_end = False, data_format = None):
+    def __init__(self, addr, data, stream_tlast_end, data_format):
         self.addr = addr
         self.data = data
-        if not self.data:
-            self.data = bytearray()
         self.stream_tlast_end = stream_tlast_end
         self.dformat = data_format
-        if not self.dformat:
-            self.dformat = DataFormat()
+
+        self.build_checks()
+
+    def build_checks(self):
+        """
+        Performing generic checks on the Data
+        These do not depend on the parsing method
+        """
+        if self.addr.bit_length() > 64:
+            raise ValueError("Address 0x{0:X} cannot be represented with only 64 bits".format(addr))
+        end_addr = self.addr + len(self.data) 
+        if end_addr.bit_length() > 64:
+            raise ValueError("Transfer end address (0x{0:X} + {1}) cannot be represented with only 64 bits" \
+                             .format(self.addr, len(self.data)))
+        if self.addr % self.dformat.word_size != 0:
+            raise ValueError("Address (0x{0:X}) needs to be aligned on word size ({1})" \
+                    .format(self.addr, self.dformat.word_size))
 
     def __str__(self):
         return self.to_raw()
@@ -61,9 +74,6 @@ class Data:
             )
             x = end_x
         return hex_data
-
-
-        return 
 
     def to_raw(self, addr_to_zero = False):
         if not self.dformat.is_supported():
@@ -111,78 +121,85 @@ class Data:
         descriptor_fields = fields[0].split(';')
         descriptor_fields = [f.strip() for f in descriptor_fields]
 
-        base_data = cls()
-        
         # descriptor parsing
-        base_data.addr = int(descriptor_fields[0], 0) + base_addr
+        base_addr = int(descriptor_fields[0], 0) + base_addr
+
         input_length = int(descriptor_fields[1], 0)
-        base_data.dformat.encoding = Encoding.ASCII if descriptor_fields[2] == "ascii" else Encoding.BINARY
-        base_data.dformat.word_size = int(descriptor_fields[3])
+                
+        dformat = DataFormat()
+        dformat.encoding = Encoding.ASCII if descriptor_fields[2] == "ascii" else Encoding.BINARY
+        dformat.word_size = int(descriptor_fields[3])
+
         if descriptor_fields[4] not in ["Big", "Little"]:
             raise ValueError("Wrong endianness: {} should be either Big or Little".format(descriptor_fields[4]))
-        base_data.dformat.is_big_endian = descriptor_fields[4] == "Big"
-        base_data.dformat.tlast_char = descriptor_fields[5]
+        dformat.is_big_endian = descriptor_fields[4] == "Big"
+        dformat.tlast_char = descriptor_fields[5]
 
-        if not base_data.dformat.is_supported():
-            raise NotImplementedError("Data format not supported:\n{}".format(d.format))
+        if not dformat.is_supported():
+            raise NotImplementedError("Data format not supported:\n{}".format(dformat))
 
         # data parsing
         out = []
         data_fields = fields[1:]
+
         current_length = 0
-        current_data = copy.deepcopy(base_data)
+        data = bytearray()
+        stream_tlast_end = False
         for x in range(len(data_fields)):
-            df = data_fields[x].split(';')
-            df = [d.strip() for d in df]
+            dfields = data_fields[x].split(';')
+            dfields = [d.strip() for d in dfields]
             
             # Handling optional fields 1&2 (last word size and end of packet descriptor)
             i = 1
-            word_size = current_data.dformat.word_size
-            if i < len(df):
+            word_size = dformat.word_size
+            if i < len(dfields):
                 try:
-                    word_size = int(df[i])
-                    if word_size > current_data.dformat.word_size:
+                    word_size = int(dfields[i])
+                    if word_size > dformat.word_size:
                         raise ValueError("The last word size ({}) cannot be superior to the base word size({})" \
-                                .format(word_size, current_data.dformat.word_size))
+                                .format(word_size, dformat.word_size))
                     i += 1
                     if x != len(data_fields)-1:
                         raise NotImplementedError("A smaller size can only be defined for the last data word")
                 except ValueError:
                     pass
 
-                if i < len(df):
-                    if df[i] != current_data.dformat.tlast_char:
-                        raise ValueError("End of packet descriptor isn't {} but {}".format(current_data.dformat.tlast_char, df[i]))
-                    current_data.stream_tlast_end = True
+                if i < len(dfields):
+                    if dfields[i] != dformat.tlast_char:
+                        raise ValueError("End of packet descriptor isn't {} but {}" \
+                                .format(dformat.tlast_char, dfields[i]))
+                    stream_tlast_end = True
                     i += 1
 
-                if i < len(df):
+                if i < len(dfields):
                     raise ValueError("Too many fields on this data line (max is 3: data; last_word_size;"
-                                     "end_descriptor but current is {})".format(len(df)))
+                                     "end_descriptor but current is {})".format(len(dfields)))
 
 
-            word = int(df[0], 0) & (2**(8*word_size) - 1)
-            current_data.data += word.to_bytes(word_size, 'big' if current_data.dformat.is_big_endian else 'little')
+            word = int(dfields[0], 0)
+            if word.bit_length() > 8*word_size:
+                # TODO: log warning
+                word &= (2**(8*word_size) - 1)
+            data += word.to_bytes(word_size, 'big' if dformat.is_big_endian else 'little')
 
-            if current_data.stream_tlast_end or x == len(data_fields)-1:
-                out.append(current_data)
+            if stream_tlast_end or x == len(data_fields)-1:
+                out.append(Data(base_addr + current_length, data, stream_tlast_end, dformat))
             
-                # If it's not the last data then all the bytes were described
-                # We handle the last data filling below
-                current_length += len(current_data.data)
-        
-                current_data = copy.deepcopy(base_data)
-                current_data.addr = base_data.addr + current_length
+                # Reset vars for new data
+                current_length += len(data)
+                data = bytearray()
+                stream_tlast_end = False
         
 
         # In case it's just a descriptor with no data defined
         if len(out) == 0:
             if input_length == 0:
                 raise ValueError("An empty descriptor of size 0 isn't valid (because it wouldn't do anything)")
-            out.append(base_data)
+            out.append(Data(base_addr, data, stream_tlast_end, dformat))
 
         # Handling input_length vs current_length (cutting or filling data) 
         if current_length > input_length:
+            # TODO: log a warning
             while len(out) > 0 and current_length - len(out[-1].data) >= input_length:
                 current_length -= len(out[-1].data)
                 out.pop()
@@ -215,14 +232,14 @@ class Data:
         return self.dformat.word_size - self.last_word_size()
 
 
-def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4]):
-    out = Data()
+def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True):
+    size = random.choice(size_range)
+    word_size = random.choice(word_size_range)
+    addr = random.choice(range(min_addr, max_addr-size))
+    if word_aligned:
+        addr = addr - (addr % word_size)
+    data = utils.int_list_to_bytearray(random.sample(range(2**8), size), True)
 
-    out.size = random.choice(size_range)
-    out.addr = random.choice(range(min_addr, max_addr-out.size))
-    out.dformat.word_size = random.choice(word_size_range)
-    out.data = utils.int_list_to_bytearray(random.sample(range(2**8), out.size), True)
-
-    return out
+    return Data(addr, data, False, DataFormat(word_size))
 
 

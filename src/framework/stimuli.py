@@ -75,7 +75,7 @@ class Stimuli:
         check_field("Access", ["W", "R"])
 
         # Throws an error if cannot convert Address to int
-        # TODO: throw an error with a custom message
+        # This is the base address added to the Data's address, any other check on this field is performed in Data
         addr = int(json["Address"], 0)
 
         # RelTime conversion to steps
@@ -90,14 +90,16 @@ class Stimuli:
             size = int(json["Size"], 0)
             if access == Access.WRITE:
                 data = int(json["Data"], 0)
-                # Removing MSB to fit the size
-                data = data & (2**(8*size) - 1)
+                if data.bit_length() > 8*size:
+                    # TODO: log warning
+                    # Removing MSB to fit the size
+                    data = data & (2**(8*size) - 1)
                 data = bytearray(data.to_bytes(size, 'big'))
                 data_list = DataList([Data(addr, data, True, data_format=DataFormat(size))])
             else:
                 data = bytearray()
                 FillStrategy.exec_on(FillStrategy.ZEROS, data, size)
-                data_list = DataList([Data(addr, data)])
+                data_list = DataList([Data(addr, data, False, data_format=DataFormat(1))])
         else: # Type = File
             check_field("Fill", [-1, 0, 1])
             fill_strategy = json["Fill"]

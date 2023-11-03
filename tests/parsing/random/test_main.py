@@ -18,7 +18,8 @@ data_gen = partial(
         min_addr = 0x0,
         max_addr = 0x44A2FFFF,
         size_range = range(1, 0x100),
-        word_size_range = range(1, 9)
+        word_size_range = range(1, 9),
+        word_aligned = True
 )
 
 datalist_gen = partial(
