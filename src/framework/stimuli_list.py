@@ -64,6 +64,17 @@ class StimuliList(list):
         
         logger.info("StimuliList written to {}".format(output_dir_path))
 
+    async def run(self, master):
+        logger.info("StimuliList starts running")
+
+        for stim in self:
+            await stim.run(master)
+
+        logger.info("StimuliList's run ended")
+
+
+
+
 
 def stimulilist_default_generator(stimuli_generator, size_range):
     """

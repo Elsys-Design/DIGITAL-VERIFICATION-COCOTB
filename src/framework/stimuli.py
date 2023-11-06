@@ -3,6 +3,8 @@ import random
 import os
 from dataclasses import dataclass
 import json
+from cocotb.utils import get_sim_time
+from cocotb.triggers import Timer
 
 from .fill_strategy import FillStrategy
 from .data_list import DataList
@@ -35,6 +37,7 @@ class Stimuli:
     desc : str = ""
     
     abs_time : int = 0
+    end_time : int = 0
 
 
     @classmethod
@@ -210,6 +213,28 @@ class Stimuli:
         logger.info("Stimuli written to json")
 
         return json_obj
+
+
+    async def run(self, master):
+        
+        logger.debug("Stimuli waits {}", self.rel_time)
+
+        await Timer(self.rel_time, units='fs', round_mode="round")
+        
+        logger.debug("Stimuli waited {} and starts running", self.rel_time)
+
+        # Updating start time to the real value
+        self.abs_time = Time(get_sim_time('fs'), 'fs')
+
+        if self.access == Access.WRITE:
+            await self.data_list.write_using(master)
+        else:
+            await self.data_list.read_using(master)
+        
+        self.end_time = Time(get_sim_time('fs'), 'fs')
+
+        logger.info("Stimuli's run ended")
+
 
 
 def stimuli_default_generator(data_list_generator, delay_range, access = Access.ALL,

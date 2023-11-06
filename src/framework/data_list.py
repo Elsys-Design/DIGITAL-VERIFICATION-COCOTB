@@ -78,6 +78,31 @@ class DataList(list):
         return True
 
 
+    async def write_using(self, master):
+        for d in self:
+            await master.write_data(d)
+
+    async def read_using(self, master):
+        for d in self:
+            await master.read_data(d)
+
+
+    def write_to_memory(self, mem_component):
+        for d in self:
+            d.write_to_memory(mem_component)
+
+    @classmethod
+    def from_memory(cls, mem_component, addresses_and_lengths=[]):
+        data_list = cls()
+        for address, length in addresses_and_lengths:
+            data = Data.from_memory(mem_component, address, length)
+            data_list.append(data)
+
+        return data_list
+
+
+
+
 def datalist_default_generator(data_generator, size_range):
     """
     Random data list generator
