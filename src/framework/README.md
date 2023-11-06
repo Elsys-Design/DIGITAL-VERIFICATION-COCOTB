@@ -3,7 +3,9 @@
 ## Framework package
 
 ### TODO
-
+- AxiStreamSink should be reimplemented (\_run method only) to handle the tready as needed
+    Current cocotbext.axi.AxiStreamSink always puts it to True unless a pause is set (but we still can't get the data
+until a tlast has arrived)
 
 
 
