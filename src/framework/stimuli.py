@@ -2,6 +2,7 @@ from enum import Enum
 import random
 import os
 from dataclasses import dataclass
+import json
 
 from .fill_strategy import FillStrategy
 from .data_list import DataList
@@ -37,7 +38,7 @@ class Stimuli:
 
 
     @classmethod
-    def _base_json_checks(cls, json):
+    def _base_json_checks(cls, json_obj):
         """
         Only checks:
         - the required fields existance
@@ -48,24 +49,24 @@ class Stimuli:
         checked_fields = []
 
         def check_existance(field):
-            if field not in json:
+            if field not in json_obj:
                 raise KeyError("{} mandatory field is missing".format(field))
             checked_fields.append(field)
 
         def check_type(field, _type):
             # We need to check the existance before checking the type
             check_existance(field)
-            if not isinstance(json[field], _type):
+            if not isinstance(json_obj[field], _type):
                 raise ValueError("Field {} has a value of type {} instead of {}" \
-                        .format(field, type(json[field]), _type))
+                        .format(field, type(json_obj[field]), _type))
 
         def check_value(field, _type, values):
             check_type(field, _type)
-            if json[field] not in values:
-                raise ValueError("{}: {} isn't valid".format(field, json[field]))
+            if json_obj[field] not in values:
+                raise ValueError("{}: {} isn't valid".format(field, json_obj[field]))
 
         def check_optional(field, _type):
-            if field in json:
+            if field in json_obj:
                 # this call check_existance even though we already tested it
                 # it's clearer and doesn't really affect performances
                 check_type(field, _type)
@@ -75,9 +76,9 @@ class Stimuli:
         check_type("Address", str)
         check_type("RelTime", str)
 
-        if json["Type"] == "Simple":
+        if json_obj["Type"] == "Simple":
             check_type("Size", int)
-            if json["Access"] == "W":
+            if json_obj["Access"] == "W":
                 check_type("Data", str)
         else: # type = File
             check_type("FileName", str)
@@ -86,10 +87,10 @@ class Stimuli:
         check_optional("ID", str)
         check_optional("Desc", str)
 
-        unchecked_keys = set(json.keys()) - set(checked_fields)
+        unchecked_keys = set(json_obj.keys()) - set(checked_fields)
         type_fields = unchecked_keys.intersection(set(["Size", "Data", "FileName", "Fill"]))
         if type_fields:
-            raise KeyError("Fields {} are not valid for this Type ({})".format(type_fields, json["Type"]))
+            raise KeyError("Fields {} are not valid for this Type ({})".format(type_fields, json_obj["Type"]))
 
         unknown_fields = unchecked_keys - type_fields
         if unknown_fields:
@@ -97,16 +98,16 @@ class Stimuli:
 
 
     @classmethod
-    def _build_data_list(cls, json, access, data_dir_path):
+    def _build_data_list(cls, json_obj, access, data_dir_path):
         """
-        Builds the data_list, either from JSON fields or from a file depending on the Type.
+        Builds the data_list, either from json_obj fields or from a file depending on the Type.
         """
         # TODO: clean this up
-        addr = int(json["Address"], 0)
-        if json["Type"] == "Simple":
-            size = json["Size"]
+        addr = int(json_obj["Address"], 0)
+        if json_obj["Type"] == "Simple":
+            size = json_obj["Size"]
             if access == Access.WRITE:
-                data = int(json["Data"], 0)
+                data = int(json_obj["Data"], 0)
                 if data.bit_length() > 8*size:
                     logger.warning(
                         "Data word 0x{word:X} is {word_size} bits long which is higher than the size specified"
@@ -122,9 +123,9 @@ class Stimuli:
                 FillStrategy.exec_on(FillStrategy.ZEROS, data, size)
                 return DataList([Data(addr, data, False, data_format=DataFormat(1))])
         else: # Type = File
-            fill_strategy = json["Fill"]
+            fill_strategy = json_obj["Fill"]
             if access == Access.WRITE:
-                return DataList.from_file(os.path.join(data_dir_path, json["FileName"]), addr, fill_strategy)
+                return DataList.from_file(os.path.join(data_dir_path, json_obj["FileName"]), addr, fill_strategy)
             else:
                 # TODO: Should this be implemented ?
                 # See specs
@@ -134,27 +135,32 @@ class Stimuli:
 
 
     @classmethod
-    def from_json(cls, json, data_dir_path, defaultid_ = ""):
+    def from_json(cls, json_obj, data_dir_path, defaultid = ""):
         """
         Creates a Stimuli object from a json object.
         """
+        logger.info("Building Stimuli from json_obj (data_dir_path = {}, defaultid = {})" \
+                .format(data_dir_path, defaultid))
+        logger.debug("\n" + json.dumps(json_obj))
 
-        cls._base_json_checks(json)
+        cls._base_json_checks(json_obj)
 
         # RelTime conversion to steps
         try:
-            (value, unit) = json["RelTime"].split(' ')
+            (value, unit) = json_obj["RelTime"].split(' ')
             rel_time = Time(float(value), unit)
         except Exception as e:
-            raise ValueError("RelTime field isn't properly formatted ({})".format(json["RelTime"]))
+            raise ValueError("RelTime field isn't properly formatted ({})".format(json_obj["RelTime"]))
 
-        access = Access.WRITE if json["Access"] == "W" else Access.READ
+        access = Access.WRITE if json_obj["Access"] == "W" else Access.READ
 
-        id_ = json["ID"] if "ID" in json else defaultid_
-        desc = json["Desc"] if "Desc" in json else ""
+        id_ = json_obj["ID"] if "ID" in json_obj else defaultid
+        desc = json_obj["Desc"] if "Desc" in json_obj else ""
 
         # Creating the data_list
-        data_list = cls._build_data_list(json, access, data_dir_path)
+        data_list = cls._build_data_list(json_obj, access, data_dir_path)
+
+        logger.info("Stimuli built from json_obj")
              
         return cls(id_, access, rel_time, data_list, desc)
 
@@ -167,12 +173,14 @@ class Stimuli:
         This is because it's specified the address should be in the JSON so there is only one place for it but it's
         stored in the Data object. (With multiple Data, which Data's address should be used ?)
         """
+        logger.info("Writting Stimuli to {}".format(data_dir_path))
+
         if len(self.data_list) != 1:
             raise NotImplementedError("Stimuli.to_json supports only one data item per stimuli")
         
         data = self.data_list[0]
 
-        json = {
+        json_obj = {
                 "ID": self.id_,
                 "Desc": self.desc,
                 "Access": str(self.access),
@@ -186,20 +194,22 @@ class Stimuli:
         # Done in this order to because it's printed in the order it's filled
         # and having Desc right after ID seems best
         if not self.desc:
-            del json["Desc"]
+            del json_obj["Desc"]
 
-        if json["Type"] == "Simple":
+        if json_obj["Type"] == "Simple":
             # Data is always the size of a word
-            json["Data"] = data.to_words()[0]
+            json_obj["Data"] = data.to_words()[0]
             # Size isn't the size of a word but the actual data size
-            json["Size"] = len(data.data)
+            json_obj["Size"] = len(data.data)
         else:
-            json["FileName"] = self.id_ + ".dat"
+            json_obj["FileName"] = self.id_ + ".dat"
             # Writing data file in data_dir
             # We suppose the data_dir_path is a directory
-            self.data_list.to_file(os.path.join(data_dir_path, json["FileName"]), addr_to_zero = True)
+            self.data_list.to_file(os.path.join(data_dir_path, json_obj["FileName"]), addr_to_zero = True)
 
-        return json
+        logger.info("Stimuli written to json")
+
+        return json_obj
 
 
 def stimuli_default_generator(data_list_generator, delay_range, access = Access.ALL,

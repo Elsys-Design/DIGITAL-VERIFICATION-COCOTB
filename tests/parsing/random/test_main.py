@@ -3,6 +3,7 @@
 import sys
 import os
 from functools import partial
+import logging
 
 from framework.data import *
 from framework.data_list import *
@@ -32,6 +33,8 @@ datalist_gen = partial(
 
 def test_random():
     print("Starting random parsing & printing tests")
+    print("Disabling logging to avoid overhead")
+    logging.disable(logging.CRITICAL)
 
     for i in range(tests_nb):
         generated = datalist_gen()

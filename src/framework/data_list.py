@@ -1,6 +1,9 @@
 import random
+
 from .fill_strategy import FillStrategy
 from .data import Data
+from .logger import logger
+
 
 class DataList(list):
     """
@@ -16,6 +19,9 @@ class DataList(list):
         Creates a data list from a data text file.
         Raises an error if there is no sequence in that file.
         """
+        logger.info("Building DataList from {0}: base_addr = {1:X}, fill_strategy = {2}" \
+                .format(filename, base_addr, fill_strategy))
+
         f = open(filename)
         data = f.read()
         f.close()
@@ -30,6 +36,8 @@ class DataList(list):
         data_list = cls()
         for d in data:
             data_list += Data.from_raw(d, base_addr, fill_strategy)
+
+        logger.info("DataList built")
 
         return data_list
 
@@ -52,9 +60,13 @@ class DataList(list):
         """
         Writes a whole data list to a file.
         """
+        logger.info("Writting DataList to {}: addr_to_zero = {}".format(file_path, addr_to_zero))
+
         f = open(file_path, "w")
         f.write(self.to_str(addr_to_zero))
         f.close()
+        
+        logger.info("DataList written to {}".format(file_path))
 
     def represents_same_data_as(self, other, addr_offset = 0):
         """

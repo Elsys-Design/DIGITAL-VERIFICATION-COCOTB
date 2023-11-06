@@ -65,6 +65,9 @@ class Data:
         Performing generic checks on the Data
         These do not depend on the parsing method
         """
+        logger.info("Performing build checks on Data")
+        logger.debug("\n" + str(self))
+
         if self.addr.bit_length() > 64:
             raise ValueError("Address 0x{0:X} cannot be represented with only 64 bits".format(addr))
         end_addr = self.addr + len(self.data) 
@@ -74,6 +77,8 @@ class Data:
         if self.addr % self.dformat.word_size != 0:
             raise ValueError("Address (0x{0:X}) needs to be aligned on word size ({1})" \
                     .format(self.addr, self.dformat.word_size))
+        
+        logger.info("passed")
 
     def __str__(self):
         return self.to_raw()
@@ -103,6 +108,8 @@ class Data:
         """
         Returns the representation of 'self' as a sequence
         """
+        logger.info("Writting Data to raw")
+
         if not self.dformat.is_supported():
             raise NotImplementedError("Unsupported format: \n{}".format(self.dformat))
         
@@ -132,8 +139,10 @@ class Data:
         if len(last_fields) > 0:
             out += "; " +  "; ".join(last_fields)
 
-        return out + "\n"
+        logger.info("Data written to raw")
+        logger.debug("\n" + out)
 
+        return out + '\n'
 
 
 
@@ -146,6 +155,9 @@ class Data:
 
         Once the whole sequence has been read, we either cut it or expand it depending on the 'size' parameter.
         """
+        logger.info("Building Data from raw (base_addr = 0x{0:X}, fill_strategy = {1})".format(base_addr, fill_strategy))
+        logger.debug("\n" + str(raw))
+
         fields = raw.split('\n')
         fields = list(filter(None, fields))
 
@@ -257,6 +269,8 @@ class Data:
                 del out[-1].data[-(current_length-input_length):]
         else:
             FillStrategy.exec_on(fill_strategy, out[-1].data, input_length-current_length)
+        
+        logger.info("Data built from raw")
 
         return out
 

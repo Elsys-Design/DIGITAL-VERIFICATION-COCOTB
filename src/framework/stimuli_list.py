@@ -3,7 +3,10 @@ import shutil
 import json
 import random
 from pathlib import Path 
+
 from .stimuli import Stimuli
+from .logger import logger
+
 
 class StimuliList(list):
     """
@@ -19,6 +22,8 @@ class StimuliList(list):
         Creates a StimuliList from a json file (filename).
         The FileName attributes in json are relative to the directory in which the json file is.
         """
+        logger.info("Building StimuliList from {}".format(filename))
+
         f = open(filename, "r", encoding="utf-8")
         data = json.load(f)
         f.close()
@@ -32,6 +37,8 @@ class StimuliList(list):
             if stimulis[-1].id_ in id_list:
                 raise ValueError("Stimuli ID {} already exists in this stimuli list".format(stimulis[-1].id_))
             id_list.append(stimulis[-1].id_)
+        
+        logger.info("StimuliList built from {}".format(filename))
 
         return stimulis
 
@@ -41,6 +48,8 @@ class StimuliList(list):
         Writes a whole StimuliList to a directory.
         The stimuli file is named 'stimuli.json'.
         """
+        logger.info("Writing StimuliList to {}".format(output_dir_path))
+
         if os.path.isdir(output_dir_path):
             shutil.rmtree(output_dir_path)
         os.makedirs(output_dir_path)
@@ -52,6 +61,8 @@ class StimuliList(list):
         json_file = open(os.path.join(output_dir_path, "stimulis.json"), "w", encoding="utf-8")
         json.dump(json_array, json_file, indent=4, ensure_ascii=False)
         json_file.close()
+        
+        logger.info("StimuliList written to {}".format(output_dir_path))
 
 
 def stimulilist_default_generator(stimuli_generator, size_range):
