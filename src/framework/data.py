@@ -58,22 +58,16 @@ class Data:
         self.stream_tlast_end = stream_tlast_end
         self.dformat = data_format
 
-        self.build_checks()
-
-    def build_checks(self):
+    def alignment_check(self):
         """
-        Performing generic checks on the Data
+        Performing an alignment verification on the Data
         These do not depend on the parsing method
+        But they are only done when the Data is used in an AXI or AXI-Lite master
+        (not for axi-stream, if tdest is over the size of tdest in the bus, it'll throw an error anyways)
         """
-        logger.info("Performing build checks on Data")
+        logger.info("Performing alignment checks on Data")
         logger.debug("\n" + str(self))
 
-        if self.addr.bit_length() > 64:
-            raise ValueError("Address 0x{0:X} cannot be represented with only 64 bits".format(addr))
-        end_addr = self.addr + len(self.data) 
-        if end_addr.bit_length() > 64:
-            raise ValueError("Transfer end address (0x{0:X} + {1}) cannot be represented with only 64 bits" \
-                             .format(self.addr, len(self.data)))
         if self.addr % self.dformat.word_size != 0:
             raise ValueError("Address (0x{0:X}) needs to be aligned on word size ({1})" \
                     .format(self.addr, self.dformat.word_size))

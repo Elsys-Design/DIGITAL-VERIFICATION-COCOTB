@@ -9,6 +9,7 @@ class AxiMaster(cocotbext.axi.AxiMaster):
 
 
     async def write_data(self, data):
+        data.alignment_check()
         await self.write(data.addr, data.data, awid = 0)
 
 

@@ -1,5 +1,4 @@
 import cocotbext.axi
-from framework.utils import int_list_to_bytes
 
 
 

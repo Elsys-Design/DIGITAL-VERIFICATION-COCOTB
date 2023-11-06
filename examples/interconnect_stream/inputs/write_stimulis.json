@@ -1,0 +1,20 @@
+[
+	{
+		"Access": "W",
+		"RelTime": "0.1 us",
+    "Address": "0x0",
+		"Type": "File",
+		"FileName": "data0.txt",
+    "Fill": 0
+	},
+
+	{
+		"Access": "W",
+		"RelTime": "1 us",
+    "Address": "0x1",
+		"Type": "File",
+		"FileName": "data1.txt",
+    "Fill": 1
+	}
+
+]
