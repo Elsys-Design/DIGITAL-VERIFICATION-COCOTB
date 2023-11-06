@@ -2,9 +2,11 @@ from enum import Enum
 import random
 import copy
 from dataclasses import dataclass
+import logging
 
 from . import utils
 from .fill_strategy import FillStrategy
+from .logger import logger
 
 
 class Encoding(Enum):
@@ -212,8 +214,13 @@ class Data:
             # Handling the actual data (field 0)
             word = int(dfields[0], 0)
             if word.bit_length() > 8*word_size:
-                # TODO: log warning
+                logger.warning(
+                        "Data word 0x{word:X} is {word_size} bits long which is higher than the word size"
+                        "in the descriptor ({descriptor_word_size} bits)" \
+                        .format(word = word, word_size = word.bit_length(), descriptor_word_size = 8*word_size)
+                )
                 word &= (2**(8*word_size) - 1)
+
             data += word.to_bytes(word_size, 'big' if dformat.is_big_endian else 'little')
 
 
@@ -238,7 +245,11 @@ class Data:
 
         # Handling input_length vs current_length (cutting or filling data) 
         if current_length > input_length:
-            # TODO: log a warning
+            logger.warning(
+                    "Described data length ({}) is higher than the length specified in the descriptor ({})" \
+                            .format(current_length, input_length)
+            )
+
             while len(out) > 0 and current_length - len(out[-1].data) >= input_length:
                 current_length -= len(out[-1].data)
                 out.pop()

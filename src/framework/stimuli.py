@@ -8,6 +8,7 @@ from .data_list import DataList
 from .data import Data, DataFormat
 from .time import Time
 from . import utils
+from .logger import logger
 
 
 class Access(Enum):
@@ -33,6 +34,7 @@ class Stimuli:
     desc : str = ""
     
     abs_time : int = 0
+
 
     @classmethod
     def _base_json_checks(cls, json):
@@ -106,7 +108,11 @@ class Stimuli:
             if access == Access.WRITE:
                 data = int(json["Data"], 0)
                 if data.bit_length() > 8*size:
-                    # TODO: log warning
+                    logger.warning(
+                        "Data word 0x{word:X} is {word_size} bits long which is higher than the size specified"
+                        "in the Size field ({descriptor_word_size} bits)" \
+                        .format(word = data, word_size = data.bit_length(), descriptor_word_size = 8*size)
+                    )
                     # Removing MSB to fit the size
                     data = data & (2**(8*size) - 1)
                 data = bytearray(data.to_bytes(size, 'big'))
