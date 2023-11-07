@@ -4,7 +4,15 @@
     "RelTime": "0.5 us",
     "Type": "Simple",
     "Address": "0x0",
-    "Size": 100
+    "Size": 6
+  },
+
+  {
+    "Access": "R",
+    "RelTime": "1 us",
+    "Type": "Simple",
+    "Address": "0x0",
+    "Size": 6
   }
 
 ]

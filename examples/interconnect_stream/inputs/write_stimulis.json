@@ -10,7 +10,7 @@
 
 	{
 		"Access": "W",
-		"RelTime": "1 us",
+		"RelTime": "0.5 us",
     "Address": "0x1",
 		"Type": "File",
 		"FileName": "data1.txt",
