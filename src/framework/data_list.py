@@ -14,7 +14,7 @@ class DataList(list):
         super().__init__(base)
 
     @classmethod
-    def from_file(cls, filename, base_addr = 0, fill_strategy = FillStrategy.ZEROS):
+    def from_file(cls, filename, base_addr = 0, fill_strategy = FillStrategy.ZEROS, is_aligned = False):
         """
         Creates a data list from a data text file.
         Raises an error if there is no sequence in that file.
@@ -36,6 +36,10 @@ class DataList(list):
         data_list = cls()
         for d in data:
             data_list += Data.from_raw(d, base_addr, fill_strategy)
+
+        if is_aligned:
+            for d in data_list:
+                d.alignment_check()
 
         logger.info("DataList built")
 
@@ -76,6 +80,31 @@ class DataList(list):
             if not self[i].represents_same_data_as(other[i], addr_offset):
                 return False
         return True
+
+
+    async def write_using(self, master):
+        for d in self:
+            await master.write_data(d)
+
+    async def read_using(self, master):
+        for d in self:
+            await master.read_data(d)
+
+
+    def write_to_memory(self, mem_component):
+        for d in self:
+            d.write_to_memory(mem_component)
+
+    @classmethod
+    def from_memory(cls, mem_component, addresses_and_lengths=[]):
+        data_list = cls()
+        for address, length in addresses_and_lengths:
+            data = Data.from_memory(mem_component, address, length)
+            data_list.append(data)
+
+        return data_list
+
+
 
 
 def datalist_default_generator(data_generator, size_range):

@@ -26,7 +26,7 @@ print_stimlist = StimuliList([
             addr = 0x12345678,
             data = bytearray(int(125).to_bytes(4, 'big')),
             stream_tlast_end = True,
-            data_format = DataFormat(4)
+            dformat = DataFormat(4)
         )])
     ),
 
@@ -40,7 +40,7 @@ print_stimlist = StimuliList([
             addr = 305419896,
             data = bytearray(int(0xFE).to_bytes(1, 'big')),
             stream_tlast_end = True,
-            data_format = DataFormat(4)
+            dformat = DataFormat(4)
         )])
     ),
 
@@ -53,7 +53,7 @@ print_stimlist = StimuliList([
             addr = 0,
             data = bytearray([0xAB] * 64),
             stream_tlast_end = False,
-            data_format = DataFormat()
+            dformat = DataFormat()
         )])
     ),
 
@@ -67,7 +67,7 @@ print_stimlist = StimuliList([
             addr = 305419896,
             data = bytearray([0xCD] * 2),
             stream_tlast_end = False,
-            data_format = DataFormat(4)
+            dformat = DataFormat(4)
         )])
     ),
 
@@ -81,7 +81,7 @@ print_stimlist = StimuliList([
             addr = 0x10001234,
             data = bytearray([0x12, 0x34, 0x56, 0x78, 0xAB, 0xCD, 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]),
             stream_tlast_end = False,
-            data_format = DataFormat(4)
+            dformat = DataFormat(4)
         )])
     )
 ])
