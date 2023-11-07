@@ -5,8 +5,10 @@
 ### TODO
 
 
-
 ### To improve
+
+#### AxiStream errors
+Print a proper error when using a read Stimuli on an AxiStreamSource or a write Stimuli on an AxiStreamSink
 
 #### AxiStreamSink
 AxiStreamSink has been reimplemented to handle the tready as needed:
