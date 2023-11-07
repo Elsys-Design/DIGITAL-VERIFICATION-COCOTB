@@ -1,3 +1,4 @@
+from cocotb.utils import get_sim_time
 
 
 class Time(int):
@@ -45,3 +46,9 @@ class Time(int):
 
         # Printing format
         return "{:.3f} {}".format(val, list(self.supported_units.keys())[ten_power//3])
+
+
+    @classmethod
+    def now(cls):
+        return cls(get_sim_time('fs'), 'fs')
+
