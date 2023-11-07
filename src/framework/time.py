@@ -1,14 +1,14 @@
 from cocotb.utils import get_sim_time
+from cocotb.triggers import Timer
 
 
-class Time(int):
+class Time:
     """
     Represents a Time as a single value in fs (=10**(-15) s).
     It can be constructed using a value and an unit.
 
     Note: min and hr units aren't supported yet.
     """
-
     supported_units = {
             "fs" : 1,
             "ps": 10**3,
@@ -20,18 +20,20 @@ class Time(int):
             #"hr": 60*60*10**15
             }
 
-    def __new__(cls, value : float, unit : str, *args, **kwargs):
+    def __init__(self, value : float, unit : str):
         if value < 0:
             raise ValueError("Time value cannot be less than zero")
 
-        if unit not in cls.supported_units:
+        if unit not in self.supported_units:
             raise ValueError("{} unit isn't supported (supported units: {})".format(unit, *cls.supported_units))
 
-        return super(cls, cls).__new__(cls, round(value * cls.supported_units[unit]))
+        self.value = round(value * self.supported_units[unit])
 
+    async def wait(self):
+        await Timer(self.value, units='fs', round_mode="round")
 
     def __str__(self):
-        val = self
+        val = self.value
         ten_power = 0
         # Find the actual precision
         while val % 10 == 0:
@@ -52,3 +54,12 @@ class Time(int):
     def now(cls):
         return cls(get_sim_time('fs'), 'fs')
 
+
+    def __add__(self, other):
+        return Time(self.value + other.value, 'fs')
+
+    def __sub__(self, other):
+        return Time(self.value - other.value, 'fs')
+
+    def __eq__(self, other):
+        return self.value == other.value

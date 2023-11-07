@@ -224,7 +224,7 @@ class Stimuli:
         
         logger.debug("Stimuli waits {}", self.rel_time)
 
-        await Timer(self.rel_time, units='fs', round_mode="round")
+        await self.rel_time.wait()
         
         logger.debug("Stimuli waited {} and starts running", self.rel_time)
 

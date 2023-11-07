@@ -21,7 +21,7 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
         self.current_id = 0
         self.name = name
 
-        self.last_end_time = 0
+        self.last_end_time = Time(0, 'fs')
 
 
     async def monitor_stream(self):
