@@ -195,7 +195,7 @@ class Stimuli:
                 "RelTime": str(self.rel_time),
                 "AbsTime": str(self.abs_time),
                 "Type": "Simple" if data.is_word() else "File",
-                "Address": utils.int_to_hex_string(data.addr, data.dformat.addr_size)
+                "Address": utils.int_to_hex_string(int(data.addr), int(data.dformat.addr_size))
         }
 
         # Addind desc anyway and removing it if it's empty

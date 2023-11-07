@@ -36,9 +36,12 @@ class Time:
         val = self.value
         ten_power = 0
         # Find the actual precision
-        while val % 10 == 0:
-            val /= 10
-            ten_power += 1
+        if val == 0:
+            ten_power = 0
+        else:
+            while val % 10 == 0:
+                val /= 10
+                ten_power += 1
 
         # Move the power until finding a good unit
         float_pow = 3 - ten_power % 3
