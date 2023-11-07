@@ -13,7 +13,10 @@ from framework.drivers.axil_master import AxiLiteMaster
 from framework.monitors.axi_monitor import AxiMonitor
 from framework.monitors.axil_monitor import AxiLiteMonitor
 from framework.data import Data
-from framework.monitors.stimuli_logger import StimuliLogger
+from framework.monitors.stimuli_loggers.efficient import EfficientStimuliLogger
+
+
+StimuliLogger = EfficientStimuliLogger
 
 
 class TB:

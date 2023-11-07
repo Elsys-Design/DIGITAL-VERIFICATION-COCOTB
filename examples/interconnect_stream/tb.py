@@ -12,7 +12,12 @@ from framework.drivers.axis_source import AxiStreamSource
 from framework.drivers.axis_sink import AxiStreamSink
 from framework.monitors.axis_monitor import AxiStreamMonitor
 from framework.monitors.analysis_port import AnalysisPort
-from framework.monitors.stimuli_logger import StimuliLogger
+from framework.monitors.stimuli_loggers.efficient import EfficientStimuliLogger
+from framework.monitors.stimuli_loggers.real_time import RealTimeStimuliLogger
+
+
+StimuliLogger = EfficientStimuliLogger
+#StimuliLogger = RealTimeStimuliLogger
 
 
 class TB:
