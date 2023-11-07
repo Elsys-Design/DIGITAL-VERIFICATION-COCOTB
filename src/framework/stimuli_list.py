@@ -17,7 +17,7 @@ class StimuliList(list):
         super().__init__(base)
 
     @classmethod
-    def from_file(cls, filename):
+    def from_file(cls, filename, is_aligned = False):
         """
         Creates a StimuliList from a json file (filename).
         The FileName attributes in json are relative to the directory in which the json file is.
@@ -32,7 +32,12 @@ class StimuliList(list):
         id_list = []
         for i in range(len(data)):
             stimulis.append(
-                Stimuli.from_json(data[i], os.path.dirname(filename), Path(filename).stem + "_{}".format(i))
+                Stimuli.from_json(
+                    data[i],
+                    os.path.dirname(filename),
+                    Path(filename).stem + "_{}".format(i),
+                    is_aligned
+                )
             )
             if stimulis[-1].id_ in id_list:
                 raise ValueError("Stimuli ID {} already exists in this stimuli list".format(stimulis[-1].id_))

@@ -101,7 +101,7 @@ class Stimuli:
 
 
     @classmethod
-    def _build_data_list(cls, json_obj, access, data_dir_path):
+    def _build_data_list(cls, json_obj, access, data_dir_path, is_aligned = False):
         """
         Builds the data_list, either from json_obj fields or from a file depending on the Type.
         """
@@ -120,11 +120,17 @@ class Stimuli:
                     # Removing MSB to fit the size
                     data = data & (2**(8*size) - 1)
                 data = bytearray(data.to_bytes(size, 'big'))
-                return DataList([Data(addr, data, True, data_format=DataFormat(size))])
+                data_obj = Data(addr, data, True, DataFormat(size))
+                if is_aligned:
+                    data_obj.alignment_check()
+                return DataList([data_obj])
             else:
                 data = bytearray()
                 FillStrategy.exec_on(FillStrategy.ZEROS, data, size)
-                return DataList([Data(addr, data, False, data_format=DataFormat(1))])
+                data_obj = Data(addr, data, False, DataFormat(1))
+                if is_aligned:
+                    data_obj.alignment_check()
+                return DataList([data_obj])
         else: # Type = File
             fill_strategy = json_obj["Fill"]
             if access == Access.WRITE:
@@ -138,7 +144,7 @@ class Stimuli:
 
 
     @classmethod
-    def from_json(cls, json_obj, data_dir_path, defaultid = ""):
+    def from_json(cls, json_obj, data_dir_path, defaultid = "", is_aligned = False):
         """
         Creates a Stimuli object from a json object.
         """
@@ -161,7 +167,7 @@ class Stimuli:
         desc = json_obj["Desc"] if "Desc" in json_obj else ""
 
         # Creating the data_list
-        data_list = cls._build_data_list(json_obj, access, data_dir_path)
+        data_list = cls._build_data_list(json_obj, access, data_dir_path, is_aligned)
 
         logger.info("Stimuli built from json_obj")
              

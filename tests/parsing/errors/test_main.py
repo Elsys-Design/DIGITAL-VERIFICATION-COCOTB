@@ -13,7 +13,7 @@ from framework.fill_strategy import FillStrategy
 def _test_data_file(filepath):
     e = None
     try:
-        DataList.from_file(filepath, 0, FillStrategy.ZEROS)
+        DataList.from_file(filepath, 0, FillStrategy.ZEROS, is_aligned = True)
     except Exception as ex:
         e = ex
         print("--------\n{}\n{}".format(filepath, ex))
@@ -23,7 +23,7 @@ def _test_data_file(filepath):
 def _test_stimuli_file(filepath):
     e = None
     try:
-        StimuliList.from_file(filepath)
+        StimuliList.from_file(filepath, is_aligned = True)
     except Exception as ex:
         e = ex
         print("--------\n{}\n{}".format(filepath, ex))
