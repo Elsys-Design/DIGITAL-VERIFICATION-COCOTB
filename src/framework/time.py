@@ -1,4 +1,4 @@
-from cocotb.utils import get_sim_time
+from cocotb.utils import get_sim_time, get_sim_steps
 from cocotb.triggers import Timer
 
 
@@ -52,6 +52,11 @@ class Time:
         # Printing format
         return "{:.3f} {}".format(val, list(self.supported_units.keys())[ten_power//3])
 
+    def to_steps(self):
+        return get_sim_steps(self.value, units='fs', round_mode='round')
+
+    def to_steps_str(self):
+        return "{} steps".format(self.to_steps())
 
     @classmethod
     def now(cls):
