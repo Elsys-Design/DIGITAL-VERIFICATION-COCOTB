@@ -15,4 +15,5 @@ class AxiMaster(cocotbext.axi.AxiMaster):
 
     async def read_data(self, data):
         read_response = await self.read(data.addr, len(data.data), arid = 0)
+        # Filling data but it's not used yet as we can log everything with the monitors
         data.data = read_response.data
