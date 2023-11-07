@@ -3,7 +3,6 @@ import random
 import os
 from dataclasses import dataclass
 import json
-from cocotb.utils import get_sim_time
 from cocotb.triggers import Timer
 
 from .fill_strategy import FillStrategy
@@ -230,14 +229,14 @@ class Stimuli:
         logger.debug("Stimuli waited {} and starts running", self.rel_time)
 
         # Updating start time to the real value
-        self.abs_time = Time(get_sim_time('fs'), 'fs')
+        self.abs_time = Time.now()
 
         if self.access == Access.WRITE:
             await self.data_list.write_using(master)
         else:
             await self.data_list.read_using(master)
         
-        self.end_time = Time(get_sim_time('fs'), 'fs')
+        self.end_time = Time.now()
 
         logger.info("Stimuli's run ended")
 

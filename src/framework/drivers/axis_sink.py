@@ -15,9 +15,7 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
 
     async def read_data(self, data):
         self.current_accept = len(data.data)
-        print(cocotb.utils.get_sim_time('ns'))
         await self.read_done.wait()
-        print(cocotb.utils.get_sim_time('ns'))
         self.read_done.clear()
 
 
