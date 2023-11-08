@@ -37,7 +37,6 @@ class TB:
             self.bus_in.append(types[i][0].from_prefix(dut, name))
             self.masters_in.append(types[i][1](self.bus_in[i], dut.aclk, dut.aresetn, reset_active_level=False))
             self.monitors_in.append(types[i][2](name, self.bus_in[i], dut.aclk, dut.aresetn, reset_active_level=False))
-            self.monitors_in[i].analysis_port.subscribe(StimuliLogger("stimlogs/" + name).recv)
 
 
         self.fifo_out_axilite_bus = AxiLiteBus.from_prefix(dut, "fifo_out_axilite")
@@ -53,12 +52,10 @@ class TB:
             self.out_axilite_bus.append(AxiLiteBus.from_prefix(dut, name))
             self.out_axilite_rams.append(AxiLiteRam(self.out_axilite_bus[i], dut.aclk, dut.aresetn, reset_active_level=False, size=2**8))
             self.out_axilite_monitors.append(AxiLiteMonitor(name, self.out_axilite_bus[i], dut.aclk, dut.aresetn, reset_active_level=False))
-            self.out_axilite_monitors[i].analysis_port.subscribe(StimuliLogger("stimlogs/" + name).recv)
 
         self.out_axi_bus = AxiLiteBus.from_prefix(dut, "out_axi")
         self.out_axi_ram = AxiLiteRam(self.out_axi_bus, dut.aclk, dut.aresetn, reset_active_level=False, size=2**8)
         self.out_axi_monitor = AxiMonitor("out_axi", self.out_axi_bus, dut.aclk, dut.aresetn, reset_active_level=False)
-        self.out_axi_monitor.analysis_port.subscribe(StimuliLogger("stimlogs/out_axi").recv)
 
 
     async def reset(self):

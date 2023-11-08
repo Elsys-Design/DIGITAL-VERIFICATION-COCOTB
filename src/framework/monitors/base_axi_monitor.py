@@ -5,11 +5,13 @@ from cocotbext.axi.axil_channels import AxiLiteAWMonitor, AxiLiteWMonitor, AxiLi
 from cocotb.triggers import RisingEdge
 from cocotb.queue import Queue
 
-from framework.time import Time
-from framework.data import Data, DataFormat
-from framework.data_list import DataList
-from framework.stimuli import Stimuli, Access
-from framework.monitors.analysis_port import AnalysisPort
+from ..time import Time
+from ..data import Data, DataFormat
+from ..data_list import DataList
+from ..stimuli import Stimuli, Access
+from .analysis_port import AnalysisPort
+
+from .stimuli_loggers.efficient import EfficientStimuliLogger
 
 
 class BaseAxiMonitor:
@@ -17,13 +19,16 @@ class BaseAxiMonitor:
     """
 
 
-    def __init__(self, name, bus, clock, reset, reset_active_level, bus_monitors):
+    def __init__(self, name, bus, clock, reset, reset_active_level, subscribe_default_logger, bus_monitors):
         self.name = name
 
         # Building analisys ports
         self.write_analysis_port = AnalysisPort()
         self.read_analysis_port = AnalysisPort()
         self.analysis_port = AnalysisPort()
+
+        if subscribe_default_logger:
+            self.analysis_port.subscribe(EfficientStimuliLogger("stimlogs/" + self.name).recv)
 
         # Building channel monitors
         channels = {
@@ -71,13 +76,13 @@ class BaseAxiMonitor:
         self.last_write_start_time = Time(0, 'fs')
         self.last_read_start_time = Time(0, 'fs')
 
+
         # Starting all channel monitor tasks
         cocotb.start_soon(self.monitor_aw())
         cocotb.start_soon(self.monitor_w())
         cocotb.start_soon(self.monitor_b())
         cocotb.start_soon(self.monitor_ar())
         cocotb.start_soon(self.monitor_r())
-
 
 
     async def monitor_aw(self):
