@@ -121,9 +121,9 @@ class BaseAxiMonitor:
         bid = b_t.bid if self.has_write_id else 0
         wid = bid if self.has_wid else 0
 
-        aw_t = self.aw_queues[bid].pop()
-        w_t = self.w_queues[wid].pop()
-        start_time, old_start_time = self.write_start_time_queues[bid].pop()
+        aw_t = self.aw_queues[bid].popleft()
+        w_t = self.w_queues[wid].popleft()
+        start_time, old_start_time = self.write_start_time_queues[bid].popleft()
 
         data = int(w_t.wdata).to_bytes(self.wsize, "big")
         data += self.write_burst_support(aw_t, wid)
@@ -133,7 +133,7 @@ class BaseAxiMonitor:
 
         end_time = Time.now()
 
-        data_obj = Data(aw_t.awaddr, data, True, DataFormat(self.wsize))
+        data_obj = Data(int(aw_t.awaddr), data, True, DataFormat(self.wsize))
 
         new_id = "{}_{}".format(self.name, self.current_write_id)
         self.current_write_id += 1
@@ -157,8 +157,8 @@ class BaseAxiMonitor:
     def build_read_stimuli(self, r_t):
         rid = r_t.rid if self.has_read_id else 0
 
-        ar_t = self.ar_queues[rid].pop()
-        start_time, old_start_time = self.read_start_time_queues[rid].pop()
+        ar_t = self.ar_queues[rid].popleft()
+        start_time, old_start_time = self.read_start_time_queues[rid].popleft()
 
         data = int(r_t.rdata).to_bytes(self.rsize, "big")
         data += self.read_burst_support(ar_t, rid)
@@ -166,7 +166,7 @@ class BaseAxiMonitor:
 
         end_time = Time.now()
 
-        data_obj = Data(ar_t.araddr, data, True, DataFormat(self.rsize))
+        data_obj = Data(int(ar_t.araddr), data, True, DataFormat(self.rsize))
         
         new_id = "{}_{}".format(self.name, self.current_read_id)
         self.current_read_id += 1

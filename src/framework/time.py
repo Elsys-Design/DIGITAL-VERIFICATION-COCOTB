@@ -30,7 +30,8 @@ class Time:
         self.value = cocotb.utils.get_sim_steps(value, unit, round_mode="round")
 
     async def wait(self):
-        await Timer(self.value, units='step', round_mode="round")
+        if self.value > 0:
+            await Timer(self.value, units='step', round_mode="round")
 
     def __str__(self):
         val = self.value

@@ -27,7 +27,7 @@ class AxiMonitor(BaseAxiMonitor):
 
         data = bytes()
         for i in range(awlen):
-            w_t = self.w_queues[wid].pop()
+            w_t = self.w_queues[wid].popleft()
         
             data += int(w_t.wdata).to_bytes(self.wsize, "big")
 
@@ -40,7 +40,7 @@ class AxiMonitor(BaseAxiMonitor):
 
         data = bytes()
         for i in range(arlen):
-            r_t = self.r_queues[rid].pop()
+            r_t = self.r_queues[rid].popleft()
         
             data += int(r_t.rdata).to_bytes(self.rsize, "big")
 

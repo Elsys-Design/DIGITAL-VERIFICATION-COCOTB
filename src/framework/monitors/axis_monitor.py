@@ -39,8 +39,6 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
 
             if frame == None:
                 frame = await self.recv()
-            else:
-                print(frame)
             self.d = Data(frame.tdest, frame.tdata, hasattr(self.bus, "tlast"), DataFormat(size))
 
             if hasattr(self.bus, "tlast"):
