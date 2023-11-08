@@ -58,6 +58,10 @@ class BaseAxiMonitor:
         # Data sizes for write and read buses
         self.wsize = len(self.w.bus.wdata)//8
         self.rsize = len(self.r.bus.rdata)//8
+
+        # Address size for write and read buses
+        self.waddr_size = len(self.aw.bus.awaddr)//8
+        self.raddr_size = len(self.ar.bus.araddr)//8
         
         # Ids for stimulis
         self.current_read_id = 0
@@ -173,7 +177,7 @@ class BaseAxiMonitor:
                     last_word = word[-last_word_size:]
                     current_data += last_word
 
-                    data_obj = Data(current_addr, current_data, False, DataFormat(awsize))
+                    data_obj = Data(current_addr, current_data, False, DataFormat(awsize, addr_size = self.waddr_size))
                     current_addr += len(current_data)
                     current_data = bytearray()
 
@@ -183,13 +187,14 @@ class BaseAxiMonitor:
                 for i in range(0, awsize-1-last_word_size):
                     current_addr += 1
                     if w_t.wstrb[i] == 1:
-                        data_obj = Data(current_addr, bytearray(word[i]), False, DataFormat(1))
+                        data_obj = Data(current_addr, bytearray(word[i]), False, DataFormat(1, addr_size
+                                                                                            = self.waddr_size))
                         
                         first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, int(w_t.wstrb))
 
         # If we only had full wstrb for the last bytes, we log them at the end
         if len(current_data) > 0:
-            data_obj = Data(current_addr, current_data, False, DataFormat(awsize))
+            data_obj = Data(current_addr, current_data, False, DataFormat(awsize, addr_size = self.waddr_size))
 
             self._log_write_stimuli(data_obj, start_time, old_start_time)
 
@@ -213,7 +218,7 @@ class BaseAxiMonitor:
 
         end_time = Time.now()
 
-        data_obj = Data(int(ar_t.araddr), data, True, DataFormat(self.rsize))
+        data_obj = Data(int(ar_t.araddr), data, True, DataFormat(self.rsize, addr_size = self.raddr_size))
         
         new_id = "{}_{}".format(self.name, self.current_read_id)
         self.current_read_id += 1

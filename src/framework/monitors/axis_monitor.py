@@ -27,6 +27,8 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
         self.end_time = Time(0, 'fs')
         self.last_start_time = Time(0, 'fs')
 
+        self.tdest_size = (len(self.bus.tdest)+7)//8
+
     async def monitor_stream(self):
         size = len(self.bus.tdata)//8
 
@@ -39,7 +41,7 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
 
             if frame == None:
                 frame = await self.recv()
-            self.d = Data(frame.tdest, frame.tdata, hasattr(self.bus, "tlast"), DataFormat(size))
+            self.d = Data(frame.tdest, frame.tdata, hasattr(self.bus, "tlast"), DataFormat(size, addr_size = self.tdest_size))
 
             if hasattr(self.bus, "tlast"):
                 frame = None
