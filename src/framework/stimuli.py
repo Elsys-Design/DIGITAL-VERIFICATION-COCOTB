@@ -193,7 +193,7 @@ class Stimuli:
                 "Desc": self.desc,
                 "Access": str(self.access),
                 "RelTime": str(self.rel_time),
-                "AbsTime": str(self.abs_time),
+                "AbsTime": self.abs_time.full_str(),
                 "Type": "Simple" if data.is_word() else "File",
                 "Address": utils.int_to_hex_string(int(data.addr), int(data.dformat.addr_size))
         }

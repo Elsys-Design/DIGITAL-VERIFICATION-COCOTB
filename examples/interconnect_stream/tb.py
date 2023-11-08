@@ -16,8 +16,8 @@ from framework.monitors.stimuli_loggers.efficient import EfficientStimuliLogger
 from framework.monitors.stimuli_loggers.real_time import RealTimeStimuliLogger
 
 
-StimuliLogger = EfficientStimuliLogger
-#StimuliLogger = RealTimeStimuliLogger
+#StimuliLogger = EfficientStimuliLogger
+StimuliLogger = RealTimeStimuliLogger
 
 
 class TB:

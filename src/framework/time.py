@@ -1,44 +1,42 @@
 from cocotb.utils import get_sim_time, get_sim_steps
 from cocotb.triggers import Timer
+import cocotb
 
 
 class Time:
     """
-    Represents a Time as a single value in fs (=10**(-15) s).
+    Represents a Time as a single value in simulator step.
     It can be constructed using a value and an unit.
 
     Note: min and hr units aren't supported yet.
     """
-    supported_units = {
-            "fs" : 1,
-            "ps": 10**3,
-            "ns": 10**6,
-            "us": 10**9,
-            "ms": 10**12,
-            "sec": 10**15,
-            #"min": 60*10**15,
-            #"hr": 60*60*10**15
-            }
+    scale = {
+            -15: 'fs',
+            -12: 'ps',
+            -9:  'ns',
+            -6:  'us',
+            -3:  'ms',
+            0:   'sec'
+    }
+
 
     def __init__(self, value : float, unit : str):
         if value < 0:
             raise ValueError("Time value cannot be less than zero")
 
-        if unit not in self.supported_units:
-            raise ValueError("{} unit isn't supported (supported units: {})".format(unit, *cls.supported_units))
+        if unit not in self.scale.values():
+            raise ValueError("{} unit isn't supported (supported units: {})".format(unit, *self.scale.values()))
 
-        self.value = round(value * self.supported_units[unit])
+        self.value = cocotb.utils.get_sim_steps(value, unit, round_mode="round")
 
     async def wait(self):
-        await Timer(self.value, units='fs', round_mode="round")
+        await Timer(self.value, units='step', round_mode="round")
 
     def __str__(self):
         val = self.value
-        ten_power = 0
+        ten_power = cocotb.utils._get_simulator_precision()
         # Find the actual precision
-        if val == 0:
-            ten_power = 0
-        else:
+        if val != 0:
             while val % 10 == 0:
                 val /= 10
                 ten_power += 1
@@ -50,13 +48,11 @@ class Time:
         ten_power += float_pow
 
         # Printing format
-        return "{:.3f} {}".format(val, list(self.supported_units.keys())[ten_power//3])
+        return "{:.3f} {}".format(val, self.scale[ten_power])
 
-    def to_steps(self):
-        return get_sim_steps(self.value, units='fs', round_mode='round')
+    def full_str(self):
+        return "{:d} {}".format(self.value, self.scale[cocotb.utils._get_simulator_precision()])
 
-    def to_steps_str(self):
-        return "{} steps".format(self.to_steps())
 
     @classmethod
     def now(cls):
