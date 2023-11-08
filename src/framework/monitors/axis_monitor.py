@@ -21,36 +21,66 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
         self.current_id = 0
         self.name = name
 
-        self.last_end_time = Time(0, 'fs')
 
+        self.d = None
+        self.start_time = Time(0, 'fs')
+        self.end_time = Time(0, 'fs')
+        self.last_start_time = Time(0, 'fs')
 
     async def monitor_stream(self):
         size = len(self.bus.tdata)//8
 
+        frame = None
+
         while True:
             await self.wait()
 
-            start_time = Time.now()
+            self.start_time = Time.now()
 
-            frame = await self.recv()
+            if frame == None:
+                frame = await self.recv()
+            else:
+                print(frame)
+            self.d = Data(frame.tdest, frame.tdata, hasattr(self.bus, "tlast"), DataFormat(size))
 
-            end_time = Time.now()
+            if hasattr(self.bus, "tlast"):
+                frame = None
+                self.end_time = Time.now()
+            else:
+                frame = await self.recv()
+                while frame.tdest == self.d.addr:
+                    self.d.data += frame.tdata
+                    self.end_time = Time.now()
+                    frame = await self.recv()
 
-            d = Data(frame.tdest, frame.tdata, True, DataFormat(size))
 
+            self._build_new_stimuli()
+
+
+
+    def _build_new_stimuli(self):
             new_id = "{}_{}".format(self.name, self.current_id)
             self.current_id += 1
 
             s = Stimuli(
                     new_id,
                     Access.WRITE,
-                    start_time - self.last_end_time,
-                    DataList([d]),
+                    self.start_time - self.last_start_time,
+                    DataList([self.d]),
                     "NOT IMPLEMENTED",
-                    start_time,
-                    end_time
+                    self.start_time,
+                    self.end_time
             )
 
-            self.last_end_time = end_time
+            self.last_start_time = self.start_time
 
             self.analysis_port.send(s)
+
+
+    def __del__(self):
+        if hasattr(self.bus, "tlast"):
+            return
+
+        self._build_new_stimuli()
+
+
