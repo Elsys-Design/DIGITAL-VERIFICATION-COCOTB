@@ -178,7 +178,7 @@ class Stimuli:
         return cls(id_, access, rel_time, data_list, desc)
 
     
-    def to_json(self, data_dir_path):
+    def get_plain_json(self, force_to_file = False):
         """
         Transforms a Stimuli object to a json object.
 
@@ -186,7 +186,6 @@ class Stimuli:
         This is because it's specified the address should be in the JSON so there is only one place for it but it's
         stored in the Data object. (With multiple Data, which Data's address should be used ?)
         """
-        logger.info("Writting Stimuli to {}".format(data_dir_path))
 
         if len(self.data_list) != 1:
             raise NotImplementedError("Stimuli.to_json supports only one data item per stimuli")
@@ -199,7 +198,7 @@ class Stimuli:
                 "Access": str(self.access),
                 "RelTime": str(self.rel_time),
                 "AbsTime": self.abs_time.full_str(),
-                "Type": "Simple" if data.is_word() else "File",
+                "Type": "Simple" if data.is_word() and not force_to_file else "File",
                 "Address": utils.int_to_hex_string(int(data.addr), int(data.dformat.addr_size))
         }
 
@@ -216,11 +215,17 @@ class Stimuli:
             json_obj["Size"] = len(data.data)
         else:
             json_obj["FileName"] = self.id_ + ".dat"
+
+        return json_obj
+
+    def to_json(self, data_dir_path):
+        json_obj = self.get_plain_json()
+        if json_obj["Type"] == "File":
             # Writing data file in data_dir
             # We suppose the data_dir_path is a directory
-            self.data_list.to_file(os.path.join(data_dir_path, json_obj["FileName"]), addr_to_zero = True)
-
-        logger.info("Stimuli written to json")
+            filepath = os.path.join(data_dir_path, json_obj["FileName"])
+            logger.info("Writting Stimuli datalist to {}".format(filepath))
+            self.data_list.to_file(filepath, addr_to_zero = True)
 
         return json_obj
 

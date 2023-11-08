@@ -10,7 +10,6 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
         super().__init__(bus, clock, reset, reset_active_level, **kwargs)
 
     async def write_data(self, data):
-        print(data)
         await self.write(cocotbext.axi.AxiStreamFrame(tdata=data.data, tdest=data.addr))
 
     def start_run(self, file):

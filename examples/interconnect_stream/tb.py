@@ -16,8 +16,8 @@ from framework.monitors.stimuli_loggers.efficient import EfficientStimuliLogger
 from framework.monitors.stimuli_loggers.real_time import RealTimeStimuliLogger
 
 
-#StimuliLogger = EfficientStimuliLogger
-StimuliLogger = RealTimeStimuliLogger
+StimuliLogger = EfficientStimuliLogger
+#StimuliLogger = RealTimeStimuliLogger
 
 
 class TB:
@@ -31,7 +31,7 @@ class TB:
         self.bus_in = AxiStreamBus.from_prefix(dut, "axis_in")
         self.axis_in = AxiStreamSource(self.bus_in, dut.aclk, dut.aresetn, reset_active_level=False)
         self.axis_in_monitor = AxiStreamMonitor("axis_in", self.bus_in, dut.aclk, dut.aresetn, reset_active_level=False)
-        self.axis_in_monitor.analysis_port.subscribe(StimuliLogger("stimlogs/in").recv)
+        self.axis_in_monitor.analysis_port.subscribe(StimuliLogger("stimlogs/in", is_stream_no_tlast = True).recv)
 
 
         self.bus_out = []
@@ -42,7 +42,8 @@ class TB:
             self.bus_out.append(AxiStreamBus.from_prefix(dut, "axis_out{}".format(i)))
             self.axis_out.append(AxiStreamSink(self.bus_out[i], dut.aclk, dut.aresetn, reset_active_level=False))
             self.axis_out_monitor.append(AxiStreamMonitor("axis_out{}".format(i), self.bus_out[i], dut.aclk, dut.aresetn, reset_active_level=False))
-            self.axis_out_monitor[i].analysis_port.subscribe(StimuliLogger("stimlogs/out{}".format(i)).recv)
+            self.axis_out_monitor[i].analysis_port.subscribe(StimuliLogger("stimlogs/out{}".format(i),
+                                                                           is_stream_no_tlast = True).recv)
 
     async def reset(self):
         # reset
