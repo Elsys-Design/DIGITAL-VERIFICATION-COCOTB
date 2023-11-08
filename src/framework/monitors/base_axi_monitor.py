@@ -118,21 +118,29 @@ class BaseAxiMonitor:
 
 
 
-    def _log_write_stimuli(self, data_obj, start_time, old_start_time):
+    def _log_write_stimuli(self, data_obj, start_time, old_start_time, first_id = None, wstrb = 0):
         new_id = "{}_{}".format(self.name, self.current_write_id)
+        if first_id == None:
+            first_id = new_id
+            desc = ""
+        else:
+            desc = "{} | wstrb = {}".format(first_id, wstrb)
+
         self.current_write_id += 1
         stim = Stimuli(
                 new_id,
                 Access.WRITE,
                 start_time - old_start_time,
                 DataList([data_obj]),
-                "NOT IMPLEMENTED",
+                desc,
                 start_time,
                 Time.now()
         )
 
         self.write_analysis_port.send(stim)
         self.analysis_port.send(stim)
+
+        return first_id
 
     
     def build_write_stimuli(self, b_t):
@@ -157,6 +165,7 @@ class BaseAxiMonitor:
             else:
                 # First the enabled bytes that are still continuous to the transfert can be added 
                 last_word_size = 0
+                first_id = None
                 while w_t.wstrb[-(1+last_word_size)] == 1:
                     last_word_size += 1
 
@@ -168,15 +177,15 @@ class BaseAxiMonitor:
                     current_addr += len(current_data)
                     current_data = bytearray()
 
-                    self._log_write_stimuli(data_obj, start_time, old_start_time)
+                    first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, int(w_t.wstrb))
 
                 # For any other enable byte, we log them as single byte stimulis
                 for i in range(0, self.wsize-1-last_word_size):
                     current_addr += 1
                     if w_t.wstrb[i] == 1:
                         data_obj = Data(current_addr, bytearray(word[i]), False, DataFormat(1))
-
-                        self._log_write_stimuli(data_obj, start_time, old_start_time)
+                        
+                        first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, int(w_t.wstrb))
 
         # If we only had full wstrb for the last bytes, we log them at the end
         if len(current_data) > 0:
