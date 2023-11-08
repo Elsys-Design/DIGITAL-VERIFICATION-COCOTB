@@ -1,4 +1,5 @@
 from collections import deque
+import copy
 import cocotb
 from cocotbext.axi.axil_channels import AxiLiteAWMonitor, AxiLiteWMonitor, AxiLiteBMonitor, AxiLiteARMonitor, AxiLiteRMonitor
 from cocotb.triggers import RisingEdge
@@ -122,39 +123,83 @@ class BaseAxiMonitor:
         wid = bid if self.has_wid else 0
 
         aw_t = self.aw_queues[bid].popleft()
-        w_t = self.w_queues[wid].popleft()
+        wts = [self.w_queues[wid].popleft()]
         start_time, old_start_time = self.write_start_time_queues[bid].popleft()
 
-        data = bytearray(int(w_t.wdata).to_bytes(self.wsize, "big"))
-        last_wstrb = self.write_burst_support(aw_t, wid, data)
-        if last_wstrb == None:
-            last_wstrb = w_t.wstrb
-        # for unaligned address support
-        #data = data[aw_t.awaddr % self.wsize:]
-        last_word = data[-sum(last_wstrb):]
-        data = data[:-self.wsize] + last_word
 
-        end_time = Time.now()
+        wts += self.write_burst_support(aw_t, wid)
 
-        data_obj = Data(int(aw_t.awaddr), data, True, DataFormat(self.wsize))
+        current_addr = int(aw_t.awaddr)
+        current_data = bytearray()
+        for w_t in wts:
+            word = bytearray(int(w_t.wdata).to_bytes(self.wsize, "big"))
+            if int(w_t.wstrb) == 2**self.wsize -1:
+                current_data += word
+            else:
+                last_word_size = 0
+                while w_t.wstrb[-(1+last_word_size)] == 1:
+                    last_word_size += 1
 
-        new_id = "{}_{}".format(self.name, self.current_write_id)
-        self.current_write_id += 1
-        stim = Stimuli(
-                new_id,
-                Access.WRITE,
-                # diff_or_zero if the difference is negative because of access pipelining
-                start_time - old_start_time,
-                DataList([data_obj]),
-                "NOT IMPLEMENTED",
-                start_time,
-                end_time
-        )
+                if last_word_size > 0:
+                    last_word = word[-last_word_size:]
+                    current_data += last_word
 
-        self.last_write_start_time = start_time
+                    data_obj = Data(current_addr, current_data, False, DataFormat(self.wsize))
+                    current_addr += len(current_data)
+                    current_data = bytearray()
 
-        self.write_analysis_port.send(stim)
-        self.analysis_port.send(stim)
+                    new_id = "{}_{}".format(self.name, self.current_write_id)
+                    self.current_write_id += 1
+                    stim = Stimuli(
+                            new_id,
+                            Access.WRITE,
+                            start_time - old_start_time,
+                            DataList([data_obj]),
+                            "NOT IMPLEMENTED",
+                            start_time,
+                            Time.now()
+                    )
+
+                    self.write_analysis_port.send(stim)
+                    self.analysis_port.send(stim)
+
+                for i in range(0, self.wsize-1-last_word_size):
+                    current_addr += 1
+                    if w_t.wstrb[i] == 1:
+                        data_obj = Data(current_addr, bytearray(word[i]), False, DataFormat(1))
+
+                        new_id = "{}_{}".format(self.name, self.current_write_id)
+                        self.current_write_id += 1
+                        stim = Stimuli(
+                                new_id,
+                                Access.WRITE,
+                                0,
+                                DataList([data_obj]),
+                                "NOT IMPLEMENTED",
+                                Time.now(),
+                                Time.now()
+                        )
+
+                        self.write_analysis_port.send(stim)
+                        self.analysis_port.send(stim)
+
+        if len(current_data) > 0:
+            data_obj = Data(current_addr, current_data, False, DataFormat(self.wsize))
+
+            new_id = "{}_{}".format(self.name, self.current_write_id)
+            self.current_write_id += 1
+            stim = Stimuli(
+                    new_id,
+                    Access.WRITE,
+                    start_time - old_start_time,
+                    DataList([data_obj]),
+                    "NOT IMPLEMENTED",
+                    start_time,
+                    Time.now()
+            )
+
+            self.write_analysis_port.send(stim)
+            self.analysis_port.send(stim)
 
 
     def build_read_stimuli(self, r_t):
@@ -164,7 +209,11 @@ class BaseAxiMonitor:
         start_time, old_start_time = self.read_start_time_queues[rid].popleft()
 
         data = bytearray(int(r_t.rdata).to_bytes(self.rsize, "big"))
-        self.read_burst_support(ar_t, rid, data)
+        rts = self.read_burst_support(ar_t, rid)
+        
+        for r_t in rts:
+            data += int(r_t.rdata).to_bytes(self.rsize, "big")
+
         # for unaligned address support
         #data = data[ar_t.araddr % self.rsize:]
 
@@ -185,14 +234,12 @@ class BaseAxiMonitor:
                 end_time
         )
 
-        self.last_read_start_time = start_time
-
         self.read_analysis_port.send(stim)
         self.analysis_port.send(stim)
 
     # Defined in AxiMonitor subclass
-    def write_burst_support(self, aw_t, wid, data):
-        return None
+    def write_burst_support(self, aw_t, wid):
+        return []
 
-    def read_burst_support(self, ar_t, rid, data):
-        pass
+    def read_burst_support(self, ar_t, rid):
+        return []
