@@ -125,10 +125,13 @@ class BaseAxiMonitor:
         w_t = self.w_queues[wid].popleft()
         start_time, old_start_time = self.write_start_time_queues[bid].popleft()
 
-        data = int(w_t.wdata).to_bytes(self.wsize, "big")
-        data += self.write_burst_support(aw_t, wid)
-        data = data[aw_t.awaddr % self.wsize:]
-        last_word = data[-sum(w_t.wstrb):]
+        data = bytearray(int(w_t.wdata).to_bytes(self.wsize, "big"))
+        last_wstrb = self.write_burst_support(aw_t, wid, data)
+        if last_wstrb == None:
+            last_wstrb = w_t.wstrb
+        # for unaligned address support
+        #data = data[aw_t.awaddr % self.wsize:]
+        last_word = data[-sum(last_wstrb):]
         data = data[:-self.wsize] + last_word
 
         end_time = Time.now()
@@ -160,9 +163,10 @@ class BaseAxiMonitor:
         ar_t = self.ar_queues[rid].popleft()
         start_time, old_start_time = self.read_start_time_queues[rid].popleft()
 
-        data = int(r_t.rdata).to_bytes(self.rsize, "big")
-        data += self.read_burst_support(ar_t, rid)
-        data = data[ar_t.araddr % self.rsize:]
+        data = bytearray(int(r_t.rdata).to_bytes(self.rsize, "big"))
+        self.read_burst_support(ar_t, rid, data)
+        # for unaligned address support
+        #data = data[ar_t.araddr % self.rsize:]
 
         end_time = Time.now()
 
@@ -187,8 +191,8 @@ class BaseAxiMonitor:
         self.analysis_port.send(stim)
 
     # Defined in AxiMonitor subclass
-    def write_burst_support(self, aw_t, wid):
-        return bytes() 
+    def write_burst_support(self, aw_t, wid, data):
+        return None
 
-    def read_burst_support(self, ar_t, rid):
-        return bytes() 
+    def read_burst_support(self, ar_t, rid, data):
+        pass

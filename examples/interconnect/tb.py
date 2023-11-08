@@ -53,7 +53,7 @@ class TB:
             self.out_axilite_bus.append(AxiLiteBus.from_prefix(dut, name))
             self.out_axilite_rams.append(AxiLiteRam(self.out_axilite_bus[i], dut.aclk, dut.aresetn, reset_active_level=False, size=2**8))
             self.out_axilite_monitors.append(AxiLiteMonitor(name, self.out_axilite_bus[i], dut.aclk, dut.aresetn, reset_active_level=False))
-            self.monitors_in[i].analysis_port.subscribe(StimuliLogger("stimlogs/" + name).recv)
+            self.out_axilite_monitors[i].analysis_port.subscribe(StimuliLogger("stimlogs/" + name).recv)
 
         self.out_axi_bus = AxiLiteBus.from_prefix(dut, "out_axi")
         self.out_axi_ram = AxiLiteRam(self.out_axi_bus, dut.aclk, dut.aresetn, reset_active_level=False, size=2**8)
