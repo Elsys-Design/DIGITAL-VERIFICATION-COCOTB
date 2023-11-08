@@ -51,6 +51,7 @@ class Data:
     data : bytearray
     stream_tlast_end : bool
     dformat : DataFormat
+    is_linked_to_previous : bool = False
 
     def alignment_check(self):
         """
@@ -258,6 +259,10 @@ class Data:
         else:
             FillStrategy.exec_on(fill_strategy, out[-1].data, input_length-current_length)
         
+
+        for i in range(1, len(out)):
+            out[i].is_linked_to_previous = True
+
         logger.info("Data built from raw")
 
         return out

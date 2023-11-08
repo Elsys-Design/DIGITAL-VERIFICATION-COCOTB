@@ -8,6 +8,11 @@ class AxiMaster(cocotbext.axi.AxiMaster):
         super().__init__(bus, clock, reset, reset_active_level, max_burst_len, **kwargs)
 
 
+    async def write_datalist(self, datalist):
+        for data in datalist:
+            await self.write_data(data)
+
+
     async def write_data(self, data):
         data.alignment_check()
         await self.write(data.addr, data.data, awid = 0)
