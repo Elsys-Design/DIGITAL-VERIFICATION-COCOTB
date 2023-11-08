@@ -165,43 +165,53 @@ class BaseAxiMonitor:
         # Support for wstrb
         current_addr = int(aw_t.awaddr)
         current_data = bytearray()
+        first_id = None
         for i in range(awlen+1):
             w_t = self.w_queues[wid].popleft()
             word = bytearray(int(w_t.wdata).to_bytes(awsize, "big"))
             if int(w_t.wstrb) == 2**awsize -1:
-                # wstrb full
                 current_data += word
             else:
-                # First the enabled bytes that are still continuous to the transfert can be added 
-                last_word_size = 0
-                first_id = None
-                while w_t.wstrb[-(1+last_word_size)] == 1:
-                    last_word_size += 1
 
-                if last_word_size > 0:
-                    last_word = word[-last_word_size:]
-                    current_data += last_word
+                is_continuous = True
+                if i == awlen:
+                    # The enabled bytes that are still continuous to the transfert can be added 
+                    last_word_size = 0
+                    while w_t.wstrb[-(1+last_word_size)] == 1:
+                        last_word_size += 1
 
-                    data_obj = Data(current_addr, current_data, False, DataFormat(awsize, addr_size = self.waddr_size))
-                    current_addr += len(current_data)
-                    current_data = bytearray()
+                    for x in range(last_word_size+1, awsize):
+                        if w_t.wstrb[-x] == 1:
+                            is_continuous = False
+                    
+                    if is_continuous and last_word_size > 0:
+                        last_word = word[-last_word_size:]
+                        current_data += last_word
 
-                    first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, int(w_t.wstrb))
+                        data_obj = Data(current_addr, current_data, False, DataFormat(awsize, addr_size = self.waddr_size))
+                        current_addr += len(current_data)
+                        current_data = bytearray()
 
-                # For any other enable byte, we log them as single byte stimulis
-                for i in range(0, awsize-1-last_word_size):
-                    current_addr += 1
-                    if w_t.wstrb[i] == 1:
-                        data_obj = Data(current_addr, bytearray(word[i]), False, DataFormat(1, addr_size
-                                                                                            = self.waddr_size))
-                        
                         first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, int(w_t.wstrb))
+
+                if i != awlen or not is_continuous:
+                    # Single non continuous wstrb
+                    if len(current_data) != 0:
+                        data_obj = Data(current_addr, current_data, False, DataFormat(awsize, addr_size = self.waddr_size))
+                        first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id)
+                        current_addr += len(current_data)
+                        current_data = bytearray()
+
+                
+                    data_obj = Data(current_addr, word, False, DataFormat(awsize, addr_size = self.waddr_size))
+                    first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, int(w_t.wstrb))
 
         # If we only had full wstrb for the last bytes, we log them at the end
         if len(current_data) > 0:
             data_obj = Data(current_addr, current_data, False, DataFormat(awsize, addr_size = self.waddr_size))
 
             self._log_write_stimuli(data_obj, start_time, old_start_time)
+
 
 
     def build_read_stimuli(self, r_t):
