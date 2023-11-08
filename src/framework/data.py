@@ -228,7 +228,6 @@ class Data:
             # Also handle the last data (even if it doesn't end with an end of packet)
             if stream_tlast_end or x == len(data_fields)-1:
                 addr = base_addr if is_stream else base_addr + current_length
-                print(is_stream)
                 out.append(Data(addr, data, stream_tlast_end, dformat))
             
                 # Reset vars for new data

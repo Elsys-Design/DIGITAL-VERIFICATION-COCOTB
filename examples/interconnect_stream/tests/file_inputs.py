@@ -14,13 +14,11 @@ async def cocotb_run(dut):
     tb = TB(dut)
     await tb.reset()
 
-    write_scenario = StimuliList.from_file("inputs/write_stimulis.json", is_stream=True)
-    write_task = cocotb.start_soon(write_scenario.run(tb.axis_in))
+    write_task = tb.axis_in.start_run("inputs/write_stimulis.json")
 
     read_tasks = []
     for i in range(2):
-        scenario = StimuliList.from_file("inputs/read_stimulis{}.json".format(i), is_stream=True)
-        read_tasks.append(cocotb.start_soon(scenario.run(tb.axis_out[i])))
+        read_tasks.append(tb.axis_out[i].start_run("inputs/read_stimulis{}.json".format(i)))
 
     await Combine(write_task, *read_tasks)
 

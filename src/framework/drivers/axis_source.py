@@ -1,4 +1,6 @@
 import cocotbext.axi
+import cocotb
+from ..stimuli_list import StimuliList
 
 
 
@@ -11,3 +13,5 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
         print(data)
         await self.write(cocotbext.axi.AxiStreamFrame(tdata=data.data, tdest=data.addr))
 
+    def start_run(self, file):
+        return cocotb.start_soon(StimuliList.from_file(file, is_stream=True).run(self))
