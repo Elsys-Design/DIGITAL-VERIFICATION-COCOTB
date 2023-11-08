@@ -168,7 +168,7 @@ class BaseAxiMonitor:
         first_id = None
         for i in range(awlen+1):
             w_t = self.w_queues[wid].popleft()
-            word = bytearray(int(w_t.wdata).to_bytes(awsize, "big"))
+            word = bytearray(reversed(w_t.wdata.buff))
             if int(w_t.wstrb) == 2**awsize -1:
                 current_data += word
             else:
@@ -185,7 +185,7 @@ class BaseAxiMonitor:
                             is_continuous = False
                     
                     if is_continuous and last_word_size > 0:
-                        last_word = word[-last_word_size:]
+                        last_word = word[:last_word_size]
                         current_data += last_word
 
                         data_obj = Data(current_addr, current_data, False, DataFormat(awsize, addr_size = self.waddr_size))
