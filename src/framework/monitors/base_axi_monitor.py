@@ -117,6 +117,23 @@ class BaseAxiMonitor:
 
 
 
+
+    def _log_write_stimuli(self, data_obj, start_time, old_start_time):
+        new_id = "{}_{}".format(self.name, self.current_write_id)
+        self.current_write_id += 1
+        stim = Stimuli(
+                new_id,
+                Access.WRITE,
+                start_time - old_start_time,
+                DataList([data_obj]),
+                "NOT IMPLEMENTED",
+                start_time,
+                Time.now()
+        )
+
+        self.write_analysis_port.send(stim)
+        self.analysis_port.send(stim)
+
     
     def build_write_stimuli(self, b_t):
         bid = b_t.bid if self.has_write_id else 0
@@ -129,13 +146,16 @@ class BaseAxiMonitor:
 
         wts += self.write_burst_support(aw_t, wid)
 
+        # Support for wstrb
         current_addr = int(aw_t.awaddr)
         current_data = bytearray()
         for w_t in wts:
             word = bytearray(int(w_t.wdata).to_bytes(self.wsize, "big"))
             if int(w_t.wstrb) == 2**self.wsize -1:
+                # wstrb full
                 current_data += word
             else:
+                # First the enabled bytes that are still continuous to the transfert can be added 
                 last_word_size = 0
                 while w_t.wstrb[-(1+last_word_size)] == 1:
                     last_word_size += 1
@@ -148,58 +168,21 @@ class BaseAxiMonitor:
                     current_addr += len(current_data)
                     current_data = bytearray()
 
-                    new_id = "{}_{}".format(self.name, self.current_write_id)
-                    self.current_write_id += 1
-                    stim = Stimuli(
-                            new_id,
-                            Access.WRITE,
-                            start_time - old_start_time,
-                            DataList([data_obj]),
-                            "NOT IMPLEMENTED",
-                            start_time,
-                            Time.now()
-                    )
+                    self._log_write_stimuli(data_obj, start_time, old_start_time)
 
-                    self.write_analysis_port.send(stim)
-                    self.analysis_port.send(stim)
-
+                # For any other enable byte, we log them as single byte stimulis
                 for i in range(0, self.wsize-1-last_word_size):
                     current_addr += 1
                     if w_t.wstrb[i] == 1:
                         data_obj = Data(current_addr, bytearray(word[i]), False, DataFormat(1))
 
-                        new_id = "{}_{}".format(self.name, self.current_write_id)
-                        self.current_write_id += 1
-                        stim = Stimuli(
-                                new_id,
-                                Access.WRITE,
-                                0,
-                                DataList([data_obj]),
-                                "NOT IMPLEMENTED",
-                                Time.now(),
-                                Time.now()
-                        )
+                        self._log_write_stimuli(data_obj, start_time, old_start_time)
 
-                        self.write_analysis_port.send(stim)
-                        self.analysis_port.send(stim)
-
+        # If we only had full wstrb for the last bytes, we log them at the end
         if len(current_data) > 0:
             data_obj = Data(current_addr, current_data, False, DataFormat(self.wsize))
 
-            new_id = "{}_{}".format(self.name, self.current_write_id)
-            self.current_write_id += 1
-            stim = Stimuli(
-                    new_id,
-                    Access.WRITE,
-                    start_time - old_start_time,
-                    DataList([data_obj]),
-                    "NOT IMPLEMENTED",
-                    start_time,
-                    Time.now()
-            )
-
-            self.write_analysis_port.send(stim)
-            self.analysis_port.send(stim)
+            self._log_write_stimuli(data_obj, start_time, old_start_time)
 
 
     def build_read_stimuli(self, r_t):
