@@ -148,18 +148,18 @@ class BaseAxiMonitor:
         wid = bid if self.has_wid else 0
 
         aw_t = self.aw_queues[bid].popleft()
-        wts = [self.w_queues[wid].popleft()]
         start_time, old_start_time = self.write_start_time_queues[bid].popleft()
 
-
-        wts += self.write_burst_support(aw_t, wid)
+        awlen = aw_t.awlen if hasattr(aw_t, "awlen") else 0
+        awsize = 2**aw_t.awsize if hasattr(aw_t, "awsize") else self.wsize
 
         # Support for wstrb
         current_addr = int(aw_t.awaddr)
         current_data = bytearray()
-        for w_t in wts:
-            word = bytearray(int(w_t.wdata).to_bytes(self.wsize, "big"))
-            if int(w_t.wstrb) == 2**self.wsize -1:
+        for i in range(awlen+1):
+            w_t = self.w_queues[wid].popleft()
+            word = bytearray(int(w_t.wdata).to_bytes(awsize, "big"))
+            if int(w_t.wstrb) == 2**awsize -1:
                 # wstrb full
                 current_data += word
             else:
@@ -173,14 +173,14 @@ class BaseAxiMonitor:
                     last_word = word[-last_word_size:]
                     current_data += last_word
 
-                    data_obj = Data(current_addr, current_data, False, DataFormat(self.wsize))
+                    data_obj = Data(current_addr, current_data, False, DataFormat(awsize))
                     current_addr += len(current_data)
                     current_data = bytearray()
 
                     first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, int(w_t.wstrb))
 
                 # For any other enable byte, we log them as single byte stimulis
-                for i in range(0, self.wsize-1-last_word_size):
+                for i in range(0, awsize-1-last_word_size):
                     current_addr += 1
                     if w_t.wstrb[i] == 1:
                         data_obj = Data(current_addr, bytearray(word[i]), False, DataFormat(1))
@@ -189,7 +189,7 @@ class BaseAxiMonitor:
 
         # If we only had full wstrb for the last bytes, we log them at the end
         if len(current_data) > 0:
-            data_obj = Data(current_addr, current_data, False, DataFormat(self.wsize))
+            data_obj = Data(current_addr, current_data, False, DataFormat(awsize))
 
             self._log_write_stimuli(data_obj, start_time, old_start_time)
 
@@ -200,10 +200,12 @@ class BaseAxiMonitor:
         ar_t = self.ar_queues[rid].popleft()
         start_time, old_start_time = self.read_start_time_queues[rid].popleft()
 
+        arlen = ar_t.arlen if hasattr(ar_t, "arlen") else 0
+        arsize = 2**ar_t.arsize if hasattr(ar_t, "arsize") else self.rsize
+
         data = bytearray(int(r_t.rdata).to_bytes(self.rsize, "big"))
-        rts = self.read_burst_support(ar_t, rid)
         
-        for r_t in rts:
+        for i in range(arlen):
             data += int(r_t.rdata).to_bytes(self.rsize, "big")
 
         # for unaligned address support

@@ -21,27 +21,6 @@ class AxiMonitor(BaseAxiMonitor):
         self.r_queues = [deque() for _ in range(len(self.r.rid) if self.has_read_id else 1)]
 
 
-    def write_burst_support(self, aw_t, wid):
-        awlen = int(aw_t.awlen) # no +1 because we already have the first transfert
-        size = 2**int(aw_t.awsize)
-
-        wts = []
-        for i in range(awlen):
-            wts.append(self.w_queues[wid].popleft())
-        return wts
-
-
-    def read_burst_support(self, ar_t, rid):
-        arlen = int(ar_t.arlen)
-        size = 2**int(ar_t.arsize)
-
-        rts = []
-        for i in range(arlen):
-            rts.append(self.r_queues[rid].popleft())
-
-        return rts
-
-
     def build_read_stimuli(self, r_t):
         """
         Overriding base method because AXI transferts can contain read bursts and we need to wait until the last read
