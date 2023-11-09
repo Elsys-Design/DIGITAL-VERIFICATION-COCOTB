@@ -18,10 +18,11 @@ async def cocotb_run(dut):
     for i in range(2):
         tasks.append(tb.masters_in[i].start_run("inputs/stimulis{}.json".format(i)))
 
-    # Waiting for the scenario to finish
+    # Letting the scenarios execute (passing simulation time)
     await Combine(*tasks)
 
-    # Waiting for the DMA to finish the transferts
+    # Waiting for the VHDL DMA to finish the transferts
+    # It's not a cocotb master but one that is in the DUT so the Combine(*tasks) won't wait for it
     await Timer(1000, units="ns")
 
 
@@ -34,6 +35,7 @@ async def cocotb_run(dut):
         print("RAM {}".format(i))
         print(memory_final[i])
 
+    # Testing that both memories contain the same data
     if not memory_final[0].represents_same_data_as(memory_final[1]):
         raise TestFailure("AXI DMA didn't copy ram_out[0] in ram_out[1] properly")
 
