@@ -57,7 +57,7 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
                     Access.WRITE,
                     start_time - self.last_end_time,
                     DataList([d]),
-                    "NOT IMPLEMENTED",
+                    "",
                     start_time,
                     end_time
             )

@@ -53,9 +53,9 @@ class TB:
 
         # Building the cocotb RAMs for each AXI Data FIFO's output bus
         self.fifo_out_axilite_bus = AxiLiteBus.from_prefix(dut, "fifo_out_axilite")
-        self.fifo_out_axilite = AxiLiteRam(self.fifo_out_axilite_bus, dut.aclk, dut.aresetn, reset_active_level=False, size=2**32)
+        self.fifo_out_axilite_ram = AxiLiteRam(self.fifo_out_axilite_bus, dut.aclk, dut.aresetn, reset_active_level=False, size=2**16)
         self.fifo_out_axi_bus = AxiBus.from_prefix(dut, "fifo_out_axi")
-        self.fifo_out_axi = AxiRam(self.fifo_out_axi_bus, dut.aclk, dut.aresetn, reset_active_level=False, size=2**32)
+        self.fifo_out_axi_ram = AxiRam(self.fifo_out_axi_bus, dut.aclk, dut.aresetn, reset_active_level=False, size=2**16)
 
         # Building cocotb's axilite output RAMs and Monitors
         self.out_axilite_bus = []
@@ -95,4 +95,14 @@ class TB:
 
         self.out_axi_monitor.default_logger.write_to_dir()
 
+
+    def fill_memories(self):
+        mem_gen = lambda : bytearray([random.randrange(0, 2**8) for _ in range(2**16)])
+        self.fifo_out_axilite_ram.write(0, mem_gen())
+        self.fifo_out_axi_ram.write(0, mem_gen())
+
+        for ram in self.out_axilite_rams:
+            ram.write(0, mem_gen())
+
+        self.out_axi_ram.write(0, mem_gen())
 

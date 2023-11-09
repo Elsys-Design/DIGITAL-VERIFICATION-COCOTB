@@ -60,6 +60,7 @@ class BaseAxiMonitor:
         self.write_start_time_queues = [deque() for _ in range(len(self.aw.awid) if self.has_write_id else 1)]
 
         self.ar_queues = [deque() for _ in range(len(self.ar.arid) if self.has_read_id else 1)]
+        self.r_queues = [deque() for _ in range(len(self.r.rid) if self.has_read_id else 1)]
         self.read_start_time_queues = [deque() for _ in range(len(self.ar.arid) if self.has_read_id else 1)]
 
         # Data sizes for write and read buses
@@ -122,10 +123,10 @@ class BaseAxiMonitor:
         while True:
             r_t = await self.r.recv()
             rid = r_t.rid if self.has_read_id else 0
-            # We have received a complete transaction, we can build the Stimuli
-            # (not true for AXI because there can be bursts, see override in AxiMonitor child class)
-            self.build_read_stimuli(r_t)
+            self.r_queues[rid].append(r_t)
 
+            if not hasattr(r_t, "rlast") or r_t.rlast:
+                self.build_read_stimuli()
 
 
 
@@ -222,7 +223,7 @@ class BaseAxiMonitor:
 
 
 
-    def build_read_stimuli(self, r_t):
+    def build_read_stimuli(self):
         rid = r_t.rid if self.has_read_id else 0
 
         ar_t = self.ar_queues[rid].popleft()
@@ -231,10 +232,10 @@ class BaseAxiMonitor:
         arlen = ar_t.arlen if hasattr(ar_t, "arlen") else 0
         arsize = 2**ar_t.arsize if hasattr(ar_t, "arsize") else self.rsize
 
-        data = bytearray(int(r_t.rdata).to_bytes(self.rsize, "big"))
-        
-        for i in range(arlen):
-            data += int(r_t.rdata).to_bytes(self.rsize, "big")
+        data = bytearray()
+        while len(self.r_queues[rid]) > 0:
+            r_t = self.r_queues[rid].popleft()
+            data += bytearray(reversed(r_t.rdata.buff))
 
         # for unaligned address support
         #data = data[ar_t.araddr % self.rsize:]
@@ -251,7 +252,7 @@ class BaseAxiMonitor:
                 # diff_or_zero if the difference is negative because of access pipelining
                 start_time - old_start_time,
                 DataList([data_obj]),
-                "NOT IMPLEMENTED",
+                "",
                 start_time,
                 end_time
         )
@@ -259,9 +260,3 @@ class BaseAxiMonitor:
         self.read_analysis_port.send(stim)
         self.analysis_port.send(stim)
 
-    # Defined in AxiMonitor subclass
-    def write_burst_support(self, aw_t, wid):
-        return []
-
-    def read_burst_support(self, ar_t, rid):
-        return []

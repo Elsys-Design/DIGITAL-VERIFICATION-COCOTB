@@ -1,4 +1,5 @@
 import random
+import os
 
 from .fill_strategy import FillStrategy
 from .data import Data
@@ -60,17 +61,19 @@ class DataList(list):
 
         return "\n".join(string_list) + "\n"
 
-    def to_file(self, file_path, addr_to_zero = False):
+    def to_file(self, filepath, addr_to_zero = False):
         """
         Writes a whole data list to a file.
         """
-        logger.info("Writting DataList to {}: addr_to_zero = {}".format(file_path, addr_to_zero))
+        logger.info("Writting DataList to {}: addr_to_zero = {}".format(filepath, addr_to_zero))
 
-        f = open(file_path, "w")
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
+        f = open(filepath, "w")
         f.write(self.to_str(addr_to_zero))
         f.close()
         
-        logger.info("DataList written to {}".format(file_path))
+        logger.info("DataList written to {}".format(filepath))
 
     def represents_same_data_as(self, other, addr_offset = 0):
         """
