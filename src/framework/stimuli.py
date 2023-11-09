@@ -3,7 +3,6 @@ import random
 import os
 from dataclasses import dataclass
 import json
-from cocotb.utils import get_sim_time
 from cocotb.triggers import Timer
 
 from .fill_strategy import FillStrategy
@@ -101,7 +100,7 @@ class Stimuli:
 
 
     @classmethod
-    def _build_data_list(cls, json_obj, access, data_dir_path, is_aligned = False):
+    def _build_data_list(cls, json_obj, access, data_dir_path, is_stream = False):
         """
         Builds the data_list, either from json_obj fields or from a file depending on the Type.
         """
@@ -121,20 +120,25 @@ class Stimuli:
                     data = data & (2**(8*size) - 1)
                 data = bytearray(data.to_bytes(size, 'big'))
                 data_obj = Data(addr, data, True, DataFormat(size))
-                if is_aligned:
+                if is_stream:
                     data_obj.alignment_check()
                 return DataList([data_obj])
             else:
                 data = bytearray()
                 FillStrategy.exec_on(FillStrategy.ZEROS, data, size)
                 data_obj = Data(addr, data, False, DataFormat(1))
-                if is_aligned:
+                if is_stream:
                     data_obj.alignment_check()
                 return DataList([data_obj])
         else: # Type = File
             fill_strategy = json_obj["Fill"]
             if access == Access.WRITE:
-                return DataList.from_file(os.path.join(data_dir_path, json_obj["FileName"]), addr, fill_strategy)
+                return DataList.from_file(
+                        os.path.join(data_dir_path, json_obj["FileName"]),
+                        addr,
+                        fill_strategy,
+                        is_stream
+                )
             else:
                 # TODO: Should this be implemented ?
                 # See specs
@@ -144,7 +148,7 @@ class Stimuli:
 
 
     @classmethod
-    def from_json(cls, json_obj, data_dir_path, defaultid = "", is_aligned = False):
+    def from_json(cls, json_obj, data_dir_path, defaultid = "", is_stream = False):
         """
         Creates a Stimuli object from a json object.
         """
@@ -167,14 +171,14 @@ class Stimuli:
         desc = json_obj["Desc"] if "Desc" in json_obj else ""
 
         # Creating the data_list
-        data_list = cls._build_data_list(json_obj, access, data_dir_path, is_aligned)
+        data_list = cls._build_data_list(json_obj, access, data_dir_path, is_stream)
 
         logger.info("Stimuli built from json_obj")
              
         return cls(id_, access, rel_time, data_list, desc)
 
     
-    def to_json(self, data_dir_path):
+    def get_plain_json(self, force_to_file = False):
         """
         Transforms a Stimuli object to a json object.
 
@@ -182,7 +186,6 @@ class Stimuli:
         This is because it's specified the address should be in the JSON so there is only one place for it but it's
         stored in the Data object. (With multiple Data, which Data's address should be used ?)
         """
-        logger.info("Writting Stimuli to {}".format(data_dir_path))
 
         if len(self.data_list) != 1:
             raise NotImplementedError("Stimuli.to_json supports only one data item per stimuli")
@@ -194,9 +197,9 @@ class Stimuli:
                 "Desc": self.desc,
                 "Access": str(self.access),
                 "RelTime": str(self.rel_time),
-                "AbsTime": str(self.abs_time),
-                "Type": "Simple" if data.is_word() else "File",
-                "Address": utils.int_to_hex_string(data.addr, data.dformat.addr_size)
+                "AbsTime": self.abs_time.full_str(),
+                "Type": "Simple" if data.is_word() and not force_to_file else "File",
+                "Address": utils.int_to_hex_string(int(data.addr), int(data.dformat.addr_size))
         }
 
         # Addind desc anyway and removing it if it's empty
@@ -212,11 +215,17 @@ class Stimuli:
             json_obj["Size"] = len(data.data)
         else:
             json_obj["FileName"] = self.id_ + ".dat"
+
+        return json_obj
+
+    def to_json(self, data_dir_path):
+        json_obj = self.get_plain_json()
+        if json_obj["Type"] == "File":
             # Writing data file in data_dir
             # We suppose the data_dir_path is a directory
-            self.data_list.to_file(os.path.join(data_dir_path, json_obj["FileName"]), addr_to_zero = True)
-
-        logger.info("Stimuli written to json")
+            filepath = os.path.join(data_dir_path, json_obj["FileName"])
+            logger.info("Writting Stimuli datalist to {}".format(filepath))
+            self.data_list.to_file(filepath, addr_to_zero = True)
 
         return json_obj
 
@@ -225,19 +234,19 @@ class Stimuli:
         
         logger.debug("Stimuli waits {}", self.rel_time)
 
-        await Timer(self.rel_time, units='fs', round_mode="round")
+        await self.rel_time.wait()
         
         logger.debug("Stimuli waited {} and starts running", self.rel_time)
 
         # Updating start time to the real value
-        self.abs_time = Time(get_sim_time('fs'), 'fs')
+        self.abs_time = Time.now()
 
         if self.access == Access.WRITE:
             await self.data_list.write_using(master)
         else:
             await self.data_list.read_using(master)
         
-        self.end_time = Time(get_sim_time('fs'), 'fs')
+        self.end_time = Time.now()
 
         logger.info("Stimuli's run ended")
 

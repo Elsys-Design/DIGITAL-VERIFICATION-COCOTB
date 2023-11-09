@@ -17,7 +17,7 @@ class StimuliList(list):
         super().__init__(base)
 
     @classmethod
-    def from_file(cls, filename, is_aligned = False):
+    def from_file(cls, filename, is_stream = False):
         """
         Creates a StimuliList from a json file (filename).
         The FileName attributes in json are relative to the directory in which the json file is.
@@ -36,7 +36,7 @@ class StimuliList(list):
                     data[i],
                     os.path.dirname(filename),
                     Path(filename).stem + "_{}".format(i),
-                    is_aligned
+                    is_stream
                 )
             )
             if stimulis[-1].id_ in id_list:

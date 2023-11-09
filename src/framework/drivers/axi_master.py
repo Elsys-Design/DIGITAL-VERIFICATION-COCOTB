@@ -1,4 +1,6 @@
 import cocotbext.axi
+import cocotb
+from ..stimuli_list import StimuliList
 
 
 
@@ -17,3 +19,9 @@ class AxiMaster(cocotbext.axi.AxiMaster):
         read_response = await self.read(data.addr, len(data.data), arid = 0)
         # Filling data but it's not used yet as we can log everything with the monitors
         data.data = read_response.data
+
+
+
+    def start_run(self, file):
+        return cocotb.start_soon(StimuliList.from_file(file, is_stream=False).run(self))
+

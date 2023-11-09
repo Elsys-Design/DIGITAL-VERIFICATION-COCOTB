@@ -14,7 +14,7 @@ class DataList(list):
         super().__init__(base)
 
     @classmethod
-    def from_file(cls, filename, base_addr = 0, fill_strategy = FillStrategy.ZEROS, is_aligned = False):
+    def from_file(cls, filename, base_addr = 0, fill_strategy = FillStrategy.ZEROS, is_stream = False):
         """
         Creates a data list from a data text file.
         Raises an error if there is no sequence in that file.
@@ -35,9 +35,9 @@ class DataList(list):
 
         data_list = cls()
         for d in data:
-            data_list += Data.from_raw(d, base_addr, fill_strategy)
+            data_list += Data.from_raw(d, base_addr, fill_strategy, is_stream)
 
-        if is_aligned:
+        if not is_stream:
             for d in data_list:
                 d.alignment_check()
 

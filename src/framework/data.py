@@ -135,7 +135,7 @@ class Data:
 
 
     @classmethod
-    def from_raw(cls, raw, base_addr, fill_strategy):
+    def from_raw(cls, raw, base_addr, fill_strategy, is_stream = False):
         """
         Reads a sequence with a descriptor and returns a list of Data.
         At every end of packet ('!'), we create a new Data object that is put into the 'out' list.
@@ -227,7 +227,8 @@ class Data:
             # Cutting the sequence in multiple Data if we have an end of packet in the middle of it
             # Also handle the last data (even if it doesn't end with an end of packet)
             if stream_tlast_end or x == len(data_fields)-1:
-                out.append(Data(base_addr + current_length, data, stream_tlast_end, dformat))
+                addr = base_addr if is_stream else base_addr + current_length
+                out.append(Data(addr, data, stream_tlast_end, dformat))
             
                 # Reset vars for new data
                 current_length += len(data)

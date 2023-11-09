@@ -16,8 +16,7 @@ async def cocotb_run(dut):
     # Loading & executing scenarios
     tasks = []
     for i in range(2):
-        scenario = StimuliList.from_file("inputs/stimulis{}.json".format(i))
-        tasks.append(cocotb.start_soon(scenario.run(tb.master_in[i])))
+        tasks.append(tb.masters_in[i].start_run("inputs/stimulis{}.json".format(i)))
 
     # Waiting for the scenario to finish
     await Combine(*tasks)
@@ -31,7 +30,7 @@ async def cocotb_run(dut):
     print("\n\n")
     memory_final = []
     for i in range(2):
-        memory_final.append(Data.from_memory(tb.out_axilite_ram[i], 0x0, 2**5))
+        memory_final.append(Data.from_memory(tb.out_axilite_rams[i], 0x0, 2**5))
         print("RAM {}".format(i))
         print(memory_final[i])
 

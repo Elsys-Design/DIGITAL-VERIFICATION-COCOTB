@@ -1,6 +1,7 @@
 import cocotbext.axi.axis
 import cocotb
 from cocotb.triggers import RisingEdge, Event, Combine, Timer
+from ..stimuli_list import StimuliList
 
 
 
@@ -12,12 +13,14 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         self.current_accept = 0
         self.read_done = Event()
 
+    def start_run(self, file):
+        # is_stream doesn't do anything here since parsing Data is what differs
+        # We could eventually accept stimulis without an Address field here since it's not used anyways
+        return cocotb.start_soon(StimuliList.from_file(file, is_stream=True).run(self))
 
     async def read_data(self, data):
         self.current_accept = len(data.data)
-        print(cocotb.utils.get_sim_time('ns'))
         await self.read_done.wait()
-        print(cocotb.utils.get_sim_time('ns'))
         self.read_done.clear()
 
 
