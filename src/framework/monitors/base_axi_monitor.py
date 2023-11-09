@@ -184,7 +184,7 @@ class BaseAxiMonitor:
                     last_word_size = 0
                     while w_t.wstrb[-(1+last_word_size)] == 1:
                         last_word_size += 1
-
+                    
                     for x in range(last_word_size+1, awsize):
                         if w_t.wstrb[-x] == 1:
                             is_continuous = False

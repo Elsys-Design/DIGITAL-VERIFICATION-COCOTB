@@ -67,15 +67,15 @@ class TB:
                     AxiLiteBus.from_prefix(dut, name)
             )
             self.out_axilite_rams.append(
-                    AxiLiteRam(self.out_axilite_bus[-1], dut.aclk, dut.aresetn, reset_active_level=False, size=2**8)
+                    AxiLiteRam(self.out_axilite_bus[-1], dut.aclk, dut.aresetn, reset_active_level=False, size=2**16)
             )
             self.out_axilite_monitors.append(
                     AxiLiteMonitor(name, self.out_axilite_bus[-1], dut.aclk, dut.aresetn, reset_active_level=False)
             )
 
         # Building cocotb's axi output RAM and Monitor
-        self.out_axi_bus = AxiLiteBus.from_prefix(dut, "out_axi")
-        self.out_axi_ram = AxiLiteRam(self.out_axi_bus, dut.aclk, dut.aresetn, reset_active_level=False, size=2**8)
+        self.out_axi_bus = AxiBus.from_prefix(dut, "out_axi")
+        self.out_axi_ram = AxiRam(self.out_axi_bus, dut.aclk, dut.aresetn, reset_active_level=False, size=2**16)
         self.out_axi_monitor = AxiMonitor("out_axi", self.out_axi_bus, dut.aclk, dut.aresetn, reset_active_level=False)
 
 

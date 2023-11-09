@@ -49,8 +49,8 @@ class Data:
     """
     addr : int
     data : bytearray
-    stream_tlast_end : bool
-    dformat : DataFormat
+    stream_tlast_end : bool = True
+    dformat : DataFormat = DataFormat(4)
 
     def alignment_check(self):
         """
