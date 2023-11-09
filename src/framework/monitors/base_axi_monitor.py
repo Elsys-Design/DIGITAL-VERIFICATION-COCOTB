@@ -168,6 +168,13 @@ class BaseAxiMonitor:
         start_time, old_start_time = self.write_start_time_queues[bid].popleft()
 
         awlen = aw_t.awlen if hasattr(aw_t, "awlen") else 0
+
+        if hasattr(aw_t, "awsize"):
+            if 2**aw_t.awsize != self.wsize:
+                raise NotImplementedError(
+                        "awsize is different from bus size, BaseAxiMonitor has not been tested for this eventuality."
+                )
+        # In case it's supported someday
         awsize = 2**aw_t.awsize if hasattr(aw_t, "awsize") else self.wsize
 
         # Support for wstrb
@@ -213,13 +220,13 @@ class BaseAxiMonitor:
                     data_obj = Data(current_addr, word, False, DataFormat(awsize, addr_size = self.waddr_size))
                     first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, str(w_t.wstrb)[::-1])
                     # To handle addresses that are not aligned on the bus size
-                    current_addr += current_addr % 4 if current_addr % 4 != 0 else 4
+                    current_addr += awsize - (current_addr % awsize)
 
         # If we only had full wstrb for the last bytes, we log them at the end
         if len(current_data) > 0:
             data_obj = Data(current_addr, current_data, False, DataFormat(awsize, addr_size = self.waddr_size))
 
-            self._log_write_stimuli(data_obj, start_time, old_start_time)
+            self._log_write_stimuli(data_obj, start_time, old_start_time, first_id)
 
 
 
@@ -230,6 +237,13 @@ class BaseAxiMonitor:
         start_time, old_start_time = self.read_start_time_queues[rid].popleft()
 
         arlen = ar_t.arlen if hasattr(ar_t, "arlen") else 0
+
+        if hasattr(ar_t, "arsize"):
+            if 2**ar_t.arsize != self.rsize:
+                raise NotImplementedError(
+                        "arsize is different from bus size, BaseAxiMonitor has not been tested for this eventuality."
+                )
+        # In case it's supported someday
         arsize = 2**ar_t.arsize if hasattr(ar_t, "arsize") else self.rsize
 
         data = bytearray()

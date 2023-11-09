@@ -25,11 +25,11 @@ class AxiLiteMaster(cocotbext.axi.AxiLiteMaster):
 
     async def write_data_from_file(self, filepath):
         data_list = DataList.from_file(filepath)
-        data_list.write_using(self)
+        await data_list.write_using(self)
 
     async def read_data_to_file(self, filepath, address, length):
         d = Data(address, bytearray([0]*length))
-        self.read_data(d)
+        await self.read_data(d)
         DataList([d]).to_file(filepath)
 
 

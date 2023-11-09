@@ -1,0 +1,22 @@
+[
+    {
+        "ID": "in_axilite_0",
+        "Access": "W",
+        "RelTime": "4490000.003 ps",
+        "AbsTime": "4490000003 fs",
+        "Type": "Simple",
+        "Address": "0x44A42C54",
+        "Data": "0x000000BA",
+        "Size": 1
+    },
+    {
+        "ID": "in_axilite_1",
+        "Access": "W",
+        "RelTime": "0.120 us",
+        "AbsTime": "4610000003 fs",
+        "Type": "Simple",
+        "Address": "0x44A2E3B0",
+        "Data": "0x008DAFC7",
+        "Size": 3
+    }
+]
