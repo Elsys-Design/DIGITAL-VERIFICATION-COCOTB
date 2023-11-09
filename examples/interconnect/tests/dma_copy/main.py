@@ -1,6 +1,7 @@
 import cocotb
 from cocotb.triggers import Combine, Timer
 from cocotb.result import TestFailure
+import os
 
 from framework.stimuli_list import StimuliList
 from framework.data import Data
@@ -10,6 +11,9 @@ from tb import TB
 
 @cocotb.test()
 async def cocotb_run(dut):
+    # Changing current directory to the one of the test
+    os.chdir(os.path.abspath(os.path.dirname(__file__)))
+
     tb = TB(dut)
     await tb.reset()
 
@@ -39,3 +43,5 @@ async def cocotb_run(dut):
     if not memory_final[0].represents_same_data_as(memory_final[1]):
         raise TestFailure("AXI DMA didn't copy ram_out[0] in ram_out[1] properly")
 
+
+    tb.write_monitor_data()

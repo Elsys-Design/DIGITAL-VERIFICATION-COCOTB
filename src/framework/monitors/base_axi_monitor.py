@@ -27,8 +27,10 @@ class BaseAxiMonitor:
         self.read_analysis_port = AnalysisPort()
         self.analysis_port = AnalysisPort()
 
+        self.default_logger = None
         if subscribe_default_logger:
-            self.analysis_port.subscribe(EfficientStimuliLogger("stimlogs/" + self.name).recv)
+            self.default_logger = EfficientStimuliLogger("stimlogs/" + self.name)
+            self.analysis_port.subscribe(self.default_logger.recv)
 
         # Building channel monitors
         channels = {

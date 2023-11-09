@@ -86,3 +86,13 @@ class TB:
         self.dut.aresetn.value = 1
 
 
+    def write_monitor_data(self):
+        for m_in in self.monitors_in:
+            m_in.default_logger.write_to_dir()
+
+        for m_out in self.out_axilite_monitors:
+            m_out.default_logger.write_to_dir()
+
+        self.out_axi_monitor.default_logger.write_to_dir()
+
+
