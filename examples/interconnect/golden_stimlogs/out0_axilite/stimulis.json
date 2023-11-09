@@ -1,0 +1,97 @@
+[
+    {
+        "ID": "out0_axilite_0",
+        "Access": "W",
+        "RelTime": "0.695 us",
+        "AbsTime": "695000000 fs",
+        "Type": "Simple",
+        "Address": "0x44A20000",
+        "Data": "0x12345678",
+        "Size": 4
+    },
+    {
+        "ID": "out0_axilite_1",
+        "Access": "W",
+        "RelTime": "0.020 us",
+        "AbsTime": "715000000 fs",
+        "Type": "Simple",
+        "Address": "0x44A20004",
+        "Data": "0x0000007B",
+        "Size": 4
+    },
+    {
+        "ID": "out0_axilite_2",
+        "Access": "W",
+        "RelTime": "0.020 us",
+        "AbsTime": "735000000 fs",
+        "Type": "Simple",
+        "Address": "0x44A20008",
+        "Data": "0x0056789A",
+        "Size": 3
+    },
+    {
+        "ID": "out0_axilite_3",
+        "Desc": "wstrb = 0011",
+        "Access": "W",
+        "RelTime": "0.140 us",
+        "AbsTime": "875000000 fs",
+        "Type": "Simple",
+        "Address": "0x44A20002",
+        "Data": "0x0000ABCD",
+        "Size": 4
+    },
+    {
+        "ID": "out0_axilite_4",
+        "Access": "W",
+        "RelTime": "0.020 us",
+        "AbsTime": "895000000 fs",
+        "Type": "Simple",
+        "Address": "0x44A20004",
+        "Data": "0x0000EF21",
+        "Size": 2
+    },
+    {
+        "ID": "out0_axilite_0",
+        "Desc": "NOT IMPLEMENTED",
+        "Access": "R",
+        "RelTime": "3.165 us",
+        "AbsTime": "3165000000 fs",
+        "Type": "Simple",
+        "Address": "0x44A20000",
+        "Data": "0xCDAB3412",
+        "Size": 4
+    },
+    {
+        "ID": "out0_axilite_1",
+        "Desc": "NOT IMPLEMENTED",
+        "Access": "R",
+        "RelTime": "0.010 us",
+        "AbsTime": "3175000000 fs",
+        "Type": "Simple",
+        "Address": "0x44A20004",
+        "Data": "0x7B0021EF",
+        "Size": 4
+    },
+    {
+        "ID": "out0_axilite_2",
+        "Desc": "NOT IMPLEMENTED",
+        "Access": "R",
+        "RelTime": "0.010 us",
+        "AbsTime": "3185000000 fs",
+        "Type": "Simple",
+        "Address": "0x44A20008",
+        "Data": "0x009A7856",
+        "Size": 4
+    },
+    {
+        "ID": "out0_axilite_3",
+        "Desc": "NOT IMPLEMENTED",
+        "Access": "R",
+        "RelTime": "0.010 us",
+        "AbsTime": "3195000000 fs",
+        "Type": "Simple",
+        "Address": "0x44A2000C",
+        "Data": "0x00000000",
+        "Size": 4
+    }
+]

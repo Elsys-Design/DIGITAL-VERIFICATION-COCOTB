@@ -127,13 +127,18 @@ class BaseAxiMonitor:
 
 
 
-    def _log_write_stimuli(self, data_obj, start_time, old_start_time, first_id = None, wstrb = 0):
+    def _log_write_stimuli(self, data_obj, start_time, old_start_time, first_id = None, wstrb = None):
         new_id = "{}_{}".format(self.name, self.current_write_id)
         if first_id == None:
             first_id = new_id
             desc = ""
         else:
-            desc = "{} | wstrb = {}".format(first_id, wstrb)
+            desc = first_id
+
+        if wstrb != None:
+            if first_id == None:
+                desc += "| "
+            desc += "wstrb = {}".format(wstrb)
 
         self.current_write_id += 1
         stim = Stimuli(
@@ -192,7 +197,7 @@ class BaseAxiMonitor:
                         current_addr += len(current_data)
                         current_data = bytearray()
 
-                        first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, int(w_t.wstrb))
+                        first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id)
 
                 if i != awlen or not is_continuous:
                     # Single non continuous wstrb
@@ -202,9 +207,10 @@ class BaseAxiMonitor:
                         current_addr += len(current_data)
                         current_data = bytearray()
 
-                
                     data_obj = Data(current_addr, word, False, DataFormat(awsize, addr_size = self.waddr_size))
-                    first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, int(w_t.wstrb))
+                    first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, str(w_t.wstrb)[::-1])
+                    # To handle addresses that are not aligned on the bus size
+                    current_addr += current_addr % 4 if current_addr % 4 != 0 else 4
 
         # If we only had full wstrb for the last bytes, we log them at the end
         if len(current_data) > 0:
