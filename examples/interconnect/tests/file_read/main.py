@@ -26,6 +26,15 @@ def has_differences(dcmp):
 
 
 
+async def run_reads(master, data_list, dirpath):
+    for i in range(len(data_list)):
+        await master.read_data_to_file(
+                os.path.join(dirpath, "{}.dat".format(i)),
+                data_list[i].addr,
+                len(data_list[i].data)
+        )
+
+
 @cocotb.test()
 async def cocotb_run(dut):
     # Changing current directory to the one of the test
@@ -40,7 +49,7 @@ async def cocotb_run(dut):
             data_default_generator,
             min_addr = 0x44A00000,
             max_addr = 0x44A4FFFF,
-            size_range = [1, 4, 8],
+            size_range = range(1, 0x10),
             word_size_range = range(1, 9),
             word_aligned = True
     )
@@ -48,24 +57,26 @@ async def cocotb_run(dut):
     datalist_gen = partial(
             datalist_default_generator,
             data_gen,
-            [1]
+            [2]
     )
 
 
     # Loading & executing scenarios
     tasks = []
     for i in range(2):
+        # We generate datalist even though we only use the address and length generated because we already have
+        # everything to log data & the generation takes into account that addr + length < max_addr
         data_list = datalist_gen()
-        data_list.to_file("generated_inputs/{}.dat".format(i))
+        data_filepath = "generated_inputs/{}.dat".format(i)
+        data_list.to_file(data_filepath)
         tasks.append(
                 cocotb.start_soon(
-                    data_list.read_using(tb.masters_in[i])
+                    run_reads(tb.masters_in[i], data_list, "read_data/{}/".format(i))
                 )
         )
 
     # Letting the scenarios execute (passing simulation time)
     await Combine(*tasks)
-
 
     reference_dirpath = "references/{}".format(cocotb.RANDOM_SEED)
 
@@ -75,7 +86,16 @@ async def cocotb_run(dut):
 
     assert not has_differences(filecmp.dircmp("stimlogs", reference_dirpath)), "Some files differ between stimlogs and reference directories"
 
-    print("unit_read test passed")
+
+    golden_dirpath = "golden_read_data/{}".format(cocotb.RANDOM_SEED)
+
+    assert os.path.isdir(golden_dirpath), "{} is not a directory, the seed doesn't allow for automatic testing since"\
+                                                        "no reference to it exist".format(golden_dirpath)
+    assert not has_differences(filecmp.dircmp("read_data", golden_dirpath)), \
+            "Some files differ between read_data and golden_read_data directories"
+
+
+    print("unit_write test passed")
 
 
 

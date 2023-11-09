@@ -1,0 +1,32 @@
+[
+    {
+        "ID": "out1_axilite_0",
+        "Access": "R",
+        "RelTime": "4765000.004 ps",
+        "AbsTime": "4765000004 fs",
+        "Type": "Simple",
+        "Address": "0x44A3AFA7",
+        "Data": "0x60C1A7EB",
+        "Size": 4
+    },
+    {
+        "ID": "out1_axilite_1",
+        "Access": "R",
+        "RelTime": "0.010 us",
+        "AbsTime": "4775000004 fs",
+        "Type": "Simple",
+        "Address": "0x44A3AFA8",
+        "Data": "0x4C6F048E",
+        "Size": 4
+    },
+    {
+        "ID": "out1_axilite_2",
+        "Access": "R",
+        "RelTime": "0.010 us",
+        "AbsTime": "4785000004 fs",
+        "Type": "Simple",
+        "Address": "0x44A3AFAC",
+        "Data": "0xD380F673",
+        "Size": 4
+    }
+]
