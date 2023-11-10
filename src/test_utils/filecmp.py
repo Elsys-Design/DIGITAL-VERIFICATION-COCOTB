@@ -12,12 +12,12 @@ def has_differences(dcmp):
     differences = dcmp.left_only + dcmp.right_only + dcmp.diff_files
     if differences:
         return True
-    return any([cmpdir(subdcmp) for subdcmp in dcmp.subdirs.values()])
+    return any([has_differences(subdcmp) for subdcmp in dcmp.subdirs.values()])
 
 
 def check_dirs_equal(dirpath0, dirpath1):
-    assert has_differences(filecmp.dircmp(dirpath0, dirpath1)), \
-                "Some files differ between {} and {} directories".format(dirname, golden_dirpath)
+    assert not has_differences(filecmp.dircmp(dirpath0, dirpath1)), \
+                "Some files differ between {} and {} directories".format(dirpath0, dirpath1)
 
 
 def compare_to_golden(dirname):
