@@ -26,13 +26,14 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
 
         self.last_end_time = Time(0, 'fs')
 
+        self.default_logger = None
         if subscribe_default_logger:
-            self.analysis_port.subscribe(
-                EfficientStimuliLogger(
+            self.default_logger = EfficientStimuliLogger(
                     "stimlogs/" + self.name,
                     is_stream_no_tlast = not hasattr(self.bus, "tlast")
-                ).recv
             )
+            self.analysis_port.subscribe(self.default_logger.recv)
+
 
     async def monitor_stream(self):
         size = len(self.bus.tdata)//8
@@ -56,7 +57,7 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
                     Access.WRITE,
                     start_time - self.last_end_time,
                     DataList([d]),
-                    "NOT IMPLEMENTED",
+                    "",
                     start_time,
                     end_time
             )

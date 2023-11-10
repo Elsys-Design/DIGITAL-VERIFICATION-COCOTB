@@ -27,8 +27,10 @@ class BaseAxiMonitor:
         self.read_analysis_port = AnalysisPort()
         self.analysis_port = AnalysisPort()
 
+        self.default_logger = None
         if subscribe_default_logger:
-            self.analysis_port.subscribe(EfficientStimuliLogger("stimlogs/" + self.name).recv)
+            self.default_logger = EfficientStimuliLogger("stimlogs/" + self.name)
+            self.analysis_port.subscribe(self.default_logger.recv)
 
         # Building channel monitors
         channels = {
@@ -58,6 +60,7 @@ class BaseAxiMonitor:
         self.write_start_time_queues = [deque() for _ in range(len(self.aw.awid) if self.has_write_id else 1)]
 
         self.ar_queues = [deque() for _ in range(len(self.ar.arid) if self.has_read_id else 1)]
+        self.r_queues = [deque() for _ in range(len(self.r.rid) if self.has_read_id else 1)]
         self.read_start_time_queues = [deque() for _ in range(len(self.ar.arid) if self.has_read_id else 1)]
 
         # Data sizes for write and read buses
@@ -120,20 +123,25 @@ class BaseAxiMonitor:
         while True:
             r_t = await self.r.recv()
             rid = r_t.rid if self.has_read_id else 0
-            # We have received a complete transaction, we can build the Stimuli
-            # (not true for AXI because there can be bursts, see override in AxiMonitor child class)
-            self.build_read_stimuli(r_t)
+            self.r_queues[rid].append(r_t)
+
+            if not hasattr(r_t, "rlast") or r_t.rlast:
+                self.build_read_stimuli()
 
 
 
-
-    def _log_write_stimuli(self, data_obj, start_time, old_start_time, first_id = None, wstrb = 0):
+    def _log_write_stimuli(self, data_obj, start_time, old_start_time, first_id = None, wstrb = None):
         new_id = "{}_{}".format(self.name, self.current_write_id)
         if first_id == None:
             first_id = new_id
             desc = ""
         else:
-            desc = "{} | wstrb = {}".format(first_id, wstrb)
+            desc = first_id
+
+        if wstrb != None:
+            if first_id == None:
+                desc += "| "
+            desc += "wstrb = {}".format(wstrb)
 
         self.current_write_id += 1
         stim = Stimuli(
@@ -160,6 +168,13 @@ class BaseAxiMonitor:
         start_time, old_start_time = self.write_start_time_queues[bid].popleft()
 
         awlen = aw_t.awlen if hasattr(aw_t, "awlen") else 0
+
+        if hasattr(aw_t, "awsize"):
+            if 2**aw_t.awsize != self.wsize:
+                raise NotImplementedError(
+                        "awsize is different from bus size, BaseAxiMonitor has not been tested for this eventuality."
+                )
+        # In case it's supported someday
         awsize = 2**aw_t.awsize if hasattr(aw_t, "awsize") else self.wsize
 
         # Support for wstrb
@@ -179,7 +194,7 @@ class BaseAxiMonitor:
                     last_word_size = 0
                     while w_t.wstrb[-(1+last_word_size)] == 1:
                         last_word_size += 1
-
+                    
                     for x in range(last_word_size+1, awsize):
                         if w_t.wstrb[-x] == 1:
                             is_continuous = False
@@ -192,7 +207,7 @@ class BaseAxiMonitor:
                         current_addr += len(current_data)
                         current_data = bytearray()
 
-                        first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, int(w_t.wstrb))
+                        first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id)
 
                 if i != awlen or not is_continuous:
                     # Single non continuous wstrb
@@ -202,31 +217,39 @@ class BaseAxiMonitor:
                         current_addr += len(current_data)
                         current_data = bytearray()
 
-                
                     data_obj = Data(current_addr, word, False, DataFormat(awsize, addr_size = self.waddr_size))
-                    first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, int(w_t.wstrb))
+                    first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, str(w_t.wstrb)[::-1])
+                    # To handle addresses that are not aligned on the bus size
+                    current_addr += awsize - (current_addr % awsize)
 
         # If we only had full wstrb for the last bytes, we log them at the end
         if len(current_data) > 0:
             data_obj = Data(current_addr, current_data, False, DataFormat(awsize, addr_size = self.waddr_size))
 
-            self._log_write_stimuli(data_obj, start_time, old_start_time)
+            self._log_write_stimuli(data_obj, start_time, old_start_time, first_id)
 
 
 
-    def build_read_stimuli(self, r_t):
+    def build_read_stimuli(self):
         rid = r_t.rid if self.has_read_id else 0
 
         ar_t = self.ar_queues[rid].popleft()
         start_time, old_start_time = self.read_start_time_queues[rid].popleft()
 
         arlen = ar_t.arlen if hasattr(ar_t, "arlen") else 0
+
+        if hasattr(ar_t, "arsize"):
+            if 2**ar_t.arsize != self.rsize:
+                raise NotImplementedError(
+                        "arsize is different from bus size, BaseAxiMonitor has not been tested for this eventuality."
+                )
+        # In case it's supported someday
         arsize = 2**ar_t.arsize if hasattr(ar_t, "arsize") else self.rsize
 
-        data = bytearray(int(r_t.rdata).to_bytes(self.rsize, "big"))
-        
-        for i in range(arlen):
-            data += int(r_t.rdata).to_bytes(self.rsize, "big")
+        data = bytearray()
+        while len(self.r_queues[rid]) > 0:
+            r_t = self.r_queues[rid].popleft()
+            data += bytearray(reversed(r_t.rdata.buff))
 
         # for unaligned address support
         #data = data[ar_t.araddr % self.rsize:]
@@ -243,7 +266,7 @@ class BaseAxiMonitor:
                 # diff_or_zero if the difference is negative because of access pipelining
                 start_time - old_start_time,
                 DataList([data_obj]),
-                "NOT IMPLEMENTED",
+                "",
                 start_time,
                 end_time
         )
@@ -251,9 +274,3 @@ class BaseAxiMonitor:
         self.read_analysis_port.send(stim)
         self.analysis_port.send(stim)
 
-    # Defined in AxiMonitor subclass
-    def write_burst_support(self, aw_t, wid):
-        return []
-
-    def read_burst_support(self, ar_t, rid):
-        return []

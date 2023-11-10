@@ -9,10 +9,9 @@ from ...data_list import DataList
 
 class EfficientStimuliLogger(BaseStimuliLogger):
 
-    def __init__(self, dir_path, id_base="", write_on_delete = True, is_stream_no_tlast=False):
+    def __init__(self, dir_path, id_base="", is_stream_no_tlast=False):
         super().__init__(dir_path, id_base)
 
-        self.write_on_delete = write_on_delete
         self.is_stream_no_tlast = is_stream_no_tlast
         self.stimulis = StimuliList()
 
@@ -41,7 +40,3 @@ class EfficientStimuliLogger(BaseStimuliLogger):
             stimuli_file = open(self.stimuli_filepath, "w")
             json.dump(json_objs, stimuli_file, indent=4, ensure_ascii=False) 
             stimuli_file.close()
-
-    def __del__(self):
-        if self.write_on_delete:
-            self.write_to_dir()

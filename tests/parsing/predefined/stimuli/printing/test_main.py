@@ -102,7 +102,7 @@ def test_stim_printing():
 
     assert not dcmp.diff_files, "Some files differ between tmp and reference directories:\n{}".format(dcmp.diff_files)
     assert not dcmp.left_only, "StimuliList.write_to_dir generates the following unknown files:\n{}".format(dcmp.left_only)
-    assert not dcmp.left_only, "StimuliList.write_to_dir doesn't generate the following files:\n{}".format(dcmp.right_only)
+    assert not dcmp.right_only, "StimuliList.write_to_dir doesn't generate the following files:\n{}".format(dcmp.right_only)
 
     print("StimuliList print test passed")
 

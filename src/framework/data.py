@@ -49,8 +49,8 @@ class Data:
     """
     addr : int
     data : bytearray
-    stream_tlast_end : bool
-    dformat : DataFormat
+    stream_tlast_end : bool = True
+    dformat : DataFormat = DataFormat(4)
 
     def alignment_check(self):
         """
@@ -310,8 +310,21 @@ def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4]
     addr = random.choice(range(min_addr, max_addr-size))
     if word_aligned:
         addr = addr - (addr % word_size)
-    data = bytearray(random.sample(range(2**8), size))
+    data = bytearray([random.randrange(0, 2**8) for _ in range(size)])
 
     return Data(addr, data, False, DataFormat(word_size))
+
+
+def stream_data_default_generator(tdest_range, size_range, word_size_range = [4]):
+    """
+    Default random data generator
+    Provided as an example but it fits many usecases
+    """
+    size = random.choice(size_range)
+    word_size = random.choice(word_size_range)
+    addr = random.choice(tdest_range)
+    data = bytearray([random.randrange(0, 2**8) for _ in range(size)])
+
+    return Data(addr, data, True, DataFormat(word_size))
 
 

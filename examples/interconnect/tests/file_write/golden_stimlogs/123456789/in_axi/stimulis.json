@@ -1,0 +1,33 @@
+[
+    {
+        "ID": "in_axi_0",
+        "Access": "W",
+        "RelTime": "4460000.003 ps",
+        "AbsTime": "4460000003 fs",
+        "Type": "File",
+        "Address": "0x44A4B4BC",
+        "FileName": "in_axi_0.dat"
+    },
+    {
+        "ID": "in_axi_1",
+        "Desc": "wstrb = 0111",
+        "Access": "W",
+        "RelTime": "0.120 us",
+        "AbsTime": "4580000003 fs",
+        "Type": "Simple",
+        "Address": "0x44A10FA1",
+        "Data": "0x004E33F6",
+        "Size": 4
+    },
+    {
+        "ID": "in_axi_2",
+        "Desc": "in_axi_1",
+        "Access": "W",
+        "RelTime": "0.120 us",
+        "AbsTime": "4580000003 fs",
+        "Type": "Simple",
+        "Address": "0x44A10FA4",
+        "Data": "0x139A114E",
+        "Size": 4
+    }
+]

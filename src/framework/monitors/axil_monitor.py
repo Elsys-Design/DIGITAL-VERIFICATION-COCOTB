@@ -1,3 +1,4 @@
+from collections import deque
 from cocotbext.axi.axil_channels import AxiLiteAWMonitor, AxiLiteWMonitor, AxiLiteBMonitor, AxiLiteARMonitor, AxiLiteRMonitor
 from .base_axi_monitor import BaseAxiMonitor
 
@@ -14,6 +15,5 @@ class AxiLiteMonitor(BaseAxiMonitor):
                     "r": AxiLiteRMonitor
                 }
         )
-
 
 
