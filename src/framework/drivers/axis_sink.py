@@ -51,7 +51,6 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         if not hasattr(self.bus, "tvalid"):
             return NotImplementedError("Bus has no tvalid")
 
-        bus_size = len(self.bus.tdata)//8
         has_tkeep = hasattr(self.bus, "tkeep")
 
         self.bus.tready.value = 0
@@ -79,8 +78,8 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
                             self.current_data.data[self.current_idx] = self.bus.tdata.value.buff[-(1+i)]
                             self.current_idx += 1
                 else:
-                    self.current_data.data[self.current_idx:self.current_idx+bus_size] = reversed(self.bus.tdata.value.buff)
-                    self.current_idx += bus_size
+                    self.current_data.data[self.current_idx:self.current_idx+self.bus_data_size] = reversed(self.bus.tdata.value.buff)
+                    self.current_idx += self.bus_data_size
                 
 
                 print(len(self.current_data.data))

@@ -26,6 +26,11 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
 
         self.last_end_time = Time(0, 'fs')
 
+        
+        self.bus_tdest_size = len(self.bus.tdest.value) // 8 if hasattr(self.bus, "tdest") else 1
+        self.bus_data_size = len(self.bus.tdata.value) // 8
+
+
         self.default_logger = None
         if subscribe_default_logger:
             self.default_logger = EfficientStimuliLogger(
@@ -36,8 +41,6 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
 
 
     async def monitor_stream(self):
-        size = len(self.bus.tdata)//8
-
         while True:
             await self.wait()
 
@@ -47,7 +50,7 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
 
             end_time = Time.now()
 
-            d = Data(frame.tdest, frame.tdata, True, DataFormat(size))
+            d = Data(frame.tdest, frame.tdata, True, DataFormat(self.bus_data_size, addr_size = self.bus_tdest_size))
 
             new_id = "{}_{}".format(self.name, self.current_id)
             self.current_id += 1
