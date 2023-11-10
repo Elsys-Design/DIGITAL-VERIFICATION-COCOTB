@@ -4,6 +4,7 @@ from cocotb.triggers import RisingEdge, Event, Combine, Timer
 from ..stimuli_list import StimuliList
 from ..data_list import DataList
 from ..data import Data
+from ..logger import logger
 
 
 
@@ -16,15 +17,22 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         self.current_data = None
         self.read_done = Event()
 
+        self.bus_tdest_size = len(self.bus.tdest.value) // 8 if hasattr(self.bus, "tdest") else 1
+        self.bus_data_size = len(self.bus.tdata.value) // 8
+
     async def read_data(self, data):
         self.current_idx = 0
         self.current_data = data
+        self.current_data.dformat.addr_size = self.bus_tdest_size
+        self.current_data.dformat.word_size = self.bus_data_size
         await self.read_done.wait()
         self.read_done.clear()
 
     
-    async def read_data_to_file(self, filepath, address, length):
-        d = Data(address, bytearray([0]*length))
+    async def read_data_to_file(self, filepath, length):
+        if length == 0:
+            return
+        d = Data(0x0, bytearray([0]*length))
         await self.read_data(d)
         DataList([d]).to_file(filepath)
 
@@ -38,11 +46,10 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
 
     async def _run(self):
         if not hasattr(self.bus, "tready"):
-            return
+            return NotImplementedError("Bus has no tready")
         
         if not hasattr(self.bus, "tvalid"):
-            self.bus.tready.value = 1
-            return
+            return NotImplementedError("Bus has no tvalid")
 
         bus_size = len(self.bus.tdata)//8
         has_tkeep = hasattr(self.bus, "tkeep")
@@ -56,13 +63,23 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
                 self.bus.tready.value = 1
 
             if self.bus.tready.value and self.bus.tvalid.value:
+                if hasattr(self.bus, "tdest"):
+                    tdest = int(self.bus.tdest.value)
+
+                    # If multiple tdest arrive to the same sink
+                    if self.current_idx == 0:
+                        self.current_data.addr = tdest
+                    elif self.current_data.addr != tdest:
+                        logger.warning("While reading an AXI-Stream data of size {}, the tdest changed at byte {}" \
+                                .format(len(self.current_data.data), self.current_idx))
+
                 if has_tkeep:
                     for i in range(len(self.bus.tkeep.value)):
                         if self.bus.tkeep.value[i]:
-                            self.current_data.data[self.current_idx] = self.bus.tdata.value.buff[i]
+                            self.current_data.data[self.current_idx] = self.bus.tdata.value.buff[-(1+i)]
                             self.current_idx += 1
                 else:
-                    self.current_data.data[self.current_idx:self.current_idx+bus_size] = self.bus.tdata.value.buff
+                    self.current_data.data[self.current_idx:self.current_idx+bus_size] = reversed(self.bus.tdata.value.buff)
                     self.current_idx += bus_size
                 
                 # if the bus has no tkeep, we can receive more bytes than we want and there's nothing we can do about it

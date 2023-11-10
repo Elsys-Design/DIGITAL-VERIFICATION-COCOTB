@@ -16,7 +16,7 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
 
 
     async def write_data_from_file(self, filepath):
-        data_list = DataList.from_file(filepath)
+        data_list = DataList.from_file(filepath, is_stream=True)
         await data_list.write_using(self)
 
     

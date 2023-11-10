@@ -41,7 +41,7 @@ class TB:
     async def reset(self):
         # reset
         self.dut.aresetn.value = 0
-        await Timer(10, units="ns")
+        await Timer(10*10, units="ns")
         self.dut.aresetn.value = 1
 
 
