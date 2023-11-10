@@ -2,10 +2,10 @@
 -- Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2023.2 (win64) Build 4029153 Fri Oct 13 20:14:34 MDT 2023
--- Date        : Thu Oct 26 10:27:08 2023
+-- Date        : Thu Nov  9 17:54:44 2023
 -- Host        : D-C620HZ2 running 64-bit major release  (build 9200)
 -- Command     : write_vhdl -force -mode funcsim
---               c:/Users/uf025psu/Documents/cocotb_ghdl/vivado/2023_stream_interconnect/2023_stream_interconnect.gen/sources_1/bd/design_1/ip/design_1_rst_ACLK_0_10M_0/design_1_rst_ACLK_0_10M_0_sim_netlist.vhdl
+--               c:/Users/uf025psu/Documents/cocotb_ghdl/vivado/2023_stream_interconnect_32bits_tlast/2023_stream_interconnect_32bits_tlast.gen/sources_1/bd/design_1/ip/design_1_rst_ACLK_0_10M_0/design_1_rst_ACLK_0_10M_0_sim_netlist.vhdl
 -- Design      : design_1_rst_ACLK_0_10M_0
 -- Purpose     : This VHDL netlist is a functional simulation representation of the design and should not be modified or
 --               synthesized. This netlist cannot be used for SDF annotated simulation.

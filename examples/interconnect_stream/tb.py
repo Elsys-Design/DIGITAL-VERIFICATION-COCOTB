@@ -12,12 +12,8 @@ from framework.drivers.axis_source import AxiStreamSource
 from framework.drivers.axis_sink import AxiStreamSink
 from framework.monitors.axis_monitor import AxiStreamMonitor
 from framework.monitors.analysis_port import AnalysisPort
-from framework.monitors.stimuli_loggers.efficient import EfficientStimuliLogger
-from framework.monitors.stimuli_loggers.real_time import RealTimeStimuliLogger
 
 
-StimuliLogger = EfficientStimuliLogger
-#StimuliLogger = RealTimeStimuliLogger
 
 
 class TB:
@@ -37,10 +33,11 @@ class TB:
         self.axis_out = []
         self.axis_out_monitor = []
         self.stimlog_out = []
-        for i in range(2):
+        for i in range(3):
             self.bus_out.append(AxiStreamBus.from_prefix(dut, "axis_out{}".format(i)))
             self.axis_out.append(AxiStreamSink(self.bus_out[i], dut.aclk, dut.aresetn, reset_active_level=False))
             self.axis_out_monitor.append(AxiStreamMonitor("axis_out{}".format(i), self.bus_out[i], dut.aclk, dut.aresetn, reset_active_level=False))
+
 
     async def reset(self):
         # reset

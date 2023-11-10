@@ -1,10 +1,10 @@
 [
   {
     "Access": "R",
-    "RelTime": "1 us",
+    "RelTime": "0 us",
     "Type": "Simple",
     "Address": "0x1",
-    "Size": 6
+    "Size": 16
   }
 
 ]

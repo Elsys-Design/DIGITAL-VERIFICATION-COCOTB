@@ -42,6 +42,9 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
             self.bus.tready.value = 1
             return
 
+        bus_size = len(self.bus.tdata) // 8
+        has_tkeep = hasattr(self.bus, "tkeep")
+
         self.bus.tready.value = 0
 
         while True:
@@ -51,9 +54,10 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
                 self.bus.tready.value = 1
 
             if self.bus.tready.value and self.bus.tvalid.value:
-                self.current_accept -= 1
-
-                if self.current_accept == 0:
+                self.current_accept -= bus_size if not has_tkeep else self.bus.tkeep.value.count(1)
+                
+                # if the bus has no tkeep, we can receive more bytes than we want and there's nothing we can do about it
+                if self.current_accept <= 0:
                     self.bus.tready.value = 0
                     self.read_done.set()
 
