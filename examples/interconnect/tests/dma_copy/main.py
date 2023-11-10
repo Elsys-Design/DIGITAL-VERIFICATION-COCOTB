@@ -6,7 +6,7 @@ import os
 from framework.stimuli_list import StimuliList
 from framework.data import Data
 
-from test_utils.filecmp import cmpdir
+from test_utils.filecmp import check_dirs_equal
 
 from tb import TB
 
@@ -48,4 +48,4 @@ async def cocotb_run(dut):
 
     tb.write_monitor_data()
 
-    cmpdir("stimlogs", "golden_stimlogs")
+    check_dirs_equal("stimlogs", "golden_stimlogs")

@@ -1,4 +1,4 @@
-@ 0x00000000; 8; ascii; 4; Big; !;
+@ 0x0; 6; ascii; 4; Big; !;
 0xABCDBCDE
-0xCDEF0000
+0x0000CDEF; 2; !
 

@@ -58,6 +58,7 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         while True:
             await RisingEdge(self.clock)
 
+
             if self.current_data:
                 self.bus.tready.value = 1
 
@@ -82,10 +83,8 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
                     self.current_idx += self.bus_data_size
                 
 
-                print(len(self.current_data.data))
                 # if the bus has no tkeep, we can receive more bytes than we want and there's nothing we can do about it
                 if self.current_idx >= len(self.current_data.data):
-                    print("HERE")
                     self.bus.tready.value = 0
                     self.current_idx = 0
                     self.current_data = None

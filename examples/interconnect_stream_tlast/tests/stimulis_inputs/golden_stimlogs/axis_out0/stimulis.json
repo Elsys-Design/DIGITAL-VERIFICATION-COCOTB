@@ -2,21 +2,19 @@
     {
         "ID": "axis_out0_0",
         "Access": "W",
-        "RelTime": "0.505 us",
-        "AbsTime": "505000000 fs",
+        "RelTime": "0.605 us",
+        "AbsTime": "605000000 fs",
         "Type": "File",
-        "Address": "0x00000000",
-        "FileName": "axis_out0_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Address": "0x0",
+        "FileName": "axis_out0_0.dat"
     },
     {
         "ID": "axis_out0_1",
         "Access": "W",
-        "RelTime": "0.010 us",
-        "AbsTime": "515000000 fs",
+        "RelTime": "0.300 us",
+        "AbsTime": "905000000 fs",
         "Type": "File",
-        "Address": "0x00000000",
-        "FileName": "axis_out0_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Address": "0x0",
+        "FileName": "axis_out0_1.dat"
     }
 ]

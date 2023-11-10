@@ -242,7 +242,7 @@ class Data:
         if len(out) == 0:
             if input_length == 0:
                 raise ValueError("An empty descriptor of size 0 isn't valid (because it wouldn't do anything)")
-            out.append(Data(base_addr, data, stream_tlast_end, dformat))
+            out.append(Data(base_addr, data, False, dformat))
 
         # Handling input_length vs current_length (cutting or filling data) 
         if current_length > input_length:

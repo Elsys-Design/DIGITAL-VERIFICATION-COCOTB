@@ -5,7 +5,7 @@ import cocotbext
 from cocotb.triggers import Edge, RisingEdge, FallingEdge, Timer, Join, Combine
 from cocotb.result import TestFailure, TestError
 
-from test_utils.filecmp import cmpdir
+from test_utils.filecmp import check_dirs_equal
 
 from tb import TB
 
@@ -30,4 +30,4 @@ async def cocotb_run(dut):
     tb.write_monitored_data()
 
 
-    cmpdir("stimlogs", "golden_stimlogs")
+    check_dirs_equal("stimlogs", "golden_stimlogs")
