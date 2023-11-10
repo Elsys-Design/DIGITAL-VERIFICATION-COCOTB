@@ -52,40 +52,36 @@
     },
     {
         "ID": "out0_axilite_0",
-        "Desc": "NOT IMPLEMENTED",
         "Access": "R",
         "RelTime": "3.165 us",
         "AbsTime": "3165000000 fs",
         "Type": "Simple",
         "Address": "0x44A20000",
-        "Data": "0xCDAB3412",
+        "Data": "0x1234ABCD",
         "Size": 4
     },
     {
         "ID": "out0_axilite_1",
-        "Desc": "NOT IMPLEMENTED",
         "Access": "R",
         "RelTime": "0.010 us",
         "AbsTime": "3175000000 fs",
         "Type": "Simple",
         "Address": "0x44A20004",
-        "Data": "0x7B0021EF",
+        "Data": "0xEF21007B",
         "Size": 4
     },
     {
         "ID": "out0_axilite_2",
-        "Desc": "NOT IMPLEMENTED",
         "Access": "R",
         "RelTime": "0.010 us",
         "AbsTime": "3185000000 fs",
         "Type": "Simple",
         "Address": "0x44A20008",
-        "Data": "0x009A7856",
+        "Data": "0x56789A00",
         "Size": 4
     },
     {
         "ID": "out0_axilite_3",
-        "Desc": "NOT IMPLEMENTED",
         "Access": "R",
         "RelTime": "0.010 us",
         "AbsTime": "3195000000 fs",
