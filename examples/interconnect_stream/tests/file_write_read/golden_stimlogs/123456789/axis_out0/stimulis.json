@@ -5,7 +5,7 @@
         "RelTime": "1590000.001 ps",
         "AbsTime": "1590000001 fs",
         "Type": "File",
-        "Address": "0x00000000",
+        "Address": "0x0",
         "FileName": "axis_out0_0.dat",
         "Desc": "Access on a bus that has no tlast"
     },
@@ -15,7 +15,7 @@
         "RelTime": "0.010 us",
         "AbsTime": "1600000001 fs",
         "Type": "File",
-        "Address": "0x00000000",
+        "Address": "0x0",
         "FileName": "axis_out0_0.dat",
         "Desc": "Access on a bus that has no tlast"
     },
@@ -25,7 +25,7 @@
         "RelTime": "0.010 us",
         "AbsTime": "1610000001 fs",
         "Type": "File",
-        "Address": "0x00000000",
+        "Address": "0x0",
         "FileName": "axis_out0_0.dat",
         "Desc": "Access on a bus that has no tlast"
     }
