@@ -5,6 +5,8 @@ import cocotbext
 from cocotb.triggers import Edge, RisingEdge, FallingEdge, Timer, Join, Combine
 from cocotb.result import TestFailure, TestError
 
+from test_utils.filecmp import cmpdir
+
 from tb import TB
 
 
@@ -25,3 +27,7 @@ async def cocotb_run(dut):
 
     await Combine(write_task, *read_tasks)
 
+    tb.write_monitored_data()
+
+
+    cmpdir("stimlogs", "golden_stimlogs")

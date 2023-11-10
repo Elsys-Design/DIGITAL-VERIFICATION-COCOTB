@@ -31,12 +31,11 @@ class TB:
 
         self.bus_out = []
         self.axis_out = []
-        self.axis_out_monitor = []
-        self.stimlog_out = []
+        self.axis_out_monitors = []
         for i in range(3):
             self.bus_out.append(AxiStreamBus.from_prefix(dut, "axis_out{}".format(i)))
             self.axis_out.append(AxiStreamSink(self.bus_out[i], dut.aclk, dut.aresetn, reset_active_level=False))
-            self.axis_out_monitor.append(AxiStreamMonitor("axis_out{}".format(i), self.bus_out[i], dut.aclk, dut.aresetn, reset_active_level=False))
+            self.axis_out_monitors.append(AxiStreamMonitor("axis_out{}".format(i), self.bus_out[i], dut.aclk, dut.aresetn, reset_active_level=False))
 
 
     async def reset(self):
@@ -44,4 +43,12 @@ class TB:
         self.dut.aresetn.value = 0
         await Timer(10, units="ns")
         self.dut.aresetn.value = 1
+
+
+    def write_monitored_data(self):
+        self.axis_in_monitor.default_logger.write_to_dir()
+
+        for out_m in self.axis_out_monitors:
+            out_m.default_logger.write_to_dir()
+
 

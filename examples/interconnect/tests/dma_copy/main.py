@@ -6,6 +6,8 @@ import os
 from framework.stimuli_list import StimuliList
 from framework.data import Data
 
+from test_utils.filecmp import cmpdir
+
 from tb import TB
 
 
@@ -45,3 +47,5 @@ async def cocotb_run(dut):
 
 
     tb.write_monitor_data()
+
+    cmpdir("stimlogs", "golden_stimlogs")

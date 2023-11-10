@@ -10,5 +10,6 @@ SIM = ghdl
 COMPILE_ARGS = -fsynopsys -P$(UNISIM_PATH)
 SIM_ARGS = --wave=wave.ghw --vcd=wave.vcd
 
+export RANDOM_SEED = 123456789
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
