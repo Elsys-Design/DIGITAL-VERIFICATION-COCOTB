@@ -16,8 +16,6 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
         super().__init__(bus, clock, reset, reset_active_level, **kwargs)
 
         self.bus_size = len(self.bus.tdata.value) // 8
-        self.remove_one_tlast = Event()
-        cocotb.start_soon(self._remove_tlast())
 
     async def write_data(self, data):
         # Just a warning in case there is no tkeep but the data doesn't fit exactly in the bus
@@ -26,7 +24,7 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
                     "be added to the transaction".format(len(data.data), self.bus_size, n%self.bus_size))
 
         if not data.stream_tlast_end:
-            self.remove_one_tlast.set()
+            cocotb.start_soon(self._remove_one_tlast())
 
         # tkeep is supported by default by cocotbext.axi.AxiStreamSource
         await self.write(cocotbext.axi.AxiStreamFrame(tdata=data.data, tdest=data.addr))
@@ -46,9 +44,7 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
 
 
 
-    async def _remove_tlast(self):
-        while True:
-            await self.remove_one_tlast.wait()
-            await RisingEdge(self.bus.tlast)
-            self.bus.tlast.value = 0
-            self.remove_one_tlast.clear()
+    async def _remove_one_tlast(self):
+        await RisingEdge(self.bus.tlast)
+        self.bus.tlast.value = 0
+        return
