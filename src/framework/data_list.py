@@ -67,7 +67,9 @@ class DataList(list):
         """
         logger.info("Writting DataList to {}: addr_to_zero = {}".format(filepath, addr_to_zero))
 
-        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        dirpath = os.path.dirname(filepath)
+        if dirpath:
+            os.makedirs(dirpath, exist_ok=True)
 
         f = open(filepath, "w")
         f.write(self.to_str(addr_to_zero))
