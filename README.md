@@ -16,8 +16,8 @@ It uses files to create input stimuli and output logs.
 ### limitations
 - le framework ne supporte pas la gestion des tuser dans l'AXI stream
 - le framework ne prend pas en considération la taille physique du bus AXI. Pour garantir les accès unitaires, il faut que le champ taille soit égale à la taille du bus AXI.
-- Le framework ne gère pas le byte enable (`wstrb` pour Axi full/light ou `tstrb` pour axi stream) à l'intérieur des burst et des flux AXI stream (dans ce cas le champ `Desc` sera rempli avec le valeur de `wstrb` ). Il ne gère les bytes enable qque sur les accès unitaire et sur le dernier mot d'une transaction (burst ou stream). 
-
+- Pour l'axi full/light Le framework ne gère pas le byte enable (`wstrb` pour Axi full/light) à l'intérieur des burst. Il ne gère les bytes enable que sur les accès unitaire et sur le dernier mot d'une transaction (burst ou stream). 
+- Pour l'axi stream, le framework ne gère pas le byte enable `tstrb` (utilisé pour l'alignement). Il gèrerera uniquement le Tkeep utilisé pour valider un octet ou non. 
 
 
 # License

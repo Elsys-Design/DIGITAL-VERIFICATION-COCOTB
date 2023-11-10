@@ -165,12 +165,12 @@ Ce paragraphae explicite la convention associée au ficheirs logs:
 
 **Desc**:
 - A définir ultérieurement en détail
-- identifie déjà les accès `wrtb` (voir paragraphe `Data` suivant)
+- identifie déjà les accès byte `wstrb` ou `tkeep` (voir paragraphe `Data` suivant)
 - identifie les accès sans `tlast` (voir paragraphe `Data` suivant)
 
 **Data**:
 - on met la data en hexadécimal avec la taille du bus data (on complète donc avec des zéros)
-- Dans le cas d'un accès AXI  avec un byte enable (`wstrb` pour Axi full/light ou `tstrb` pour axi stream) non continue et non aligné sur le LSB (cas gérré via la notation `; + nombre entier`), le moniteur découpera l'accès en plusieurs accès de taille 1 octet (pour les byte enable activés).
+- Dans le cas d'un accès AXI  avec un byte enable (`wstrb` pour Axi full/light ou `tkeep` pour axi stream) non continue et non aligné sur le LSB (cas gérré via la notation `; + nombre entier`), le moniteur découpera l'accès en plusieurs accès de taille 1 octet (pour les byte enable activés).
 Un commentaire sera rajouter dans `Desc` pour informer que c'est le même accès initialement. Par exemple: `champ ID | wstrb = 0x81` 
 - Dans le cas d'un axi stream sans `tlast`, les multiplees accès (jusqu'au `tlast` final) donneront lieu à des entrée stimuli séparrés mais pointant vers le même fichier `Filename`. 
 un commentaire sera mis dans  `Desc` pour indiquer que c'est un accès sans `tlast`. 
