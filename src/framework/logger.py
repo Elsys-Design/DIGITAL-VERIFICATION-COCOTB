@@ -1,8 +1,15 @@
 import logging
-import logging.config
-import os
 
 
-framework_dir = os.path.dirname(os.path.realpath(__file__))
-#logging.config.fileConfig(os.path.join(framework_dir, "default_logger.conf"), disable_existing_loggers = False)
+
 logger = logging.getLogger("framework")
+logger.propagate = False
+
+# undo the setup cocotb did
+for handler in logger.handlers:
+    logger.removeHandler(handler)
+    handler.close()
+
+_handler = logging.FileHandler("framework.log", mode='w')
+logger.addHandler(_handler)
+logger.setLevel(logging.DEBUG)
