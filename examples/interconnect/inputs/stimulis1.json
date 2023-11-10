@@ -1,0 +1,21 @@
+[
+
+  {
+    "Access": "W",
+    "RelTime": "1 us",
+    "Type": "File",
+    "FileName": "dma_read.dat",
+    "Address": "0x41E00030",
+    "Fill": 0
+  },
+
+  {
+    "Access": "W",
+    "RelTime": "1 us",
+    "Type": "File",
+    "FileName": "dma_write.dat",
+    "Address": "0x41E00000",
+    "Fill": 0
+  }
+
+]

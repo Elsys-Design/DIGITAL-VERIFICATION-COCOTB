@@ -1,0 +1,16 @@
+
+
+__pycache__
+sim_build/*
+wave.*
+
+outputs.txt
+
+design_1
+*.o
+results.xml
+
+generated_inputs/*
+
+stimlogs/*
+waveform.gtkw

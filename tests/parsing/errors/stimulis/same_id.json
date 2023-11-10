@@ -1,0 +1,20 @@
+[
+  {
+    "ID": "same_id_1",
+    "Access": "W",
+    "RelTime":"100 ps",
+    "Type": "Simple",
+    "Data": "125",
+    "Address": "0x12345678",
+    "Size": 4
+  },
+  {
+    "Access": "W",
+    "RelTime":"100 ps",
+    "Type": "Simple",
+    "Data": "125",
+    "Address": "0x12345678",
+    "Size": 4
+  }
+
+]

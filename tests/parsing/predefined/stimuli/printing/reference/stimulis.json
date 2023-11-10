@@ -1,0 +1,53 @@
+[
+    {
+        "ID": "stimulis_0",
+        "Access": "W",
+        "RelTime": "0.100 ns",
+        "AbsTime": "100000 fs",
+        "Type": "Simple",
+        "Address": "0x12345678",
+        "Data": "0x0000007D",
+        "Size": 4
+    },
+    {
+        "ID": "TEST2",
+        "Desc": "exemple d'écriture de 1 octet 0xFE @305419896 à T=100,200 ns",
+        "Access": "W",
+        "RelTime": "100.100 ns",
+        "AbsTime": "100200000 fs",
+        "Type": "Simple",
+        "Address": "0x12345678",
+        "Data": "0x000000FE",
+        "Size": 1
+    },
+    {
+        "ID": "stimulis_2",
+        "Access": "R",
+        "RelTime": "0.001 ms",
+        "AbsTime": "1100200000 fs",
+        "Type": "File",
+        "Address": "0x00000000",
+        "FileName": "stimulis_2.dat"
+    },
+    {
+        "ID": "TEST4",
+        "Desc": "exemple de lecture de 2 octets  @305419896 à T=1101,200 ns",
+        "Access": "R",
+        "RelTime": "0.001 us",
+        "AbsTime": "1101200000 fs",
+        "Type": "Simple",
+        "Address": "0x12345678",
+        "Data": "0x0000CDCD",
+        "Size": 2
+    },
+    {
+        "ID": "IMAGE_1",
+        "Desc": "envoie d'une image",
+        "Access": "W",
+        "RelTime": "0.001 ms",
+        "AbsTime": "2101200000 fs",
+        "Type": "File",
+        "Address": "0x10001234",
+        "FileName": "IMAGE_1.dat"
+    }
+]

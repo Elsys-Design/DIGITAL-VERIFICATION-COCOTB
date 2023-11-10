@@ -1,0 +1,47 @@
+[
+  {
+    "Desc":"exemple d'écriture de 4 octets 125  @0x12345678 à T=100 ps",
+    "Access": "W",
+    "RelTime":"100 ps",
+    "Type": "Simple",
+    "Data": "125",
+    "Address": "0x12345678",
+    "Size": 4
+  },
+{
+    "ID":"TEST2",
+    "Desc":"exemple d'écriture de 1 octet 0xFE @305419896 à T=100,200 ns",
+    "Access": "W",
+    "RelTime":"100.1 ns",
+    "Type": "Simple",
+    "Data": "0xCAFECAFE",
+    "Address": "305419896",
+    "Size": 1
+  },
+{
+    "Access": "R",
+    "RelTime":"1 ms",
+    "Type": "Simple",
+    "Address": "0b0",
+    "Size": 4096
+  },
+{
+    "ID":"TEST4",
+    "Desc":"exemple de lecture de 2 octets  @305419896 à T=1101,200 ns",
+    "Access": "R",
+    "RelTime":"1 ns",
+    "Type": "Simple",
+    "Address": "305419896",
+    "Size": 2
+  },
+    {
+    "ID":"IMAGE_1",
+    "Desc":"envoie d'une image",
+    "Access": "W",
+    "RelTime":"1 ms",
+    "Type": "File",
+    "FileName":"0.dat",
+    "Address": "0x10000000",
+    "Fill": 1
+  }
+]

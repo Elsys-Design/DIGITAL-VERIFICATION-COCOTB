@@ -1,0 +1,11 @@
+[
+  {
+    "Access": "W",
+    "RelTime":"100 ps",
+    "Type": "File",
+    "Address": "0x12345678",
+    "Size": 4,
+    "FileName": "test.dat",
+    "Fill": 1
+  }
+]
