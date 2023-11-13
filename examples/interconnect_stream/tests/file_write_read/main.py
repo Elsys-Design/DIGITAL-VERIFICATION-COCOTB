@@ -76,4 +76,6 @@ async def cocotb_run(dut):
 
     # Comparing stimlogs/ to golden_stimlogs/seed/
     compare_to_golden("stimlogs")
+
+    compare_to_golden("read_data")
     
