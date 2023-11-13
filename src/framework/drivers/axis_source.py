@@ -27,7 +27,7 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
             logger.warning("Writing data of size {} to AxiStream bus of size {} with no tkeep -> {} * 0x0 bytes will" \
                     "be added to the transaction".format(len(data.data), self.bus_size, len(data.data)%self.bus_size))
 
-        if self.has_tlast and not data.stream_tlast_end:
+        if self.has_tlast and not data.ends_with_tlast:
             cocotb.start_soon(self._remove_one_tlast())
 
         # tkeep is supported by default by cocotbext.axi.AxiStreamSource

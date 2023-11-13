@@ -49,13 +49,13 @@ class Data:
     """
     addr : int
     data : bytearray
-    stream_tlast_end : bool = True
+    ends_with_tlast : bool = True
     dformat : DataFormat = None
 
-    def __init__(self, addr : int, data : bytearray, stream_tlast_end : bool = True, dformat : DataFormat = None):
+    def __init__(self, addr : int, data : bytearray, ends_with_tlast : bool = True, dformat : DataFormat = None):
         self.addr = addr
         self.data = data
-        self.stream_tlast_end = stream_tlast_end
+        self.ends_with_tlast = ends_with_tlast
         if dformat == None:
             self.dformat = DataFormat()
         else:
@@ -118,7 +118,7 @@ class Data:
         if last_word_size != self.dformat.word_size:
             last_fields.append(str(last_word_size))
 
-        if self.stream_tlast_end:
+        if self.ends_with_tlast:
             last_fields.append(self.dformat.tlast_char)
 
 
@@ -185,7 +185,7 @@ class Data:
 
         current_length = 0
         data = bytearray()
-        stream_tlast_end = False
+        ends_with_tlast = False
         for x in range(len(data_fields)):
             dfields = data_fields[x].split(';')
             dfields = [d.strip() for d in dfields]
@@ -213,7 +213,7 @@ class Data:
                     if dfields[i] != dformat.tlast_char:
                         raise ValueError("End of packet descriptor isn't {} but {}" \
                                 .format(dformat.tlast_char, dfields[i]))
-                    stream_tlast_end = True
+                    ends_with_tlast = True
                     i += 1
 
                 if i < len(dfields):
@@ -236,14 +236,14 @@ class Data:
 
             # Cutting the sequence in multiple Data if we have an end of packet in the middle of it
             # Also handle the last data (even if it doesn't end with an end of packet)
-            if stream_tlast_end or x == len(data_fields)-1:
+            if ends_with_tlast or x == len(data_fields)-1:
                 addr = base_addr if is_stream else base_addr + current_length
-                out.append(Data(addr, data, stream_tlast_end, dformat))
+                out.append(Data(addr, data, ends_with_tlast, dformat))
             
                 # Reset vars for new data
                 current_length += len(data)
                 data = bytearray()
-                stream_tlast_end = False
+                ends_with_tlast = False
         
 
         # Expansion or Cutting of the data

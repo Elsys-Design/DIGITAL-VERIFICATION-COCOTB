@@ -105,7 +105,7 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
 
                     if has_tlast:
                         if int(self.bus.tlast.value) == 1:
-                            current_data.stream_tlast_end = True
+                            current_data.ends_with_tlast = True
                             data_list.append(current_data)
                             current_data = new_current_data()
                     
