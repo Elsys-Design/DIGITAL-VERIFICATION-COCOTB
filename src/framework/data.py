@@ -36,7 +36,7 @@ class DataFormat:
         return self.is_big_endian == True and self.encoding == Encoding.ASCII and self.tlast_char == '!'
 
 
-@dataclass()
+@dataclass(init = False)
 class Data:
     """
     Represents either:
@@ -50,7 +50,17 @@ class Data:
     addr : int
     data : bytearray
     stream_tlast_end : bool = True
-    dformat : DataFormat = DataFormat(4)
+    dformat : DataFormat = None
+
+    def __init__(self, addr : int, data : bytearray, stream_tlast_end : bool = True, dformat : DataFormat = None):
+        self.addr = addr
+        self.data = data
+        self.stream_tlast_end = stream_tlast_end
+        if dformat == None:
+            self.dformat = DataFormat()
+        else:
+            self.dformat = dformat
+
 
     def alignment_check(self):
         """
