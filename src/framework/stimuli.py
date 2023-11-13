@@ -232,11 +232,11 @@ class Stimuli:
 
     async def run(self, master):
         
-        logger.debug("Stimuli waits {}", self.rel_time)
+        logger.debug("Stimuli waits {}".format(self.rel_time))
 
         await self.rel_time.wait()
         
-        logger.debug("Stimuli waited {} and starts running", self.rel_time)
+        logger.debug("Stimuli waited {} and starts running".format(self.rel_time))
 
         # Updating start time to the real value
         self.abs_time = Time.now()
