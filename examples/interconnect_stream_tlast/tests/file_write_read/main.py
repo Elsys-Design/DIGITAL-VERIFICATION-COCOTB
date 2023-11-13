@@ -20,7 +20,8 @@ def generate_write_datalist():
             stream_data_default_generator,
             tdest_range = [0x0, 0x1, 0x2],
             size_range = range(1, 0x10),
-            word_size_range = [2**i for i in range(4)]
+            word_size_range = [2**i for i in range(4)],
+            ends_with_tlast = None
     )
 
     datalist_gen = partial(

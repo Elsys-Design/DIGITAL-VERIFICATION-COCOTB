@@ -50,21 +50,44 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
 
             end_time = Time.now()
 
-            d = Data(frame.tdest, frame.tdata, True, DataFormat(self.bus_data_size, addr_size = self.bus_tdest_size))
+            def log_data(tdest, tdata, ends_with_tlast):
+                dformat = DataFormat(
+                            word_size = self.bus_data_size,
+                            addr_size = self.bus_tdest_size
+                )
 
-            new_id = "{}_{}".format(self.name, self.current_id)
-            self.current_id += 1
+                data = Data(tdest, tdata, ends_with_tlast, dformat)
 
-            s = Stimuli(
-                    new_id,
-                    Access.WRITE,
-                    start_time - self.last_end_time,
-                    DataList([d]),
-                    "",
-                    start_time,
-                    end_time
-            )
+                new_id = "{}_{}".format(self.name, self.current_id)
+                self.current_id += 1
 
-            self.last_end_time = end_time
+                s = Stimuli(
+                        new_id,
+                        Access.WRITE,
+                        start_time - self.last_end_time,
+                        DataList([data]),
+                        "",
+                        start_time,
+                        end_time
+                )
 
-            self.analysis_port.send(s)
+                self.last_end_time = end_time
+
+                self.analysis_port.send(s)
+
+
+            if isinstance(frame.tdest, list):
+                # In the case there is a tlast but there is interleaving outside of tlast boundaries
+                # (tlast stays at 0 but tdest changes)
+                # In that case we log a new stimuli for each tdest change
+                i = 0
+                while i < len(frame.tdest):
+                    starti = i
+                    i += 1
+                    while i < len(frame.tdest) and frame.tdest[i] == frame.tdest[starti]:
+                        i += 1
+
+                    log_data(frame.tdest[starti], frame.tdata[starti:i], i==len(frame.tdest))
+            else:
+                log_data(frame.tdest, frame.tdata, True)
+
