@@ -20,5 +20,19 @@ class AxiLiteRam(cocotbext.axi.AxiLiteRam):
                 addr,
                 self.read(addr, length)
         )
-
     
+
+    def write_datalist(self, data_list):
+        for d in data_list:
+            self.write_data(d)
+   
+    def write_data_from_file(self, filepath):
+        write_datalist(DataList.from_file(filepath))
+
+
+    def read_data_to_file(self, filepath, address, length):
+        d = Data(address, bytearray([0]*length))
+        self.read_data(d)
+        DataList([d]).to_file(filepath)
+
+

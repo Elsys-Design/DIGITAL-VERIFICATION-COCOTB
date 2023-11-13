@@ -47,6 +47,11 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         data = await self.read(length)
         return int(data.data.hex(), 16)
 
+
+    async def read_datalist(self, data_list):
+        for d in data_list:
+            await self.read_data(d)
+
     async def read_data_to_file(self, filepath, length):
         d = await self.read(length)
         DataList([d]).to_file(filepath)

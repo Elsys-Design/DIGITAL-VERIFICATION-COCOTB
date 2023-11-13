@@ -52,9 +52,14 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
         """
         await super().write(frame)
 
+    async def write_datalist(self, data_list):
+        for d in data_list:
+            await self.write_data(d)
+
     async def write_data_from_file(self, filepath):
-        data_list = DataList.from_file(filepath, is_stream=True)
-        await data_list.write_using(self)
+        await self.write_datalist(DataList.from_file(filepath, is_stream=True))
+
+
 
     
 

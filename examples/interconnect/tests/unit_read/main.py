@@ -50,7 +50,7 @@ async def cocotb_run(dut):
         data_list.to_file("generated_inputs/{}.dat".format(i))
         tasks.append(
                 cocotb.start_soon(
-                    data_list.read_using(tb.masters_in[i])
+                    tb.masters_in[i].read_datalist(data_list)
                 )
         )
 

@@ -242,9 +242,9 @@ class Stimuli:
         self.abs_time = Time.now()
 
         if self.access == Access.WRITE:
-            await self.data_list.write_using(master)
+            await master.write_datalist(self.data_list)
         else:
-            await self.data_list.read_using(master)
+            await master.read_datalist(self.data_list)
         
         self.end_time = Time.now()
 
