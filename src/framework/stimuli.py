@@ -244,7 +244,9 @@ class Stimuli:
         if self.access == Access.WRITE:
             await master.write_datalist(self.data_list)
         else:
-            await master.read_datalist(self.data_list)
+            if len(self.data_list) > 1:
+                raise NotImplementedError("Reading more than 1 Data from Stimuli isn't supported")
+            await master.read_data(self.data_list[0])
         
         self.end_time = Time.now()
 

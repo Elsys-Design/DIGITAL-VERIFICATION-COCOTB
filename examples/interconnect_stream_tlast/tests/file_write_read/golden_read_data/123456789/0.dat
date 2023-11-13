@@ -1,7 +1,12 @@
-@ 0x0; 19; ascii; 4; Big; !;
+@ 0x0; 6; ascii; 4; Big; !;
 0x88A23E90
-0x74FE6A61
-0x0E2A2C18
-0x1A40C27F
-0x00FC7969; 3; !
+0x000074FE; 2; !
+
+@ 0x0; 4; ascii; 4; Big; !;
+0x6A610E2A; !
+
+@ 0x0; 9; ascii; 4; Big; !;
+0x2C181A40
+0xC27FFC79
+0x00000069; 1; !
 

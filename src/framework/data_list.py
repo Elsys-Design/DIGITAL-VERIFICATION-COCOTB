@@ -77,6 +77,13 @@ class DataList(list):
         
         logger.info("DataList written to {}".format(filepath))
 
+    def full_bytearray(self):
+        out = bytearray()
+        for d in self:
+            out += d.data
+        return out
+
+
     def represents_same_data_as(self, other, addr_offset = 0):
         """
         Almost like the == operator but checking only what's meaningfull
