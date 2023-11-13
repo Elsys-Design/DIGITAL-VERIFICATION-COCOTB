@@ -77,6 +77,13 @@ class DataList(list):
         
         logger.info("DataList written to {}".format(filepath))
 
+    def full_bytearray(self):
+        out = bytearray()
+        for d in self:
+            out += d.data
+        return out
+
+
     def represents_same_data_as(self, other, addr_offset = 0):
         """
         Almost like the == operator but checking only what's meaningfull
@@ -85,31 +92,6 @@ class DataList(list):
             if not self[i].represents_same_data_as(other[i], addr_offset):
                 return False
         return True
-
-
-    async def write_using(self, master):
-        for d in self:
-            await master.write_data(d)
-
-    async def read_using(self, master):
-        for d in self:
-            await master.read_data(d)
-
-
-    def write_to_memory(self, mem_component):
-        for d in self:
-            d.write_to_memory(mem_component)
-
-    @classmethod
-    def from_memory(cls, mem_component, addresses_and_lengths=[]):
-        data_list = cls()
-        for address, length in addresses_and_lengths:
-            data = Data.from_memory(mem_component, address, length)
-            data_list.append(data)
-
-        return data_list
-
-
 
 
 def datalist_default_generator(data_generator, size_range):

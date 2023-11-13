@@ -23,9 +23,17 @@ class AxiMaster(cocotbext.axi.AxiMaster):
 
 
 
+    async def write_datalist(self, data_list):
+        for d in data_list:
+            await self.write_data(d)
+
     async def write_data_from_file(self, filepath):
-        data_list = DataList.from_file(filepath)
-        await data_list.write_using(self)
+        await self.write_datalist(DataList.from_file(filepath))
+
+
+    async def read_datalist(self, data_list):
+        for d in data_list:
+            await self.read_data(d)
 
     async def read_data_to_file(self, filepath, address, length):
         d = Data(address, bytearray([0]*length))

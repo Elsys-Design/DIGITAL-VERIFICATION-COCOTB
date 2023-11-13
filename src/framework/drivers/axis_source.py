@@ -19,6 +19,7 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
 
         self.has_tkeep = hasattr(self.bus, "tkeep")
         self.has_tlast = hasattr(self.bus, "tlast")
+        self.bus_data_size = len(self.bus.tdata.value) // 8
 
     async def write_data(self, data):
         # Just a warning in case there is no tkeep but the data doesn't fit exactly in the bus
@@ -30,15 +31,35 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
             cocotb.start_soon(self._remove_one_tlast())
 
         # tkeep is supported by default by cocotbext.axi.AxiStreamSource
-        await self.write(cocotbext.axi.AxiStreamFrame(tdata=data.data, tdest=data.addr))
+        await self.write_frame(cocotbext.axi.AxiStreamFrame(tdata=data.data, tdest=data.addr))
         # For AxiStreamSource, awaiting the write() isn't enough (it just puts it in a queue)
         # We need to explicitly call wait()
         await self.wait()
 
+    async def write(self, data, tdest : int = 0, tlast : bool = True):
+        """
+        Helper to write data easily without having to create a data object
+        Overrides cocotbext.axi's write method that takes a frame
+        """
+        if isinstance(data, int):
+            data = bytearray(data.to_bytes((data.bit_length()+7)//8, byteorder='big'))
+        await self.write_data(Data(tdest, data, tlast))
+
+
+    async def write_frame(self, frame):
+        """
+        Gives access to cocotb's AxiStreamSource.write
+        """
+        await super().write(frame)
+
+    async def write_datalist(self, data_list):
+        for d in data_list:
+            await self.write_data(d)
 
     async def write_data_from_file(self, filepath):
-        data_list = DataList.from_file(filepath, is_stream=True)
-        await data_list.write_using(self)
+        await self.write_datalist(DataList.from_file(filepath, is_stream=True))
+
+
 
     
 

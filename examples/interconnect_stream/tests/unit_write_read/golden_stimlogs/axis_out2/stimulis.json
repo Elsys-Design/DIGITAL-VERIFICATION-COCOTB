@@ -1,0 +1,22 @@
+[
+    {
+        "ID": "axis_out2_0",
+        "Access": "W",
+        "RelTime": "1570000.001 ps",
+        "AbsTime": "1570000001 fs",
+        "Type": "File",
+        "Address": "0x2",
+        "FileName": "axis_out2_0.dat",
+        "Desc": "Access on a bus that has no tlast"
+    },
+    {
+        "ID": "axis_out2_1",
+        "Access": "W",
+        "RelTime": "0.010 us",
+        "AbsTime": "1580000001 fs",
+        "Type": "File",
+        "Address": "0x2",
+        "FileName": "axis_out2_0.dat",
+        "Desc": "Access on a bus that has no tlast"
+    }
+]

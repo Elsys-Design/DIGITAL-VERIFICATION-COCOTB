@@ -232,19 +232,21 @@ class Stimuli:
 
     async def run(self, master):
         
-        logger.debug("Stimuli waits {}", self.rel_time)
+        logger.debug("Stimuli waits {}".format(self.rel_time))
 
         await self.rel_time.wait()
         
-        logger.debug("Stimuli waited {} and starts running", self.rel_time)
+        logger.debug("Stimuli waited {} and starts running".format(self.rel_time))
 
         # Updating start time to the real value
         self.abs_time = Time.now()
 
         if self.access == Access.WRITE:
-            await self.data_list.write_using(master)
+            await master.write_datalist(self.data_list)
         else:
-            await self.data_list.read_using(master)
+            if len(self.data_list) > 1:
+                raise NotImplementedError("Reading more than 1 Data from Stimuli isn't supported")
+            await master.read_data(self.data_list[0])
         
         self.end_time = Time.now()
 

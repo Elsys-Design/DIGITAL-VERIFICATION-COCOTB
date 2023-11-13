@@ -6,10 +6,12 @@ import cocotb
 import cocotbext
 from cocotb.clock import Clock
 from cocotb.triggers import Edge, RisingEdge, FallingEdge, Timer, Join, Combine
-from cocotbext.axi import AxiLiteBus, AxiLiteRam, AxiBus, AxiRam
+from cocotbext.axi import AxiLiteBus, AxiBus
 
 from framework.drivers.axi_master import AxiMaster
 from framework.drivers.axil_master import AxiLiteMaster
+from framework.drivers.axi_ram import AxiRam
+from framework.drivers.axil_ram import AxiLiteRam
 from framework.monitors.axi_monitor import AxiMonitor
 from framework.monitors.axil_monitor import AxiLiteMonitor
 from framework.data import Data

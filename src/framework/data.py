@@ -36,7 +36,7 @@ class DataFormat:
         return self.is_big_endian == True and self.encoding == Encoding.ASCII and self.tlast_char == '!'
 
 
-@dataclass()
+@dataclass(init = False)
 class Data:
     """
     Represents either:
@@ -50,7 +50,17 @@ class Data:
     addr : int
     data : bytearray
     stream_tlast_end : bool = True
-    dformat : DataFormat = DataFormat(4)
+    dformat : DataFormat = None
+
+    def __init__(self, addr : int, data : bytearray, stream_tlast_end : bool = True, dformat : DataFormat = None):
+        self.addr = addr
+        self.data = data
+        self.stream_tlast_end = stream_tlast_end
+        if dformat == None:
+            self.dformat = DataFormat()
+        else:
+            self.dformat = dformat
+
 
     def alignment_check(self):
         """
@@ -285,19 +295,6 @@ class Data:
         return self.dformat.word_size - self.last_word_size()
 
 
-    def write_to_memory(self, mem_component):
-        mem_component.write(self.addr, self.data)
-
-    @classmethod
-    def from_memory(cls, mem_component, address, length):
-        return cls(
-            address,
-            mem_component.read(address, length),
-            True,
-            DataFormat()
-        )
-
-
 
 
 def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True):
@@ -315,7 +312,7 @@ def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4]
     return Data(addr, data, False, DataFormat(word_size))
 
 
-def stream_data_default_generator(tdest_range, size_range, word_size_range = [4]):
+def stream_data_default_generator(tdest_range, size_range, word_size_range = [4], ends_with_tlast = True):
     """
     Default random data generator
     Provided as an example but it fits many usecases
@@ -324,7 +321,9 @@ def stream_data_default_generator(tdest_range, size_range, word_size_range = [4]
     word_size = random.choice(word_size_range)
     addr = random.choice(tdest_range)
     data = bytearray([random.randrange(0, 2**8) for _ in range(size)])
+    if ends_with_tlast == None:
+        ends_with_tlast = bool(random.getrandbits(1))
 
-    return Data(addr, data, True, DataFormat(word_size))
+    return Data(addr, data, ends_with_tlast, DataFormat(word_size))
 
 
