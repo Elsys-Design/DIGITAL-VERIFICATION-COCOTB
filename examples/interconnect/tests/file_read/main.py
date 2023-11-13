@@ -39,15 +39,14 @@ async def cocotb_run(dut):
             data_default_generator,
             min_addr = 0x44A00000,
             max_addr = 0x44A4FFFF,
-            size_range = range(1, 0x10),
-            word_size_range = range(1, 9),
-            word_aligned = True
+            size_range = range(1, 0x20),
+            word_size_range = [2**i for i in range(4)]
     )
 
     datalist_gen = partial(
             datalist_default_generator,
             data_gen,
-            [2]
+            [10]
     )
 
 

@@ -2,20 +2,10 @@
     {
         "ID": "out_axi_0",
         "Access": "W",
-        "RelTime": "4460000.003 ps",
-        "AbsTime": "4460000003 fs",
+        "RelTime": "4120000.001 ps",
+        "AbsTime": "4120000001 fs",
         "Type": "File",
         "Address": "0x44A4B4BC",
         "FileName": "out_axi_0.dat"
-    },
-    {
-        "ID": "out_axi_1",
-        "Access": "W",
-        "RelTime": "0.030 us",
-        "AbsTime": "4490000003 fs",
-        "Type": "Simple",
-        "Address": "0x44A42C54",
-        "Data": "0x000000BA",
-        "Size": 1
     }
 ]
