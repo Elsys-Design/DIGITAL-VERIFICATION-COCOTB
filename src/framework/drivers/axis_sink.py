@@ -28,14 +28,28 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         await self.read_done.wait()
         self.read_done.clear()
 
-    
-    async def read_data_to_file(self, filepath, length):
-        if length == 0:
-            return
+    async def read(self, length : int):
+        """
+        Helper to read data easily without having to create a data object
+        Overrides cocotbext.axi's read method that takes a frame count and uses a byte count instead
+        """
+        if length <= 0:
+            raise ValueError("Read of size {} <= 0".format(length))
         d = Data(0x0, bytearray([0]*length))
         await self.read_data(d)
-        DataList([d]).to_file(filepath)
+        return d
 
+    async def read_word(self, length : int):
+        """
+        Helper that directly converts the data to an int.
+        To use only for small accesses
+        """
+        data = await self.read(length)
+        return int(data.data.hex(), 16)
+
+    async def read_data_to_file(self, filepath, length):
+        d = await self.read(length)
+        DataList([d]).to_file(filepath)
 
 
     def start_run(self, file):
@@ -78,13 +92,17 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
                         if self.bus.tkeep.value[-(1+i)]:
                             self.current_data.data[self.current_idx] = self.bus.tdata.value.buff[-(1+i)]
                             self.current_idx += 1
+                        if self.current_idx == len(self.current_data.data):
+                            break
                 else:
-                    self.current_data.data[self.current_idx:self.current_idx+self.bus_data_size] = reversed(self.bus.tdata.value.buff)
-                    self.current_idx += self.bus_data_size
+                    toadd = min(self.bus_data_size, len(self.current_data.data) - self.current_idx)
+                    received_word = bytearray(self.bus.tdata.value.buff)
+                    received_word.reverse()
+                    self.current_data.data[self.current_idx:self.current_idx+toadd] = received_word[:toadd]
+                    self.current_idx += toadd
                 
 
-                # if the bus has no tkeep, we can receive more bytes than we want and there's nothing we can do about it
-                if self.current_idx >= len(self.current_data.data):
+                if self.current_idx == len(self.current_data.data):
                     self.bus.tready.value = 0
                     self.current_idx = 0
                     self.current_data = None

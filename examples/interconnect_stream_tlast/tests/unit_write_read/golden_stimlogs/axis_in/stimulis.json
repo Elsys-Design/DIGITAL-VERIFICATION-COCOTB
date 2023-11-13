@@ -1,0 +1,51 @@
+[
+    {
+        "ID": "axis_in_0",
+        "Access": "W",
+        "RelTime": "2395000.002 ps",
+        "AbsTime": "2395000002 fs",
+        "Type": "Simple",
+        "Address": "0x1",
+        "Data": "0x12345678",
+        "Size": 4
+    },
+    {
+        "ID": "axis_in_1",
+        "Access": "W",
+        "RelTime": "0.020 us",
+        "AbsTime": "2415000002 fs",
+        "Type": "Simple",
+        "Address": "0x1",
+        "Data": "0x0000ABCD",
+        "Size": 2
+    },
+    {
+        "ID": "axis_in_2",
+        "Access": "W",
+        "RelTime": "0.150 us",
+        "AbsTime": "2565000002 fs",
+        "Type": "Simple",
+        "Address": "0x1",
+        "Data": "0x0000EF01",
+        "Size": 2
+    },
+    {
+        "ID": "axis_in_3",
+        "Access": "W",
+        "RelTime": "0.070 us",
+        "AbsTime": "2635000002 fs",
+        "Type": "File",
+        "Address": "0x0",
+        "FileName": "axis_in_3.dat"
+    },
+    {
+        "ID": "axis_in_4",
+        "Access": "W",
+        "RelTime": "0.020 us",
+        "AbsTime": "2655000002 fs",
+        "Type": "Simple",
+        "Address": "0x2",
+        "Data": "0x00000555",
+        "Size": 2
+    }
+]
