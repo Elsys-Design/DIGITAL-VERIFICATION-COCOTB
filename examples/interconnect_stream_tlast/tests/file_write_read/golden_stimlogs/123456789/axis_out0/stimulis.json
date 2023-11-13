@@ -2,10 +2,30 @@
     {
         "ID": "axis_out0_0",
         "Access": "W",
-        "RelTime": "1810000.001 ps",
-        "AbsTime": "1810000001 fs",
+        "RelTime": "2685000.002 ps",
+        "AbsTime": "2685000002 fs",
         "Type": "File",
         "Address": "0x0",
         "FileName": "axis_out0_0.dat"
+    },
+    {
+        "ID": "axis_out0_1",
+        "Access": "W",
+        "RelTime": "0.330 us",
+        "AbsTime": "3015000002 fs",
+        "Type": "Simple",
+        "Address": "0x0",
+        "Data": "0x0000001A",
+        "Size": 1
+    },
+    {
+        "ID": "axis_out0_2",
+        "Access": "W",
+        "RelTime": "0.010 us",
+        "AbsTime": "3025000002 fs",
+        "Type": "Simple",
+        "Address": "0x0",
+        "Data": "0x00FC7969",
+        "Size": 3
     }
 ]

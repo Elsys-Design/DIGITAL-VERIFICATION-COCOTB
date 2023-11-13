@@ -20,13 +20,13 @@ def generate_write_datalist():
             stream_data_default_generator,
             tdest_range = [0x0, 0x1, 0x2],
             size_range = range(1, 0x10),
-            word_size_range = range(1, 9)
+            word_size_range = [2**i for i in range(4)]
     )
 
     datalist_gen = partial(
             datalist_default_generator,
             data_gen,
-            [4]
+            [10]
     )
     
     return datalist_gen()
@@ -49,7 +49,13 @@ async def cocotb_run(dut):
     # Computing the length the read requests must be for each AxiStreamSink
     read_length = [0,0,0]
     for data in data_list:
-        read_length[data.addr] += len(data.data)
+        # There is no tkeep in this test
+        # and with the dwidth converter, we need to make sure all transfers' sizes are a multiple of the bus size
+        actual_length = len(data.data)
+        mod = actual_length % 4
+        if mod != 0:
+            actual_length += 4 - mod
+        read_length[data.addr] += actual_length
 
     # Writing data_list to file
     data_filename = "generated_inputs/data.dat"
