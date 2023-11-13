@@ -285,19 +285,6 @@ class Data:
         return self.dformat.word_size - self.last_word_size()
 
 
-    def write_to_memory(self, mem_component):
-        mem_component.write(self.addr, self.data)
-
-    @classmethod
-    def from_memory(cls, mem_component, address, length):
-        return cls(
-            address,
-            mem_component.read(address, length),
-            True,
-            DataFormat()
-        )
-
-
 
 
 def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True):
