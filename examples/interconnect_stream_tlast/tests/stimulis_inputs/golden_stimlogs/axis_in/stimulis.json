@@ -11,8 +11,8 @@
     {
         "ID": "axis_in_1",
         "Access": "W",
-        "RelTime": "0.180 us",
-        "AbsTime": "775000000 fs",
+        "RelTime": "0.030 us",
+        "AbsTime": "625000000 fs",
         "Type": "File",
         "Address": "0x1",
         "FileName": "axis_in_1.dat"
@@ -20,19 +20,28 @@
     {
         "ID": "axis_in_2",
         "Access": "W",
-        "RelTime": "0.040 us",
-        "AbsTime": "815000000 fs",
+        "RelTime": "0.150 us",
+        "AbsTime": "775000000 fs",
         "Type": "File",
-        "Address": "0x2",
+        "Address": "0x1",
         "FileName": "axis_in_2.dat"
     },
     {
         "ID": "axis_in_3",
         "Access": "W",
+        "RelTime": "0.040 us",
+        "AbsTime": "815000000 fs",
+        "Type": "File",
+        "Address": "0x2",
+        "FileName": "axis_in_3.dat"
+    },
+    {
+        "ID": "axis_in_4",
+        "Access": "W",
         "RelTime": "0.080 us",
         "AbsTime": "895000000 fs",
         "Type": "File",
         "Address": "0x0",
-        "FileName": "axis_in_3.dat"
+        "FileName": "axis_in_4.dat"
     }
 ]
