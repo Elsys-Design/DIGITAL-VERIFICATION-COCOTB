@@ -88,6 +88,6 @@ def stimulilist_default_generator(stimuli_generator, size_range):
     size = random.choice(size_range)
     out = StimuliList()
     for i in range(size):
-        out.append(stimuli_generator(_id = str(i)))
+        out.append(stimuli_generator(id_ = str(i)))
     return out
 

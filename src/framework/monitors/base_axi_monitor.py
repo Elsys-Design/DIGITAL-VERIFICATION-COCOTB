@@ -72,8 +72,8 @@ class BaseAxiMonitor:
         self.raddr_size = len(self.ar.bus.araddr)//8
         
         # Ids for stimulis
-        self.current_read_id = 0
-        self.current_write_id = 0
+        self.current_id = 0
+        self.current_id = 0
 
         # Last end_time for rel_time computation
         self.last_write_start_time = Time(0, 'fs')
@@ -131,7 +131,7 @@ class BaseAxiMonitor:
 
 
     def _log_write_stimuli(self, data_obj, start_time, old_start_time, first_id = None, wstrb = None):
-        new_id = "{}_{}".format(self.name, self.current_write_id)
+        new_id = "{}_{}".format(self.name, self.current_id)
         if first_id == None:
             first_id = new_id
             desc = ""
@@ -143,7 +143,7 @@ class BaseAxiMonitor:
                 desc += "| "
             desc += "wstrb = {}".format(wstrb)
 
-        self.current_write_id += 1
+        self.current_id += 1
         stim = Stimuli(
                 new_id,
                 Access.WRITE,
@@ -258,8 +258,8 @@ class BaseAxiMonitor:
 
         data_obj = Data(int(ar_t.araddr), data, True, DataFormat(self.rsize, addr_size = self.raddr_size))
         
-        new_id = "{}_{}".format(self.name, self.current_read_id)
-        self.current_read_id += 1
+        new_id = "{}_{}".format(self.name, self.current_id)
+        self.current_id += 1
         stim = Stimuli(
                 new_id,
                 Access.READ,

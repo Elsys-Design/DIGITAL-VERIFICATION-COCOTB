@@ -94,13 +94,13 @@ class DataList(list):
         return True
 
 
-def datalist_default_generator(data_generator, size_range):
+def datalist_default_generator(data_generator, size_range, fill_data = True):
     """
     Random data list generator
     """
     size = random.choice(size_range)
     out = DataList()
     for i in range(size):
-        out.append(data_generator())
+        out.append(data_generator(fill_data = fill_data))
     return out
 

@@ -35,8 +35,8 @@ class Stimuli:
     data_list : DataList
     desc : str = ""
     
-    abs_time : int = 0
-    end_time : int = 0
+    abs_time : Time = Time(0, 'fs')
+    end_time : Time = Time(0, 'fs')
 
 
     @classmethod
@@ -198,7 +198,7 @@ class Stimuli:
                 "Access": str(self.access),
                 "RelTime": str(self.rel_time),
                 "AbsTime": self.abs_time.full_str(),
-                "Type": "Simple" if data.is_word() and not force_to_file else "File",
+                "Type": "Simple" if (data.is_word() or not data.is_allocated) and not force_to_file else "File",
                 "Address": utils.int_to_hex_string(int(data.addr), int(data.dformat.addr_size))
         }
 
@@ -209,8 +209,9 @@ class Stimuli:
             del json_obj["Desc"]
 
         if json_obj["Type"] == "Simple":
-            # Data is always the size of a word
-            json_obj["Data"] = data.to_words()[0]
+            if data.is_allocated:
+                # Data is always the size of a word
+                json_obj["Data"] = data.to_words()[0]
             # Size isn't the size of a word but the actual data size
             json_obj["Size"] = data.length
         else:
@@ -267,7 +268,7 @@ def stimuli_default_generator(data_list_generator, delay_range, access = Access.
             id_,
             access,
             Time(random.choice(delay_range), "fs"),
-            data_list_generator(),
+            data_list_generator(fill_data = access == Access.WRITE),
             desc.format(id_)
     )
 

@@ -330,7 +330,8 @@ class Data:
 
 
 
-def empty_data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True):
+def empty_data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True,
+                                 fill_data = True):
     """
     Default random data generator
     Provided as an example but it fits many usecases
@@ -344,18 +345,20 @@ def empty_data_default_generator(min_addr, max_addr, size_range, word_size_range
     return Data(addr, size, False, DataFormat(word_size))
 
 
-def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True):
+def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True, fill_data = True):
     """
     Default random data generator
     Provided as an example but it fits many usecases
     """
     data = empty_data_default_generator(min_addr, max_addr, size_range, word_size_range, word_aligned)
-    data.allocate_data(FillStrategy.RANDOM)
+    if fill_data:
+        data.allocate_data(FillStrategy.RANDOM)
     return data
 
 
 
-def stream_data_default_generator(tdest_range, size_range, word_size_range = [4], ends_with_tlast = True):
+def stream_data_default_generator(tdest_range, size_range, word_size_range = [4], ends_with_tlast = True,
+                                  fill_data = True):
     """
     Default random data generator
     Provided as an example but it fits many usecases
@@ -363,7 +366,12 @@ def stream_data_default_generator(tdest_range, size_range, word_size_range = [4]
     size = random.choice(size_range)
     word_size = random.choice(word_size_range)
     addr = random.choice(tdest_range)
-    data = bytearray([random.randrange(0, 2**8) for _ in range(size)])
+
+    if fill_data:
+        data = bytearray([random.randrange(0, 2**8) for _ in range(size)])
+    else:
+        data = size
+
     if ends_with_tlast == None:
         ends_with_tlast = bool(random.getrandbits(1))
 
