@@ -55,9 +55,9 @@ class Data:
     ends_with_tlast : bool = True
     dformat : DataFormat = None
 
-    def __init__(self, addr : int, data_or_length : Union[bytearray, int], ends_with_tlast : bool = True, dformat : DataFormat = None):
+    def __init__(self, addr : int, data: Union[bytearray, int], ends_with_tlast : bool = True, dformat : DataFormat = None):
         self.addr = addr
-        self.data = data_or_length
+        self.data = data
         self.ends_with_tlast = ends_with_tlast
         if dformat == None:
             self.dformat = DataFormat()
@@ -274,19 +274,21 @@ class Data:
             out.append(Data(base_addr, data, False, dformat))
 
         # Handling input_length vs current_length (cutting or filling data) 
-        if current_length > input_length:
-            logger.warning(
-                    "Described data length ({}) is higher than the length specified in the descriptor ({})" \
-                            .format(current_length, input_length)
-            )
-
-            while len(out) > 0 and current_length - len(out[-1].data) >= input_length:
-                current_length -= len(out[-1].data)
-                out.pop()
+        # input_length == 0 -> we already have the right size
+        if input_length != 0:
             if current_length > input_length:
-                del out[-1].data[-(current_length-input_length):]
-        else:
-            FillStrategy.exec_on(fill_strategy, out[-1].data, input_length-current_length)
+                logger.warning(
+                        "Described data length ({}) is higher than the length specified in the descriptor ({})" \
+                                .format(current_length, input_length)
+                )
+
+                while len(out) > 0 and current_length - len(out[-1].data) >= input_length:
+                    current_length -= len(out[-1].data)
+                    out.pop()
+                if current_length > input_length:
+                    del out[-1].data[-(current_length-input_length):]
+            else:
+                FillStrategy.exec_on(fill_strategy, out[-1].data, input_length-current_length)
         
         logger.info("Data built from raw")
 
