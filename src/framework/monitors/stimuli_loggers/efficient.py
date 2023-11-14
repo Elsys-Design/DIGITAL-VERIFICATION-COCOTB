@@ -27,12 +27,14 @@ class EfficientStimuliLogger(BaseStimuliLogger):
         elif len(self.stimulis) > 0:
             json_objs = [self.stimulis[0].get_plain_json(force_to_file = True)]
             json_objs[0]["Desc"] = "Access on a bus that has no tlast"
+            json_objs[0]["Size"] = self.stimulis[0].data_list[0].length
             full_data = copy.deepcopy(self.stimulis[0].data_list[0])
             full_data.ends_with_tlast = False
             for stim in self.stimulis[1:]:
                 new_json_obj = stim.get_plain_json(force_to_file = True)
                 new_json_obj["FileName"] = json_objs[0]["FileName"]
                 new_json_obj["Desc"] = json_objs[0]["Desc"]
+                new_json_obj["Size"] = stim.data_list[0].length
                 json_objs.append(new_json_obj)
                 full_data.data += stim.data_list[0].data
 
