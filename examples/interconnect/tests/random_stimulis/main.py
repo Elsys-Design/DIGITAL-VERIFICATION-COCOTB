@@ -44,12 +44,14 @@ async def cocotb_run(dut):
             [1]
     )
 
+    # Building Stimuli generator using the DataList generator
     stimuli_gen = partial(
             stimuli_default_generator,
             datalist_gen,
             delay_range = range(0, Time(100, 'ns').value)
     )
 
+    # Building the StimuliList generator using the Stimuli Generator
     stimulilist_gen = partial(
             stimulilist_default_generator,
             stimuli_gen,
