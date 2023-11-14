@@ -1,0 +1,63 @@
+[
+    {
+        "ID": "CUT_BURST",
+        "Desc": "One data with ! to cut into 2 bursts",
+        "Access": "W",
+        "RelTime": "100.100 ns",
+        "Type": "File",
+        "Address": "0x44A4FC50",
+        "FileName": "cut_burst.dat",
+        "Fill": 0
+    },
+
+    {
+        "ID": "FILL_0",
+        "Desc": "Data filled with 0",
+        "Access": "W",
+        "RelTime": "10 ns",
+        "Type": "File",
+        "Address": "0x44A4FC50",
+        "FileName": "fill.dat",
+        "Fill": 0
+    },
+    {
+        "ID": "FILL_1",
+        "Desc": "Data filled with 1",
+        "Access": "W",
+        "RelTime": "100 ns",
+        "Type": "File",
+        "Address": "0x44A4FC50",
+        "FileName": "fill.dat",
+        "Fill": 1
+    },
+    {
+        "ID": "FILL_SEED_123",
+        "Desc": "Data filled with random data (seed = 123)",
+        "Access": "W",
+        "RelTime": "1000 ns",
+        "Type": "File",
+        "Address": "0x44A4FC50",
+        "FileName": "fill.dat",
+        "Fill": 123
+    },
+    {
+        "ID": "FILL_SEED_-1",
+        "Desc": "Data filled with random data (seed = -1 => uses the same seed as the rest of the test)",
+        "Access": "W",
+        "RelTime": "1 us",
+        "Type": "File",
+        "Address": "0x44A4FC50",
+        "FileName": "fill.dat",
+        "Fill": -1
+    },
+    {
+        "ID": "FILL_SEED_987654321",
+        "Desc": "Data filled with random data (seed = 987654321)",
+        "Access": "W",
+        "RelTime": "1.1 us",
+        "Type": "File",
+        "Address": "0x44A4FC50",
+        "FileName": "fill.dat",
+        "Fill": 987654321
+    }
+]

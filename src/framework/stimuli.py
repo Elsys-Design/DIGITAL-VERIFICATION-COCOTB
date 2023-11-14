@@ -182,15 +182,34 @@ class Stimuli:
         """
         Transforms a Stimuli object to a json object.
 
-        Only supports Stimuli objects that contain one and only one Data.
+        Only properly supports Stimuli objects that contain one and only one Data.
+        Partial support for multiple Data exists but only the address of the first data will be in JSON.
         This is because it's specified the address should be in the JSON so there is only one place for it but it's
-        stored in the Data object. (With multiple Data, which Data's address should be used ?)
+        stored in the Data object.
         """
 
-        if len(self.data_list) != 1:
-            raise NotImplementedError("Stimuli.to_json supports only one data item per stimuli")
+        if len(self.data_list) == 0:
+            raise NotImplementedError(
+                "Json conversion of stimuli with no associated data (data_list empty) isn't supported."
+            )
         
         data = self.data_list[0]
+
+        if len(self.data_list) > 1:
+            logger.warning(
+                    "Json conversion of stimuli with {} > 1 data items is only partially supported."
+                    "Only the address of the first data ({}) will be in the json object" \
+                    .format(len(self.data_list), data.addr)
+            )
+
+
+        if (data.is_word() or not data.is_allocated) \
+            and len(self.data_list) == 1 \
+            and not force_to_file:
+            type_ = "Simple"
+        else:
+            type_ = "File"
+
 
         json_obj = {
                 "ID": self.id_,
@@ -198,7 +217,7 @@ class Stimuli:
                 "Access": str(self.access),
                 "RelTime": str(self.rel_time),
                 "AbsTime": self.abs_time.full_str(),
-                "Type": "Simple" if (data.is_word() or not data.is_allocated) and not force_to_file else "File",
+                "Type": type_,
                 "Address": utils.int_to_hex_string(int(data.addr), int(data.dformat.addr_size))
         }
 
