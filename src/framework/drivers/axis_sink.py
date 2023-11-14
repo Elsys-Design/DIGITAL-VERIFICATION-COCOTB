@@ -45,6 +45,9 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         data_list = await self.read_data(length)
         data_list.to_file(filepath)
 
+    async def write_data(self, data):
+        raise NotImplementedError("write_data isn't supported for AxiStreamSink.")
+
 
     def start_run(self, file):
         # is_stream doesn't do anything here since parsing Data is what differs

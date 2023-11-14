@@ -51,6 +51,9 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
         await self.write_datalist(DataList.from_file(filepath, is_stream=True))
 
 
+    async def read_data(self, data):
+        raise NotImplementedError("read_data isn't supported for AxiStreamSource.")
+
 
     
 
