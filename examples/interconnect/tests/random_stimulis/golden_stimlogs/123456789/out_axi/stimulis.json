@@ -2,8 +2,8 @@
     {
         "ID": "out_axi_0",
         "Access": "R",
-        "RelTime": "0.675 us",
-        "AbsTime": "675000000 fs",
+        "RelTime": "11010000.004 ps",
+        "AbsTime": "11010000004 fs",
         "Type": "File",
         "Address": "0x44A4763B",
         "FileName": "out_axi_0.dat"
@@ -11,8 +11,8 @@
     {
         "ID": "out_axi_1",
         "Access": "W",
-        "RelTime": "0.845 us",
-        "AbsTime": "845000000 fs",
+        "RelTime": "11180000.004 ps",
+        "AbsTime": "11180000004 fs",
         "Type": "File",
         "Address": "0x44A4FC50",
         "FileName": "out_axi_1.dat"
@@ -20,8 +20,8 @@
     {
         "ID": "out_axi_2",
         "Access": "W",
-        "RelTime": "0.470 us",
-        "AbsTime": "1315000000 fs",
+        "RelTime": "0.460 us",
+        "AbsTime": "11640000004 fs",
         "Type": "File",
         "Address": "0x44A4DFA0",
         "FileName": "out_axi_2.dat"
