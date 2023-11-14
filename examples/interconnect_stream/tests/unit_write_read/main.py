@@ -7,20 +7,22 @@ from cocotb.result import TestFailure, TestError
 
 from test_utils.filecmp import check_dirs_equal
 
+from framework.data import Data
+
 from tb import TB
 
 
 
 async def unit_write(tb):
-    await tb.axis_in.write(0x12345678, 0x1)
-    await tb.axis_in.write(0xABCD, 0x1)
-    await tb.axis_in.write(0xEF01, 0x1)
+    await tb.axis_in.write_data(Data.build_word(0x1, 0x12345678))
+    await tb.axis_in.write_data(Data.build_word(0x1, 0xABCD))
+    await tb.axis_in.write_data(Data.build_word(0x1, 0xEF01))
 
-    await tb.axis_in.write(0x7B, 0x0)
-    await tb.axis_in.write(0x8B9B, 0x0)
-    await tb.axis_in.write(0xA0B0C0, 0x0)
+    await tb.axis_in.write_data(Data.build_word(0x0, 0x7B))
+    await tb.axis_in.write_data(Data.build_word(0x0, 0x8B9B))
+    await tb.axis_in.write_data(Data.build_word(0x0, 0xA0B0C0))
 
-    await tb.axis_in.write(0x555, 0x2)
+    await tb.axis_in.write_data(Data.build_word(0x2, 0x555))
 
 
 async def read_test(tb, out_idx, length, expected_value):

@@ -21,7 +21,7 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
 
     async def read_data(self, length):
         if isinstance(length, Data):
-            length = len(length.data)
+            length = length.length
 
         if length <= 0:
             raise ValueError("Read of size {} <= 0".format(length))

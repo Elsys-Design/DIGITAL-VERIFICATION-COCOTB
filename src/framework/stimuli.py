@@ -212,7 +212,7 @@ class Stimuli:
             # Data is always the size of a word
             json_obj["Data"] = data.to_words()[0]
             # Size isn't the size of a word but the actual data size
-            json_obj["Size"] = len(data.data)
+            json_obj["Size"] = data.length
         else:
             json_obj["FileName"] = self.id_ + ".dat"
 

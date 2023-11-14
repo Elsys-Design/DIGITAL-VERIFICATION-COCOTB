@@ -23,9 +23,9 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
 
     async def write_data(self, data):
         # Just a warning in case there is no tkeep but the data doesn't fit exactly in the bus
-        if not self.has_tkeep and len(data.data) % self.bus_size  != 0:
+        if not self.has_tkeep and data.length % self.bus_size  != 0:
             logger.warning("Writing data of size {} to AxiStream bus of size {} with no tkeep -> {} * 0x0 bytes will" \
-                    "be added to the transaction".format(len(data.data), self.bus_size, len(data.data)%self.bus_size))
+                    "be added to the transaction".format(data.length, self.bus_size, data.length%self.bus_size))
 
         if self.has_tlast and not data.ends_with_tlast:
             cocotb.start_soon(self._remove_one_tlast())
@@ -35,15 +35,6 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
         # For AxiStreamSource, awaiting the write() isn't enough (it just puts it in a queue)
         # We need to explicitly call wait()
         await self.wait()
-
-    async def write(self, data, tdest : int = 0, tlast : bool = True):
-        """
-        Helper to write data easily without having to create a data object
-        Overrides cocotbext.axi's write method that takes a frame
-        """
-        if isinstance(data, int):
-            data = bytearray(data.to_bytes((data.bit_length()+7)//8, byteorder='big'))
-        await self.write_data(Data(tdest, data, tlast))
 
 
     async def write_frame(self, frame):

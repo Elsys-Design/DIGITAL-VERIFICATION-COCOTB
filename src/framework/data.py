@@ -3,6 +3,7 @@ import random
 import copy
 from dataclasses import dataclass
 import logging
+from typing import Union
 
 from . import utils
 from .fill_strategy import FillStrategy
@@ -48,19 +49,37 @@ class Data:
     the wstrb/tstrb is continuous)
     """
     addr : int
-    data : bytearray
+    # data can either represent the data length or the data itself
+    # it's usefull for Read accesses where we only specify the size and set the bytearray later
+    data : Union[bytearray, int]
     ends_with_tlast : bool = True
     dformat : DataFormat = None
 
-    def __init__(self, addr : int, data : bytearray, ends_with_tlast : bool = True, dformat : DataFormat = None):
+    def __init__(self, addr : int, data_or_length : Union[bytearray, int], ends_with_tlast : bool = True, dformat : DataFormat = None):
         self.addr = addr
-        self.data = data
+        self.data = data_or_length
         self.ends_with_tlast = ends_with_tlast
         if dformat == None:
             self.dformat = DataFormat()
         else:
             self.dformat = dformat
 
+    @property
+    def length(self):
+        # Returns the length of the data even though the data might not be allocated yet
+        return len(self.data) if isinstance(self.data, bytearray) else self.data
+
+    def allocate_data(self):
+        if isinstance(self.data, int):
+            self.data = bytearray(self.data)
+
+    @classmethod
+    def build_word(cls, addr : int, data : int, ends_with_tlast : bool = True, dformat : DataFormat = None):
+        data = bytearray(data.to_bytes((data.bit_length()+7)//8, byteorder='big'))
+        if dformat == None:
+            # Default format is the size of the word
+            dformat = DataFormat(len(data))
+        return cls(addr, data, ends_with_tlast, dformat)
 
     def alignment_check(self):
         """
