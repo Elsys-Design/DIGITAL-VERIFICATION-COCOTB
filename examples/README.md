@@ -41,7 +41,7 @@ Each test should build a testbench object to have a direct access to each attrib
 We can also put a reset method in the TB class to be able to call `tb.reset()` at any time during the test.  
 
 
-#### Compiling sources
+### Compiling sources
 Cocotb recompiles the DUT's VHDL design at every simulation (instead of only when the design changes)
 (see https://github.com/cocotb/cocotb/issues/1527 and #20).  
 A simple fix is to 
