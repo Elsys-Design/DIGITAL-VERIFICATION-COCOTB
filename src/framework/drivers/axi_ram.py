@@ -15,12 +15,8 @@ class AxiRam(cocotbext.axi.AxiRam):
     def write_data(self, data):
         self.write(data.addr, data.data)
 
-    def read_data(self, addr, length):
-        return Data(
-                addr,
-                self.read(addr, length)
-        )
-
+    def read_data(self, data):
+        data.data = self.read(data.addr, data.length)
  
 
     def write_datalist(self, data_list):
@@ -31,10 +27,10 @@ class AxiRam(cocotbext.axi.AxiRam):
         self.write_datalist(DataList.from_file(filepath))
 
 
-    def read_data_to_file(self, filepath, address = 0, length = 0):
-        if length <= 0:
-            length = self.size
-        d = self.read_data(address, length)
-        DataList([d]).to_file(filepath)
+    def read_data_to_file(self, filepath, data):
+        if data.length <= 0:
+            data.length = self.size
+        self.read_data(data)
+        DataList([data]).to_file(filepath)
 
 

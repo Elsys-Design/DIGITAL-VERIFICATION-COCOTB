@@ -8,7 +8,7 @@ from cocotb.triggers import Combine, Timer
 from cocotb.result import TestFailure
 
 from framework.stimuli_list import StimuliList
-from framework.data import Data, data_default_generator
+from framework.data import Data, empty_data_default_generator
 from framework.data_list import DataList, datalist_default_generator
 
 from test_utils.filecmp import compare_to_golden
@@ -20,8 +20,7 @@ async def run_reads(master, data_list, dirpath):
     for i in range(len(data_list)):
         await master.read_data_to_file(
                 os.path.join(dirpath, "{}.dat".format(i)),
-                data_list[i].addr,
-                len(data_list[i].data)
+                data_list[i]
         )
 
 
@@ -33,16 +32,21 @@ async def cocotb_run(dut):
     tb = TB(dut)
     await tb.reset()
 
+    # Filling the testbench's rams with random data
     tb.fill_memories()
 
+    # Building Data generator
+    # we use the empty_data_default_generator to generate only an address and length
+    # and not the actual data since we're going to read
     data_gen = partial(
-            data_default_generator,
+            empty_data_default_generator,
             min_addr = 0x44A00000,
             max_addr = 0x44A4FFFF,
             size_range = range(1, 0x20),
             word_size_range = [2**i for i in range(4)]
     )
 
+    # Building DataList generator using the Data generator
     datalist_gen = partial(
             datalist_default_generator,
             data_gen,
@@ -50,16 +54,20 @@ async def cocotb_run(dut):
     )
 
 
-    # Loading & executing scenarios
+    # Loading scenarios
     tasks = []
     for i in range(2):
-        # We generate datalist even though we only use the address and length generated because we already have
-        # everything to log data & the generation takes into account that addr + length < max_addr
+        # DataList random generation
         data_list = datalist_gen()
         data_filepath = "generated_inputs/{}.dat".format(i)
+        # Writting the generated DataList to a file
         data_list.to_file(data_filepath)
+
+        # Saving the new thread handle for each master
         tasks.append(
+                # Creating a new thread for each master
                 cocotb.start_soon(
+                    # Function to execute in the thread
                     run_reads(tb.masters_in[i], data_list, "read_data/{}/".format(i))
                 )
         )
@@ -67,8 +75,10 @@ async def cocotb_run(dut):
     # Letting the scenarios execute (passing simulation time)
     await Combine(*tasks)
 
+    # Writing the stimulis and data logged by monitors (uses the monitors' default logger)
     tb.write_monitor_data()
 
+    # Comparing stimlogs/ and golden_stimlogs/seed/
     compare_to_golden("stimlogs")
     compare_to_golden("read_data")
 

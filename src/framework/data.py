@@ -65,13 +65,25 @@ class Data:
             self.dformat = dformat
 
     @property
+    def is_allocated(self):
+        return not isinstance(self.data, int)
+
+    @property
     def length(self):
         # Returns the length of the data even though the data might not be allocated yet
-        return len(self.data) if isinstance(self.data, bytearray) else self.data
+        return len(self.data) if self.is_allocated else self.data
 
-    def allocate_data(self):
+    @length.setter
+    def length(self, value):
+        if self.is_allocated:
+            raise ValueError("Cannot set the length of an allocated Data, change Data.data attribute directly")
+        self.data = value
+
+    def allocate_data(self, fill_strategy = FillStrategy.RANDOM):
         if isinstance(self.data, int):
-            self.data = bytearray(self.data)
+            length = self.data
+            self.data = bytearray()
+            FillStrategy.exec_on(fill_strategy, self.data, length)
 
     @classmethod
     def build_word(cls, addr : int, data : int, ends_with_tlast : bool = True, dformat : DataFormat = None):
@@ -104,7 +116,7 @@ class Data:
         """
         Returns True is the data can be represented as a single word
         """
-        return len(self.data) <= self.dformat.word_size
+        return self.length <= self.dformat.word_size
 
     def to_words(self):
         """
@@ -113,8 +125,8 @@ class Data:
         hex_data = []
 
         x = 0
-        while x < len(self.data):
-            end_x = min(x+self.dformat.word_size, len(self.data))
+        while x < self.length:
+            end_x = min(x+self.dformat.word_size, self.length)
             hex_data.append(
                 utils.int_to_hex_string(int(self.data[x:end_x].hex(), 16), self.dformat.word_size)
             )
@@ -133,28 +145,29 @@ class Data:
 
         last_fields = []
 
-        last_word_size = self.last_word_size()
-        if last_word_size != self.dformat.word_size:
-            last_fields.append(str(last_word_size))
-
-        if self.ends_with_tlast:
-            last_fields.append(self.dformat.tlast_char)
-
-
         data_file_addr = 0 if addr_to_zero else self.addr
 
-        out = "@ {addr}; {length}; {encoding}; {word_size}; {endianness}; {packet_separator};\n{data}".format(
+        out = "@ {addr}; {length}; {encoding}; {word_size}; {endianness}; {packet_separator};".format(
                 addr = utils.int_to_hex_string(data_file_addr, self.dformat.addr_size),
-                length = str(len(self.data)),
+                length = str(self.length),
                 encoding = "ascii" if self.dformat.encoding == Encoding.ASCII else "binary",
                 word_size = str(self.dformat.word_size),
                 endianness = "Big" if self.dformat.is_big_endian else "Little",
-                packet_separator = self.dformat.tlast_char,
-                data = "\n".join(self.to_words())
+                packet_separator = self.dformat.tlast_char
         )
 
-        if len(last_fields) > 0:
-            out += "; " +  "; ".join(last_fields)
+        if self.is_allocated:
+            out += "\n" + "\n".join(self.to_words())
+
+            last_word_size = self.last_word_size()
+            if last_word_size != self.dformat.word_size:
+                last_fields.append(str(last_word_size))
+
+            if self.ends_with_tlast:
+                last_fields.append(self.dformat.tlast_char)
+
+            if len(last_fields) > 0:
+                out += "; " +  "; ".join(last_fields)
 
         logger.info("Data written to raw")
         logger.debug("\n" + out)
@@ -250,7 +263,7 @@ class Data:
                 )
                 word &= (2**(8*word_size) - 1)
 
-            data += word.to_bytes(word_size, 'big' if dformat.is_big_endian else 'little')
+            data += bytearray(word.to_bytes(word_size, 'big' if dformat.is_big_endian else 'little'))
 
 
             # Cutting the sequence in multiple Data if we have an end of packet in the middle of it
@@ -306,7 +319,7 @@ class Data:
         return self.addr%self.dformat.word_size
 
     def last_word_size(self):
-        val = len(self.data) % self.dformat.word_size
+        val = self.length % self.dformat.word_size
         return val if val != 0 else self.dformat.word_size
 
     def first_word_size(self):
@@ -317,8 +330,7 @@ class Data:
 
 
 
-
-def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True):
+def empty_data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True):
     """
     Default random data generator
     Provided as an example but it fits many usecases
@@ -328,9 +340,19 @@ def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4]
     addr = random.choice(range(min_addr, max_addr-size))
     if word_aligned:
         addr = addr - (addr % word_size)
-    data = bytearray([random.randrange(0, 2**8) for _ in range(size)])
 
-    return Data(addr, data, False, DataFormat(word_size))
+    return Data(addr, size, False, DataFormat(word_size))
+
+
+def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True):
+    """
+    Default random data generator
+    Provided as an example but it fits many usecases
+    """
+    data = empty_data_default_generator(min_addr, max_addr, size_range, word_size_range, word_aligned)
+    data.allocate_data(FillStrategy.RANDOM)
+    return data
+
 
 
 def stream_data_default_generator(tdest_range, size_range, word_size_range = [4], ends_with_tlast = True):

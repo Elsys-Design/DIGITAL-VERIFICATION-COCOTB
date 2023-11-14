@@ -16,6 +16,9 @@ from tb import TB
 
 
 def generate_write_datalist():
+    """
+    Builds the Data and DataList generators, returns a generated DataList.
+    """
     data_gen = partial(
             stream_data_default_generator,
             tdest_range = [0x0, 0x1, 0x2],
@@ -46,6 +49,11 @@ async def cocotb_run(dut):
     # Generating a random DataList to write using axis_in master
     data_list = generate_write_datalist()
 
+    # Writting the generated DataList to a file
+    data_filename = "generated_inputs/data.dat"
+    data_list.to_file(data_filename)
+
+
     # Computing the length the read requests must be for each AxiStreamSink
     read_length = [0,0,0]
     for data in data_list:
@@ -57,31 +65,32 @@ async def cocotb_run(dut):
             actual_length += 4 - mod
         read_length[data.addr] += actual_length
 
-    # Writing data_list to file
-    data_filename = "generated_inputs/data.dat"
-    data_list.to_file(data_filename)
-
+    
     # Building tasks
+
+    # Creating a new thread for the axi source
     write_task = cocotb.start_soon(
             tb.axis_in.write_data_from_file(data_filename)
     )
-
+    # axi sinks
     read_tasks = []
     for i in range(3):
+        # Saving the new thread handle for each sink
         read_tasks.append(
+                # Creating a new thread for each sink
                 cocotb.start_soon(
+                    # Function to execute in the thread
                     tb.axis_out[i].read_data_to_file("read_data/{}.dat".format(i), read_length[i])
                 )
         )
 
-    # Running simulation
+    # Letting the scenarios execute (passing simulation time)
     await Combine(write_task, *read_tasks)
 
-    # Writing stimlogs/ directory containing all the monitored data & stimulis
+    # Writing the stimulis and data logged by monitors (uses the monitors' default logger)
     tb.write_monitored_data()
 
     # Comparing stimlogs/ to golden_stimlogs/seed/
     compare_to_golden("stimlogs")
-
     compare_to_golden("read_data")
     

@@ -19,7 +19,7 @@ class AxiLiteMaster(cocotbext.axi.AxiLiteMaster):
     async def read_data(self, data):
         read_response = await self.read(data.addr, data.length)
         # Filling data but it's not used yet as we can log everything with the monitors
-        data.data = read_response.data
+        data.data = bytearray(read_response.data)
 
 
 
@@ -35,10 +35,9 @@ class AxiLiteMaster(cocotbext.axi.AxiLiteMaster):
         for d in data_list:
             await self.read_data(d)
 
-    async def read_data_to_file(self, filepath, address, length):
-        d = Data(address, length)
-        await self.read_data(d)
-        DataList([d]).to_file(filepath)
+    async def read_data_to_file(self, filepath, data):
+        await self.read_data(data)
+        DataList([data]).to_file(filepath)
 
 
 

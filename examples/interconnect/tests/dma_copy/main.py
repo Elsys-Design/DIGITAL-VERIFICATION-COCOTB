@@ -19,7 +19,7 @@ async def cocotb_run(dut):
     tb = TB(dut)
     await tb.reset()
 
-    # Loading & executing scenarios
+    # Loading scenarios
     tasks = []
     for i in range(2):
         tasks.append(tb.masters_in[i].start_run("inputs/stimulis{}.json".format(i)))
@@ -37,7 +37,9 @@ async def cocotb_run(dut):
     print("\n\n")
     memory_final = []
     for i in range(2):
-        memory_final.append(tb.out_axilite_rams[i].read_data(0x0, 2**5))
+        d = Data(0x0, 2**5)
+        tb.out_axilite_rams[i].read_data(d)
+        memory_final.append(d)
         print("RAM {}".format(i))
         print(memory_final[i])
 
@@ -46,6 +48,8 @@ async def cocotb_run(dut):
         raise TestFailure("AXI DMA didn't copy ram_out[0] in ram_out[1] properly")
 
 
+    # Writing the stimulis and data logged by monitors (uses the monitors' default logger)
     tb.write_monitor_data()
 
+    # Comparing stimlogs/ and golden_stimlogs/
     check_dirs_equal("stimlogs", "golden_stimlogs")
