@@ -13,7 +13,7 @@ All testbench examples follow the same structure:
 - tb.py: the testbench. Its purpose it to avoid code duplication (see 'Testbench usage').
 - inputs/: contains the input files for the tests.file\_inputs test
 - Makefile: allows to
-    * compile the design with GHDL using `make analysis`
+    * compile the design with GHDL using `make analyse`
     * run the tests listed in the Makefile's MODULE variable using `make`
     * run all tests in a file using `make MODULE=tests.testname`
 - wave.ghw and wave.vcd: signal dump that can be opened with gtkwave. It contains all the tests launched durign the last
@@ -41,6 +41,24 @@ Each test should build a testbench object to have a direct access to each attrib
 We can also put a reset method in the TB class to be able to call `tb.reset()` at any time during the test.  
 
 
+#### Compiling sources
+Cocotb recompiles the DUT's VHDL design at every simulation (instead of only when the design changes)
+(see https://github.com/cocotb/cocotb/issues/1527 and #20).  
+A simple fix is to 
+```
+vim $(cocotb-config --makefiles)/simulators/Makefile.ghdl
+```
+and change the last target from:
+```
+$(COCOTB_RESULTS_FILE): analyse $(CUSTOM_SIM_DEPS)
+```
+to
+```
+$(COCOTB_RESULTS_FILE): $(CUSTOM_SIM_DEPS)
+```
+
+Once that is done, we can use `make analyse` to compile the design (from an example directory such as 'interconnect/').
+With this solution, `make analyse` has to be called manually every time the design changes.
 
 ### Launching tests
 `make` in an example directory (interconnect or interconnect\_stream for instance) will launch all the tests specified
@@ -51,7 +69,8 @@ in the Makefile's MODULE variable.
 Note: Multiple tests launched at once will result in a single waveform with each test running separately.  
 Since we reset the testbench at every test, we can separate them on the waveform with the reset signal.  
 
-### /!\ Inflexibility of automatic testing (could be improved ?)
+
+#### /!\ Inflexibility of automatic testing (could be improved ?)
 Right now, most tests verify the monitors logs by comparing a golden\_stimlogs/ directory with a stimlogs/ directory.  
 However, the monitors logs contain an `abs_time` field that depends on the time in the simulation.  
 Moreover, the starting time of a test during a run depends on the ending time of previous tests during the same run.  
