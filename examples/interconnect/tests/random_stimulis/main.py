@@ -7,12 +7,7 @@ import cocotb
 from cocotb.triggers import Combine, Timer
 from cocotb.result import TestFailure
 
-from framework.stimuli_list import StimuliList
-from framework.data import Data, data_default_generator
-from framework.data_list import DataList, datalist_default_generator
-from framework.stimuli import stimuli_default_generator
-from framework.stimuli_list import stimulilist_default_generator
-from framework.time import Time
+import framework
 
 from test_utils.filecmp import compare_to_golden
 
@@ -30,7 +25,7 @@ async def cocotb_run(dut):
 
     # Building Data generator
     data_gen = partial(
-            data_default_generator,
+            framework.data_default_generator,
             min_addr = 0x44A20000,
             max_addr = 0x44A4FFFF,
             size_range = range(1, 0x20),
@@ -39,21 +34,21 @@ async def cocotb_run(dut):
 
     # Building DataList generator using the Data generator
     datalist_gen = partial(
-            datalist_default_generator,
+            framework.datalist_default_generator,
             data_gen,
             [1]
     )
 
     # Building Stimuli generator using the DataList generator
     stimuli_gen = partial(
-            stimuli_default_generator,
+            framework.stimuli_default_generator,
             datalist_gen,
-            delay_range = range(0, Time(100, 'ns').value)
+            delay_range = range(0, framework.Time(100, 'ns').value)
     )
 
     # Building the StimuliList generator using the Stimuli Generator
     stimulilist_gen = partial(
-            stimulilist_default_generator,
+            framework.stimulilist_default_generator,
             stimuli_gen,
             size_range = [4]
     )

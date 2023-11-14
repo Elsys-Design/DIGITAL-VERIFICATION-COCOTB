@@ -6,8 +6,7 @@ import cocotbext
 from cocotb.triggers import Edge, RisingEdge, FallingEdge, Timer, Join, Combine
 from cocotb.result import TestFailure, TestError
 
-from framework.data import stream_data_default_generator
-from framework.data_list import datalist_default_generator
+import framework
 
 from test_utils.filecmp import compare_to_golden
 
@@ -20,7 +19,7 @@ def generate_write_datalist():
     Builds the Data and DataList generators, returns a generated DataList.
     """
     data_gen = partial(
-            stream_data_default_generator,
+            framework.stream_data_default_generator,
             tdest_range = [0x0, 0x1, 0x2],
             size_range = range(1, 0x10),
             word_size_range = [2**i for i in range(4)],
@@ -28,7 +27,7 @@ def generate_write_datalist():
     )
 
     datalist_gen = partial(
-            datalist_default_generator,
+            framework.datalist_default_generator,
             data_gen,
             [10]
     )

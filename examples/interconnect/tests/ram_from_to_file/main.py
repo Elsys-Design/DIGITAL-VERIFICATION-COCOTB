@@ -3,8 +3,7 @@ from cocotb.triggers import Combine, Timer
 from cocotb.result import TestFailure
 import os
 
-from framework.stimuli_list import StimuliList
-from framework.data import Data
+from framework import Data
 
 from test_utils.filecmp import check_dirs_equal
 

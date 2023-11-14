@@ -8,11 +8,7 @@ from cocotb.clock import Clock
 from cocotb.triggers import Edge, RisingEdge, FallingEdge, Timer, Join, Combine
 from cocotbext.axi import AxiStreamBus
 
-from framework.drivers.axis_source import AxiStreamSource
-from framework.drivers.axis_sink import AxiStreamSink
-from framework.monitors.axis_monitor import AxiStreamMonitor
-from framework.monitors.analysis_port import AnalysisPort
-
+from framework import AxiStreamSource, AxiStreamSink, AxiStreamMonitor
 
 
 
