@@ -70,5 +70,23 @@
         "Type": "File",
         "Address": "0x44A4FC50",
         "FileName": "in_axi_7.dat"
+    },
+    {
+        "ID": "in_axi_8",
+        "Access": "W",
+        "RelTime": "0.200 us",
+        "AbsTime": "16895000005 fs",
+        "Type": "File",
+        "Address": "0x44A30FF0",
+        "FileName": "in_axi_8.dat"
+    },
+    {
+        "ID": "in_axi_9",
+        "Access": "W",
+        "RelTime": "0.050 us",
+        "AbsTime": "16945000005 fs",
+        "Type": "File",
+        "Address": "0x44A31000",
+        "FileName": "in_axi_9.dat"
     }
 ]

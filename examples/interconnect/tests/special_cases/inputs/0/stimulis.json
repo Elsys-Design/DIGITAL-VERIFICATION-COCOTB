@@ -59,5 +59,17 @@
         "Address": "0x44A4FC50",
         "FileName": "fill.dat",
         "Fill": 987654321
+    },
+
+    {
+        "ID": "4K_BOUNDARY",
+        "Desc": "4k boundary crossing burst",
+        "Access": "W",
+        "RelTime": "0.1 us",
+        "Type": "File",
+        "Address": "0x44A30FF0",
+        "FileName": "4k_boundary.dat",
+        "Fill": 0
     }
+
 ]
