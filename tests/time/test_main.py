@@ -18,6 +18,9 @@ def test_main():
     _test(Time(1, "fs"), "0.001 ps")
     _test(Time(100000, "fs"), "0.100 ns")
     _test(Time(2101.2, "ns"), "2101.200 ns")
+    _test(Time(1, "fs"), "0.001 ps")
+    _test(Time(84, "step"), "0.084 ps")
+    _test(Time(1530, "step"), "1.530 ps")
     print("Time tests passed")
 
 
