@@ -16,33 +16,36 @@ from .stimuli_loggers.efficient import EfficientStimuliLogger
 
 class BaseAxiMonitor:
     """
+    Base class for AxiMonitor and AxiLiteMonitor.
+    It wraps all of cocotbext.axi channel monitors to generate Stimuli and Data objects.
     """
 
 
     def __init__(self, name, bus, clock, reset, reset_active_level, subscribe_default_logger, bus_monitors):
         self.name = name
 
-        # Building analisys ports
+        # Building analysis ports
         self.write_analysis_port = AnalysisPort()
         self.read_analysis_port = AnalysisPort()
         self.analysis_port = AnalysisPort()
 
+        # Building default logger
         self.default_logger = None
         if subscribe_default_logger:
             self.default_logger = EfficientStimuliLogger("stimlogs/" + self.name)
             self.analysis_port.subscribe(self.default_logger.recv)
 
         # Building channel monitors
+        # after this, self.aw is a cocotbext.axi.AxiAWMonitor (or AxiLiteAWMonitor),
+        # self.w is a cocotbext.axi.AxiWMonitor, ...
         channels = {
             bus.write: ["aw", "w", "b"],
             bus.read: ["ar", "r"]
         }
-
         for write_read_bus, channel_list in channels.items():
             for channel in channel_list:
                 # Building bus monitor
                 bus_mon = bus_monitors[channel](getattr(write_read_bus, channel), clock, reset, reset_active_level)
-                bus_mon.queue_occupancy_limit = 2
                 # Setting it as attribute
                 setattr(self, channel, bus_mon)
 
@@ -52,9 +55,10 @@ class BaseAxiMonitor:
         self.has_read_id =  hasattr(self.ar, "arid")
         self.has_wid =  hasattr(self.w, "wid") # for AXI3 support
 
-        # Contains channel transaction items
+        # Queues to contain channel transaction items until the transaction ends so we can process them all at once
         # If there is no ids (AXI-Lite or AXI without id) these are just [deque()] so basically no overhead
-        # This is the general solution for ids
+        # -> this is a general solution for ids since Axi-Lite and Axi without id buses behave (id wise) like Axi buses
+        #       with transactions ids being only 0.
         self.aw_queues = [deque() for _ in range(len(self.aw.awid) if self.has_write_id else 1)]
         self.w_queues = [deque() for _ in range(len(self.w.wid) if self.has_wid else 1)]
         self.write_start_time_queues = [deque() for _ in range(len(self.aw.awid) if self.has_write_id else 1)]
@@ -71,8 +75,7 @@ class BaseAxiMonitor:
         self.waddr_size = len(self.aw.bus.awaddr)//8
         self.raddr_size = len(self.ar.bus.araddr)//8
         
-        # Ids for stimulis
-        self.current_id = 0
+        # Id for stimulis
         self.current_id = 0
 
         # Last end_time for rel_time computation
@@ -89,6 +92,9 @@ class BaseAxiMonitor:
 
 
     async def monitor_aw(self):
+        """
+        Monitors the aw channel.
+        """
         while True:
             aw_t = await self.aw.recv()
             awid = aw_t.awid if self.has_write_id else 0
@@ -98,11 +104,24 @@ class BaseAxiMonitor:
             self.last_write_start_time = current_time
 
     async def monitor_w(self):
+        """
+        Monitors the w channel.
+        It has ids only in Axi3 (to test).
+        In Axi4 it's in order with the aw channel:
+            If an item on the aw channel has a length of 10, we know there is 10 items on the w channel that are/will be
+            linked to it.
+            /!\ The items on the w channel can arrive BEFORE the corresponding item on the aw channel.
+        """
         while True:
             w_t = await self.w.recv()
             self.w_queues[w_t.wid if self.has_wid else 0].append(w_t)
 
     async def monitor_b(self):
+        """
+        Monitors the b channel.
+        This always means that a write transaction is over so we don't need a queue, we simply pass it to the
+        build_write_stimuli method directly.
+        """
         while True:
             b_t = await self.b.recv()
             # We have received a complete transaction, we can build the Stimuli
@@ -111,6 +130,9 @@ class BaseAxiMonitor:
 
 
     async def monitor_ar(self):
+        """
+        Monitors the ar channel.
+        """
         while True:
             ar_t = await self.ar.recv()
             arid = ar_t.arid if self.has_read_id else 0
@@ -120,18 +142,38 @@ class BaseAxiMonitor:
             self.last_read_start_time = current_time
 
     async def monitor_r(self):
+        """
+        Monitors the r channel.
+        If there are no 'rlast' signal on the bus, it's an Axi-Lite bus
+            -> we build the read stimuli directly (since there is no burst support)
+        If there is an 'rlast' signal on the bus, it's an Axi bus
+            -> 
+
+        Possible ISSUE: an axi master may not have an rlast signal but an axi slave always does.
+        This has never posed any problems on any tests but in theory if the bus is build from an axi master that has no
+        'rlast' signal as input, we may consider an Axi bus as an AxiLite bus.
+        FIX: check the last ar channel item's arlen.
+        """
         while True:
             r_t = await self.r.recv()
             rid = r_t.rid if self.has_read_id else 0
             self.r_queues[rid].append(r_t)
 
             if not hasattr(r_t, "rlast") or r_t.rlast:
-                self.build_read_stimuli()
+                self.build_read_stimuli(rid)
 
 
 
     def _log_write_stimuli(self, data_obj, start_time, old_start_time, first_id = None, wstrb = None):
+        """
+        Private helper method used in build_write_stimuli.
+
+        first_id parameter allows to link multiple Stimuli objects by putting the id of the first Stimuli of the burst
+        in the description of all other Stimulis of the same burst.
+        """
+        # Building id and desc
         new_id = "{}_{}".format(self.name, self.current_id)
+        self.current_id += 1
         if first_id == None:
             first_id = new_id
             desc = ""
@@ -142,8 +184,8 @@ class BaseAxiMonitor:
             if first_id == None:
                 desc += "| "
             desc += "wstrb = {}".format(wstrb)
-
-        self.current_id += 1
+        
+        # Building Stimuli
         stim = Stimuli(
                 new_id,
                 Access.WRITE,
@@ -154,6 +196,7 @@ class BaseAxiMonitor:
                 Time.now()
         )
 
+        # Logging write Stimuli
         self.write_analysis_port.send(stim)
         self.analysis_port.send(stim)
 
@@ -161,10 +204,20 @@ class BaseAxiMonitor:
 
     
     def build_write_stimuli(self, b_t):
+        """
+        Builds a write Stimuli and the associated Data objects from:
+        - aw_t = the last aw channel item for this id (= b_t.bid)
+        - w_t(s) = the last aw_t.awlen+1 w channel items for this id (the ones linked to the aw_t item)
+        - b_t = the last b channel item received
+        """
+        # Getting the id of the finished transaction
         bid = b_t.bid if self.has_write_id else 0
+        # For Axi3 support
         wid = bid if self.has_wid else 0
 
+        # Getting the last aw channel item for this id
         aw_t = self.aw_queues[bid].popleft()
+
         start_time, old_start_time = self.write_start_time_queues[bid].popleft()
 
         awlen = aw_t.awlen if hasattr(aw_t, "awlen") else 0
@@ -172,7 +225,8 @@ class BaseAxiMonitor:
         if hasattr(aw_t, "awsize"):
             if 2**aw_t.awsize != self.wsize:
                 raise NotImplementedError(
-                        "awsize is different from bus size, BaseAxiMonitor has not been tested for this eventuality."
+                        "{} monitor: awsize doesn't match bus size, BaseAxiMonitor has not been tested in these"
+                        "conditions.".format(self.name)
                 )
         # In case it's supported someday
         awsize = 2**aw_t.awsize if hasattr(aw_t, "awsize") else self.wsize
@@ -184,22 +238,27 @@ class BaseAxiMonitor:
         for i in range(awlen+1):
             w_t = self.w_queues[wid].popleft()
             word = bytearray(reversed(w_t.wdata.buff))
+
             if int(w_t.wstrb) == 2**awsize -1:
+                # Full word
                 current_data += word
             else:
 
                 is_continuous = True
                 if i == awlen:
-                    # The enabled bytes that are still continuous to the transfert can be added 
+                    # The enabled bytes that are still continuous to the transfert can be added since it's the end of
+                    # a burst
                     last_word_size = 0
                     while w_t.wstrb[-(1+last_word_size)] == 1:
                         last_word_size += 1
                     
+                    # Continuing to check wstrb to see if there isn't another 1 after the first 0
                     for x in range(last_word_size+1, awsize):
                         if w_t.wstrb[-x] == 1:
                             is_continuous = False
                     
                     if is_continuous and last_word_size > 0:
+                        # Add the last incomplete word and log the stimuli
                         last_word = word[:last_word_size]
                         current_data += last_word
 
@@ -209,14 +268,18 @@ class BaseAxiMonitor:
 
                         first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id)
 
+                # We arrive here either because i != awlen or because i == awlen and the last word isn't continuous
+                # (it's not an elif bus just a if)
                 if i != awlen or not is_continuous:
-                    # Single non continuous wstrb
+
                     if len(current_data) != 0:
+                        # Logging the current_data that is continuous
                         data_obj = Data(current_addr, current_data, False, DataFormat(awsize, addr_size = self.waddr_size))
                         first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id)
                         current_addr += len(current_data)
                         current_data = bytearray()
 
+                    # Logging unitary Stimuli with non continuous wstrb
                     data_obj = Data(current_addr, word, False, DataFormat(awsize, addr_size = self.waddr_size))
                     first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, str(w_t.wstrb)[::-1])
                     # To handle addresses that are not aligned on the bus size
@@ -230,10 +293,15 @@ class BaseAxiMonitor:
 
 
 
-    def build_read_stimuli(self):
-        rid = r_t.rid if self.has_read_id else 0
-
+    def build_read_stimuli(self, rid):
+        """
+        Builds a read Stimuli and the associated Data objects from:
+        - ar_t = the last ar channel item for this id (= rid)
+        - r_t(s) = the last ar_t.arlen+1 r channel items for this id (the ones linked to the ar_t item)
+        """
+        # Getting the last ar channel item for this id
         ar_t = self.ar_queues[rid].popleft()
+
         start_time, old_start_time = self.read_start_time_queues[rid].popleft()
 
         arlen = ar_t.arlen if hasattr(ar_t, "arlen") else 0
@@ -241,23 +309,24 @@ class BaseAxiMonitor:
         if hasattr(ar_t, "arsize"):
             if 2**ar_t.arsize != self.rsize:
                 raise NotImplementedError(
-                        "arsize is different from bus size, BaseAxiMonitor has not been tested for this eventuality."
+                        "{} monitor: arsize doesn't match bus size, BaseAxiMonitor has not been tested in these"
+                        "conditions.".format(self.name)
                 )
         # In case it's supported someday
         arsize = 2**ar_t.arsize if hasattr(ar_t, "arsize") else self.rsize
 
+        # Concatenation of all r channel items' data
         data = bytearray()
         while len(self.r_queues[rid]) > 0:
             r_t = self.r_queues[rid].popleft()
             data += bytearray(reversed(r_t.rdata.buff))
 
-        # for unaligned address support
-        #data = data[ar_t.araddr % self.rsize:]
-
         end_time = Time.now()
 
+        # Building Data
         data_obj = Data(int(ar_t.araddr), data, True, DataFormat(self.rsize, addr_size = self.raddr_size))
         
+        # Building Stimuli
         new_id = "{}_{}".format(self.name, self.current_id)
         self.current_id += 1
         stim = Stimuli(
@@ -271,6 +340,7 @@ class BaseAxiMonitor:
                 end_time
         )
 
+        # Logging read Stimuli
         self.read_analysis_port.send(stim)
         self.analysis_port.send(stim)
 
