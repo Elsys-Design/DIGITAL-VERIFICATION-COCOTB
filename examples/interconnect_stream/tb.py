@@ -47,9 +47,9 @@ class TB:
         Writes the data of all the stimuli loggers to their assigned directory.
         To call at the end of the simulation (or in the middle for an update if needed).
         """
-        self.axis_in_monitor.default_logger.write_to_dir()
+        self.axis_in_monitor.default_stimuli_logger.write_to_dir()
 
         for out_m in self.axis_out_monitors:
-            out_m.default_logger.write_to_dir()
+            out_m.default_stimuli_logger.write_to_dir()
 
 

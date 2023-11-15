@@ -2,11 +2,11 @@ import cocotbext.axi
 import cocotb
 from cocotb.queue import Queue
 from cocotb.triggers import RisingEdge, Event
+import logging
 
 from ..stimuli_list import StimuliList
 from ..data_list import DataList
 from ..data import Data
-from ..logger import logger
 
 
 
@@ -24,6 +24,8 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
         self.has_tkeep = hasattr(self.bus, "tkeep")
         self.has_tlast = hasattr(self.bus, "tlast")
         self.bus_data_size = len(self.bus.tdata.value) // 8
+        
+        self.logger = logging.getLogger("framework.axis_source." + bus._name)
 
     async def write_data(self, data):
         """
@@ -31,13 +33,15 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
         """
         # Just a warning in case there is no tkeep but the data doesn't fit exactly in the bus
         if not self.has_tkeep and data.length % self.bus_size  != 0:
-            logger.warning(
+            self.logger.warning(
                     "Writing data of size {} to AxiStream bus of size {} with no tkeep -> {} * 0x0 bytes will be " \
                     "added to the end of the transaction".format(data.length, self.bus_size, data.length%self.bus_size)
             )
 
         if self.has_tlast and not data.ends_with_tlast:
             cocotb.start_soon(self._remove_one_tlast())
+        
+        self.logger.info("Writting Data(tdest={}, length={})".format(data.addr, data.length))
 
         # tkeep is supported by default by cocotbext.axi.AxiStreamSource
         await self.write_frame(cocotbext.axi.AxiStreamFrame(tdata=data.data, tdest=data.addr))
@@ -71,7 +75,9 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
         Helper method to run a StimuliList on a master directly from file.
         /!\ is_stream = True is important for the parsing.
         """
-        return cocotb.start_soon(StimuliList.from_file(file, is_stream = True).run(self))
+        stim_list = StimuliList.from_file(file, is_stream = True)
+        self.logger.info("Starting run with {}".format(stim_list.name))
+        return cocotb.start_soon(stim_list.run(self))
 
 
 
@@ -80,5 +86,6 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
         Removes the next tlast (passes it back from 1 to zero in no simulation time).
         """
         await RisingEdge(self.bus.tlast)
+        self.logger.info("Removing a tlast")
         self.bus.tlast.value = 0
         return

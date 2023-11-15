@@ -1,5 +1,6 @@
 import cocotb
 import cocotbext.axi
+import logging
 
 from ..time import Time
 from ..data import Data, DataFormat
@@ -18,10 +19,11 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
     """
 
     def __init__(self, name, bus, clock, reset=None, reset_active_level=None, byte_size=None, byte_lanes=None,
-                 subscribe_default_logger = True, *args, **kwargs):
+                 subscribe_default_stimuli_logger = True, *args, **kwargs):
         super().__init__(bus, clock, reset, reset_active_level, byte_size, byte_lanes, *args, **kwargs)
 
         self.name = name
+        self.logger = logging.getLogger("framework.axis_monitor." + name)
         
         # Id counter for stimulis
         self.current_id = 0
@@ -38,13 +40,13 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
         self.analysis_port = AnalysisPort()
 
         # Building default logger
-        self.default_logger = None
-        if subscribe_default_logger:
-            self.default_logger = EfficientStimuliLogger(
+        self.default_stimuli_logger = None
+        if subscribe_default_stimuli_logger:
+            self.default_stimuli_logger = EfficientStimuliLogger(
                     "stimlogs/" + self.name,
                     is_stream_no_tlast = not hasattr(self.bus, "tlast")
             )
-            self.analysis_port.subscribe(self.default_logger.recv)
+            self.analysis_port.subscribe(self.default_stimuli_logger.recv)
         
 
         # Starting monitor task
@@ -69,7 +71,7 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
         new_id = "{}_{}".format(self.name, self.current_id)
         self.current_id += 1
 
-        s = Stimuli(
+        stim = Stimuli(
                 new_id,
                 Access.WRITE,
                 start_time - self.last_start_time,
@@ -82,8 +84,9 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
         self.last_start_time = start_time
 
         # Logging Stimuli
-        self.analysis_port.send(s)
+        self.analysis_port.send(stim)
 
+        self.logger.info("Logged " + stim.short_desc())
 
 
     async def monitor_stream(self):

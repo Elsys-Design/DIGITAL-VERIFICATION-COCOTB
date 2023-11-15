@@ -21,8 +21,9 @@ class BaseAxiMonitor:
     """
 
 
-    def __init__(self, name, bus, clock, reset, reset_active_level, subscribe_default_logger, bus_monitors):
+    def __init__(self, name, bus, clock, reset, reset_active_level, subscribe_default_stimuli_logger, bus_monitors, logger):
         self.name = name
+        self.logger = logger
 
         # Building analysis ports
         self.write_analysis_port = AnalysisPort()
@@ -30,10 +31,10 @@ class BaseAxiMonitor:
         self.analysis_port = AnalysisPort()
 
         # Building default logger
-        self.default_logger = None
-        if subscribe_default_logger:
-            self.default_logger = EfficientStimuliLogger("stimlogs/" + self.name)
-            self.analysis_port.subscribe(self.default_logger.recv)
+        self.default_stimuli_logger = None
+        if subscribe_default_stimuli_logger:
+            self.default_stimuli_logger = EfficientStimuliLogger("stimlogs/" + self.name)
+            self.analysis_port.subscribe(self.default_stimuli_logger.recv)
 
         # Building channel monitors
         # after this, self.aw is a cocotbext.axi.AxiAWMonitor (or AxiLiteAWMonitor),
@@ -200,6 +201,8 @@ class BaseAxiMonitor:
         self.write_analysis_port.send(stim)
         self.analysis_port.send(stim)
 
+        self.logger.info("Logged " + stim.short_desc())
+
         return first_id
 
     
@@ -343,4 +346,6 @@ class BaseAxiMonitor:
         # Logging read Stimuli
         self.read_analysis_port.send(stim)
         self.analysis_port.send(stim)
+
+        self.logger.info("Logged " + stim.short_desc())
 

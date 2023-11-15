@@ -1,15 +1,16 @@
 import random
 import os
+import logging
 
 from .fill_strategy import FillStrategy
 from .data import Data
-from .logger import logger
 
 
 class DataList(list):
     """
     This class represents a whole Data file.
     """
+    logger = logging.getLogger("framework.data_list")
 
     def __init__(self, base=[]):
         super().__init__(base)
@@ -20,7 +21,7 @@ class DataList(list):
         Creates a data list from a data text file.
         Raises an error if there is no sequence in that file.
         """
-        logger.info("Building DataList from {0}: base_addr = {1:X}, fill_strategy = {2}" \
+        cls.logger.debug("Building DataList from {0}: base_addr = {1:X}, fill_strategy = {2}" \
                 .format(filename, base_addr, fill_strategy))
 
         f = open(filename)
@@ -42,7 +43,7 @@ class DataList(list):
             for d in data_list:
                 d.alignment_check()
 
-        logger.info("DataList built")
+        cls.logger.debug("DataList built")
 
         return data_list
 
@@ -65,7 +66,7 @@ class DataList(list):
         """
         Writes a whole data list to a file.
         """
-        logger.info("Writting DataList to {}: addr_to_zero = {}".format(filepath, addr_to_zero))
+        self.logger.debug("Writting DataList to {}: addr_to_zero = {}".format(filepath, addr_to_zero))
 
         dirpath = os.path.dirname(filepath)
         if dirpath:
@@ -75,7 +76,7 @@ class DataList(list):
         f.write(self.to_str(addr_to_zero))
         f.close()
         
-        logger.info("DataList written to {}".format(filepath))
+        self.logger.debug("DataList written to {}".format(filepath))
 
     def full_bytearray(self):
         out = bytearray()

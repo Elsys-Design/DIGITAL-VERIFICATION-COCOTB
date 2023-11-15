@@ -1,9 +1,9 @@
 import os
 import shutil
 import json
+import logging
 
 from .base import BaseStimuliLogger
-from ...logger import logger
 
 
 class RealTimeStimuliLogger(BaseStimuliLogger):
@@ -21,9 +21,11 @@ class RealTimeStimuliLogger(BaseStimuliLogger):
 
         self.is_first_stimuli = True
 
+        self.logger = logging.getLogger("framework.real_time_stimuli_logger")
+
         if self.is_stream_no_tlast:
-            logger.warning("RealTimeStimuliLogger created with is_stream_no_tlast = True but doesn't support the" \
-                            "specific format associated (writes into {})".format(self.dir_path))
+            self.logger.warning("RealTimeStimuliLogger created with is_stream_no_tlast = True but doesn't support the" \
+                                "specific format associated (writes into {})".format(self.dir_path))
 
 
     def recv(self, stimuli):

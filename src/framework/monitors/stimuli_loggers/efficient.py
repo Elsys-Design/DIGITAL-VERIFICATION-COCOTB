@@ -1,6 +1,7 @@
 import json
 import copy
 import os
+import logging
 
 from ...stimuli_list import StimuliList
 from .base import BaseStimuliLogger
@@ -18,6 +19,8 @@ class EfficientStimuliLogger(BaseStimuliLogger):
         super().__init__(dir_path, id_base, is_stream_no_tlast)
 
         self.stimulis = StimuliList()
+        
+        self.logger = logging.getLogger("framework.efficient_stimuli_logger")
 
 
     def recv(self, stimuli):

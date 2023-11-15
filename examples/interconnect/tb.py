@@ -89,12 +89,12 @@ class TB:
         To call at the end of the simulation (or in the middle for an update if needed).
         """
         for m_in in self.monitors_in:
-            m_in.default_logger.write_to_dir()
+            m_in.default_stimuli_logger.write_to_dir()
 
         for m_out in self.out_axilite_monitors:
-            m_out.default_logger.write_to_dir()
+            m_out.default_stimuli_logger.write_to_dir()
 
-        self.out_axi_monitor.default_logger.write_to_dir()
+        self.out_axi_monitor.default_stimuli_logger.write_to_dir()
 
 
     def fill_memories(self):

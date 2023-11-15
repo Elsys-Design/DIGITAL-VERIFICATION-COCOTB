@@ -1,10 +1,11 @@
 import cocotbext.axi.axis
 import cocotb
 from cocotb.triggers import RisingEdge, Event, Combine, Timer
+import logging
+
 from ..stimuli_list import StimuliList
 from ..data_list import DataList
 from ..data import Data, DataFormat
-from ..logger import logger
 
 
 
@@ -23,6 +24,8 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
 
         self.bus_tdest_size = len(self.bus.tdest.value) // 8 if hasattr(self.bus, "tdest") else 1
         self.bus_data_size = len(self.bus.tdata.value) // 8
+        
+        self.logger = logging.getLogger("framework.axis_sink." + bus._name)
 
     async def read_data(self, length):
         """
@@ -30,6 +33,8 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         """
         if isinstance(length, Data):
             length = length.length
+
+        self.logger.info("Reading Data(length={})".format(length))
 
         if length <= 0:
             raise ValueError("Read of size {} <= 0".format(length))
@@ -64,7 +69,9 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         data to parse).
         TODO: We could eventually accept stimulis without an Address field here since it's not used anyways.
         """
-        return cocotb.start_soon(StimuliList.from_file(file, is_stream=True).run(self))
+        stim_list = StimuliList.from_file(file, is_stream=True)
+        self.logger.info("Starting run with {}".format(stim_list.name))
+        return cocotb.start_soon(stim_list.run(self))
 
 
     async def _run(self):

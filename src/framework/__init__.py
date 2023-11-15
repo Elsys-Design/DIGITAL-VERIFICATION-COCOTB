@@ -1,6 +1,6 @@
 
-from .time import Time
 from .logger import logger
+from .time import Time
 from .fill_strategy import FillStrategy
 
 from .data import Data, DataFormat, empty_data_default_generator, data_default_generator, stream_data_default_generator

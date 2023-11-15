@@ -4,10 +4,10 @@ import copy
 from dataclasses import dataclass
 import logging
 from typing import Union
+import logging
 
 from . import utils
 from .fill_strategy import FillStrategy
-from .logger import logger
 
 
 class Encoding(Enum):
@@ -55,6 +55,9 @@ class Data:
     ends_with_tlast : bool = True
     dformat : DataFormat = None
 
+    logger = logging.getLogger("framework.data")
+
+
     def __init__(self, addr : int, data: Union[bytearray, int], ends_with_tlast : bool = True, dformat : DataFormat = None):
         self.addr = addr
         self.data = data
@@ -100,14 +103,13 @@ class Data:
         But they are only done when the Data is used in an AXI or AXI-Lite master
         (not for axi-stream, if tdest is over the size of tdest in the bus, it'll throw an error anyways)
         """
-        logger.info("Performing alignment checks on Data")
-        logger.debug("\n" + str(self))
+        self.logger.debug("Performing alignment checks on Data")
 
         if self.addr % self.dformat.word_size != 0:
             raise ValueError("Address (0x{0:X}) needs to be aligned on word size ({1})" \
                     .format(self.addr, self.dformat.word_size))
         
-        logger.info("passed")
+        self.logger.debug("passed")
 
     def __str__(self):
         return self.to_raw()
@@ -137,7 +139,7 @@ class Data:
         """
         Returns the representation of 'self' as a sequence
         """
-        logger.info("Writting Data to raw")
+        self.logger.debug("Writting Data to raw")
 
         if not self.dformat.is_supported():
             raise NotImplementedError("Unsupported format: \n{}".format(self.dformat))
@@ -169,8 +171,7 @@ class Data:
             if len(last_fields) > 0:
                 out += "; " +  "; ".join(last_fields)
 
-        logger.info("Data written to raw")
-        logger.debug("\n" + out)
+        self.logger.debug("Data written to raw")
 
         return out + '\n'
 
@@ -185,8 +186,7 @@ class Data:
 
         Once the whole sequence has been read, we either cut it or expand it depending on the 'size' parameter.
         """
-        logger.info("Building Data from raw (base_addr = 0x{0:X}, fill_strategy = {1})".format(base_addr, fill_strategy))
-        logger.debug("\n" + str(raw))
+        cls.logger.debug("Building Data from raw (base_addr = 0x{0:X}, fill_strategy = {1})".format(base_addr, fill_strategy))
 
         fields = raw.split('\n')
         fields = list(filter(None, fields))
@@ -256,7 +256,7 @@ class Data:
             # Handling the actual data (field 0)
             word = int(dfields[0], 0)
             if word.bit_length() > 8*word_size:
-                logger.warning(
+                cls.logger.warning(
                         "Data word 0x{word:X} is {word_size} bits long which is higher than the word size"
                         "in the descriptor ({descriptor_word_size} bits)" \
                         .format(word = word, word_size = word.bit_length(), descriptor_word_size = 8*word_size)
@@ -290,7 +290,7 @@ class Data:
         # input_length == 0 -> we already have the right size
         if input_length != 0:
             if current_length > input_length:
-                logger.warning(
+                cls.logger.warning(
                         "Described data length ({}) is higher than the length specified in the descriptor ({})" \
                                 .format(current_length, input_length)
                 )
@@ -303,7 +303,7 @@ class Data:
             else:
                 FillStrategy.exec_on(fill_strategy, out[-1].data, input_length-current_length)
         
-        logger.info("Data built from raw")
+        cls.logger.debug("Data built from raw")
 
         return out
 

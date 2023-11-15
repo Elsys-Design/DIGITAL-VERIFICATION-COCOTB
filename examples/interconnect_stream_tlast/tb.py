@@ -42,9 +42,9 @@ class TB:
 
 
     def write_monitored_data(self):
-        self.axis_in_monitor.default_logger.write_to_dir()
+        self.axis_in_monitor.default_stimuli_logger.write_to_dir()
 
         for out_m in self.axis_out_monitors:
-            out_m.default_logger.write_to_dir()
+            out_m.default_stimuli_logger.write_to_dir()
 
 
