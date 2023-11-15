@@ -15,9 +15,8 @@ class EfficientStimuliLogger(BaseStimuliLogger):
     """
 
     def __init__(self, dir_path, id_base="", is_stream_no_tlast=False):
-        super().__init__(dir_path, id_base)
+        super().__init__(dir_path, id_base, is_stream_no_tlast)
 
-        self.is_stream_no_tlast = is_stream_no_tlast
         self.stimulis = StimuliList()
 
 

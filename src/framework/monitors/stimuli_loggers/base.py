@@ -7,9 +7,10 @@ class BaseStimuliLogger:
     Base class for all StimuliLoggers.
     """
 
-    def __init__(self, dir_path, id_base=""):
+    def __init__(self, dir_path, id_base = "", is_stream_no_tlast = False):
         self.dir_path = dir_path
         self.id_base = id_base
+        self.is_stream_no_tlast = is_stream_no_tlast
 
         # remove the whole directory if it exists
         if os.path.isdir(self.dir_path):
