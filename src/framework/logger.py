@@ -1,21 +1,31 @@
 import logging
+from cocotb.log import SimTimeContextFilter, SimLogFormatter
 
 
 # Note: To change the logging level: logger.setLevel(logging.INFO)
 # can be done at the beginning of a testbench constructor or at the beginning of a test (or anywhere else)
 
-# We just create a framework logger
-# and remove every handler inherited from cocotb (which modifies the root logger)
-# We can then set our own handler and the default logging level
 
+# Getting custom logger
 logger = logging.getLogger("framework")
-logger.propagate = False
 
-# undo the setup cocotb did
+# Undo the setup cocotb did on the root logger that the framework's logger inherited
 for handler in logger.handlers:
     logger.removeHandler(handler)
     handler.close()
 
-_handler = logging.FileHandler("framework.log", mode='w')
-logger.addHandler(_handler)
-logger.setLevel(logging.DEBUG)
+# Don't propagate to parent
+logger.propagate = False
+
+
+# Building the handler up just like in "https://github.com/cocotb/cocotb/blob/master/src/cocotb/log.py#L81"
+# except it's a FileHandler and not a StreamHandler
+hdlr = logging.FileHandler("framework.log", mode='w')
+hdlr.addFilter(SimTimeContextFilter())
+hdlr.setFormatter(SimLogFormatter())
+
+# Set handler
+logger.addHandler(hdlr)
+
+# Set default level
+logger.setLevel(logging.INFO)
