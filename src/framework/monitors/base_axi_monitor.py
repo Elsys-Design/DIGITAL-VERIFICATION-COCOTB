@@ -75,7 +75,7 @@ class BaseAxiMonitor:
         self.waddr_size = len(self.aw.bus.awaddr)//8
         self.raddr_size = len(self.ar.bus.araddr)//8
         
-        # Id for stimulis
+        # Id counter for stimulis
         self.current_id = 0
 
         # Last end_time for rel_time computation
