@@ -111,7 +111,7 @@ class BaseAxiMonitor:
         In Axi4 it's in order with the aw channel:
             If an item on the aw channel has a length of 10, we know there is 10 items on the w channel that are/will be
             linked to it.
-            /!\ The items on the w channel can arrive BEFORE the corresponding item on the aw channel.
+            /!\\ The items on the w channel can arrive BEFORE the corresponding item on the aw channel.
         """
         while True:
             w_t = await self.w.recv()

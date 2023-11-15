@@ -94,7 +94,7 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
         Monitors the bus using cocotbext.axi.AxiStreamMonitor.recv() to receive entire frames.
         On buses that don't have a tlast signal, frames are received directly after each unitary transfer.
         On buses that have a tlast signal, frames are received when tlast is asserted.
-        /!\ If tlast is never asserted on a bus that has a tlast signal, we won't log any data.
+        /!\\ If tlast is never asserted on a bus that has a tlast signal, we won't log any data.
         """
         while True:
             frame = await self.recv()

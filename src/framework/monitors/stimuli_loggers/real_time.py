@@ -10,7 +10,7 @@ class RealTimeStimuliLogger(BaseStimuliLogger):
     """
     Named real time because it logs received Stimuli (and Data) directly to files.
 
-    /!\ Specific logging format for AxiStream without tlast isn't supported.
+    /!\\ Specific logging format for AxiStream without tlast isn't supported.
     """
 
     def __init__(self, dir_path, id_base="", is_stream_no_tlast=False):
