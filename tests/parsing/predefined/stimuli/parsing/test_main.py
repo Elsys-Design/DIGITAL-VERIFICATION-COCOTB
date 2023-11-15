@@ -46,9 +46,9 @@ reference_stimlist = StimuliList([
         id_ = file + "_2",
         access = Access.READ,
         rel_time = Time(1, "ms"),
-        data_list = DataList([Data(
+        data_list = DataList([Data.build_empty(
             addr = 0,
-            data = bytearray([0] * 4096),
+            length = 4096,
             ends_with_tlast = False,
             dformat = DataFormat(1)
         )])
@@ -59,9 +59,9 @@ reference_stimlist = StimuliList([
         access = Access.READ,
         rel_time = Time(1, "ns"),
         desc = "exemple de lecture de 2 octets  @305419896 à T=1101,200 ns",
-        data_list = DataList([Data(
+        data_list = DataList([Data.build_empty(
             addr = 305419896,
-            data = bytearray([0] * 2),
+            length = 2,
             ends_with_tlast = False,
             dformat = DataFormat(1)
         )])

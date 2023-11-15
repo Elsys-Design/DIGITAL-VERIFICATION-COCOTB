@@ -36,7 +36,7 @@ async def cocotb_run(dut):
     print("\n\n")
     memory_final = []
     for i in range(2):
-        d = Data(0x0, 2**5)
+        d = Data.build_empty(0x0, 2**5)
         tb.out_axilite_rams[i].read_data(d)
         memory_final.append(d)
         print("RAM {}".format(i))

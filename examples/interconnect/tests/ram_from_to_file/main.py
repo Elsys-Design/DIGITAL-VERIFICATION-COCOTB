@@ -25,8 +25,8 @@ async def cocotb_run(dut):
 
     # Reading the rams to a file in read_data/
     for i in range(2):
-        tb.out_axilite_rams[i].read_data_to_file("read_data/lite_ram{}.dat".format(i), Data(0, 16))
-    tb.out_axi_ram.read_data_to_file("read_data/ram.dat", Data(0x100, 8))
+        tb.out_axilite_rams[i].read_data_to_file("read_data/lite_ram{}.dat".format(i), Data.build_empty(0, 16))
+    tb.out_axi_ram.read_data_to_file("read_data/ram.dat", Data.build_empty(0x100, 8))
 
     # Comparing inputs/ and read_data/
     check_dirs_equal("inputs", "read_data")

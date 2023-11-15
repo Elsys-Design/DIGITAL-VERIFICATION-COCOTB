@@ -140,9 +140,7 @@ class Stimuli:
                     data_obj.alignment_check()
                 return DataList([data_obj])
             else:
-                data = bytearray()
-                FillStrategy.exec_on(FillStrategy.ZEROS, data, size)
-                data_obj = Data(addr, data, False, DataFormat(1))
+                data_obj = Data.build_empty(addr, size, False, DataFormat(1))
                 if is_stream:
                     data_obj.alignment_check()
                 return DataList([data_obj])

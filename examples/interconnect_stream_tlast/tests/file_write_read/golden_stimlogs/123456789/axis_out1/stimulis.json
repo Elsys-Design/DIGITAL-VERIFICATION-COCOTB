@@ -11,8 +11,8 @@
     {
         "ID": "axis_out1_1",
         "Access": "W",
-        "RelTime": "0.130 us",
-        "AbsTime": "2755000002 fs",
+        "RelTime": "0.340 us",
+        "AbsTime": "2965000002 fs",
         "Type": "File",
         "Address": "0x1",
         "FileName": "axis_out1_1.dat"

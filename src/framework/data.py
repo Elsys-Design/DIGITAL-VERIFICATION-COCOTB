@@ -59,13 +59,31 @@ class Data:
 
 
     def __init__(self, addr : int, data: Union[bytearray, int], ends_with_tlast : bool = True, dformat : DataFormat = None):
+        """
+        data can either be a bytearray or an int.
+        If it's an int, it's considered to be a word.
+        """
         self.addr = addr
-        self.data = data
         self.ends_with_tlast = ends_with_tlast
-        if dformat == None:
-            self.dformat = DataFormat()
+        self.dformat = dformat
+
+        self.data = None
+        if isinstance(data, int):
+            self.data = bytearray(data.to_bytes((data.bit_length()+7)//8, byteorder='big'))
+            if self.dformat == None:
+                self.dformat = DataFormat(len(self.data))
         else:
-            self.dformat = dformat
+            self.data = data
+            if self.dformat == None:
+                self.dformat = DataFormat()
+
+    @classmethod
+    def build_empty(cls, addr : int, length : int, ends_with_tlast : bool = True, dformat : DataFormat = None):
+        out = cls(addr, None, ends_with_tlast, dformat)
+        # when data is an int, it's a length
+        out.data = length
+        return out
+
 
     @property
     def is_allocated(self):
@@ -73,7 +91,9 @@ class Data:
 
     @property
     def length(self):
-        # Returns the length of the data even though the data might not be allocated yet
+        """
+        Returns the length of the data even though the data might not be allocated yet
+        """
         return len(self.data) if self.is_allocated else self.data
 
     @length.setter
@@ -87,14 +107,6 @@ class Data:
             length = self.data
             self.data = bytearray()
             FillStrategy.exec_on(fill_strategy, self.data, length)
-
-    @classmethod
-    def build_word(cls, addr : int, data : int, ends_with_tlast : bool = True, dformat : DataFormat = None):
-        data = bytearray(data.to_bytes((data.bit_length()+7)//8, byteorder='big'))
-        if dformat == None:
-            # Default format is the size of the word
-            dformat = DataFormat(len(data))
-        return cls(addr, data, ends_with_tlast, dformat)
 
     def alignment_check(self):
         """
@@ -342,7 +354,7 @@ def empty_data_default_generator(min_addr, max_addr, size_range, word_size_range
     if word_aligned:
         addr = addr - (addr % word_size)
 
-    return Data(addr, size, False, DataFormat(word_size))
+    return Data.build_empty(addr, size, False, DataFormat(word_size))
 
 
 def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True, fill_data = True):
@@ -367,14 +379,13 @@ def stream_data_default_generator(tdest_range, size_range, word_size_range = [4]
     word_size = random.choice(word_size_range)
     addr = random.choice(tdest_range)
 
-    if fill_data:
-        data = bytearray([random.randrange(0, 2**8) for _ in range(size)])
-    else:
-        data = size
-
     if ends_with_tlast == None:
         ends_with_tlast = bool(random.getrandbits(1))
 
-    return Data(addr, data, ends_with_tlast, DataFormat(word_size))
+    if fill_data:
+        data = bytearray([random.randrange(0, 2**8) for _ in range(size)])
+        return Data(addr, data, ends_with_tlast, DataFormat(word_size))
+    else:
+        return Data.build_empty(addr, size, ends_with_tlast, DataFormat(word_size))
 
 

@@ -17,15 +17,15 @@ async def unit_write(tb):
     """
     Write scenario for axi source
     """
-    await tb.axis_in.write_data(Data.build_word(0x1, 0x12345678))
-    await tb.axis_in.write_data(Data.build_word(0x1, 0xABCD))
-    await tb.axis_in.write_data(Data.build_word(0x1, 0xEF01))
+    await tb.axis_in.write_data(Data(0x1, 0x12345678))
+    await tb.axis_in.write_data(Data(0x1, 0xABCD))
+    await tb.axis_in.write_data(Data(0x1, 0xEF01))
 
-    await tb.axis_in.write_data(Data.build_word(0x0, 0x7B, False))
-    await tb.axis_in.write_data(Data.build_word(0x0, 0x8B9B, False))
-    await tb.axis_in.write_data(Data.build_word(0x0, 0xA0B0C0, True))
+    await tb.axis_in.write_data(Data(0x0, 0x7B, False))
+    await tb.axis_in.write_data(Data(0x0, 0x8B9B, False))
+    await tb.axis_in.write_data(Data(0x0, 0xA0B0C0, True))
 
-    await tb.axis_in.write_data(Data.build_word(0x2, 0x555))
+    await tb.axis_in.write_data(Data(0x2, 0x555))
 
 
 async def read_test(tb, out_idx, length, expected_value):
