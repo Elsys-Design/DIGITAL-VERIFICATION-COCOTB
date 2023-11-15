@@ -1,7 +1,7 @@
 
 ## Drivers
 This directory defines the framework's drivers.
-They are just wrappers to cocotbext.axi's drivers and allow to handle Data objects.
+They are just wrappers to cocotbext.axi's drivers (except AxiStreamSink) and allow to handle Data objects.
 
 
 ### AxiStreamSink

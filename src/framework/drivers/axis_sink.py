@@ -9,6 +9,11 @@ from ..logger import logger
 
 
 class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
+    """
+    Adds support for Data and for reads of fixed size (and not just until the tlast).
+    This is a custom AxiStreamSink that doesn't inherit cocotbext.axi.AxiStreamSink but cocotbext.axi.AxiStreamSink's
+    parent class directly.
+    """
 
     def __init__(self, bus, clock, reset=None, reset_active_level=True, **kwargs): 
         super().__init__(bus, clock, reset, reset_active_level, **kwargs)
@@ -20,6 +25,9 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         self.bus_data_size = len(self.bus.tdata.value) // 8
 
     async def read_data(self, length):
+        """
+        Reads 'data' to the bus and wait until the read is over.
+        """
         if isinstance(length, Data):
             length = length.length
 
@@ -34,7 +42,7 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
     async def read_word(self, length : int):
         """
         Helper that directly converts the data to an int.
-        To use only for small accesses
+        To use only for small accessesi (if it's over the bus' word size, the endianess will break things).
         """
         data_list = await self.read_data(length)
         data = data_list.full_bytearray()
@@ -50,8 +58,12 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
 
 
     def start_run(self, file):
-        # is_stream doesn't do anything here since parsing Data is what differs
-        # We could eventually accept stimulis without an Address field here since it's not used anyways
+        """
+        Helper method to run a StimuliList on a master directly from file.
+        is_stream doesn't do anything here since parsing Data is what differs and this is only READ Accesses (so no
+        data to parse).
+        TODO: We could eventually accept stimulis without an Address field here since it's not used anyways.
+        """
         return cocotb.start_soon(StimuliList.from_file(file, is_stream=True).run(self))
 
 

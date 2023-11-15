@@ -7,6 +7,9 @@ from ..data import Data
 
 
 class AxiLiteMaster(cocotbext.axi.AxiLiteMaster):
+    """
+    Wrapper that adds support for Data.
+    """
 
     def __init__(self, bus, clock, reset=None, reset_active_level=True, **kwargs): 
         super().__init__(bus, clock, reset, reset_active_level, **kwargs)
@@ -43,5 +46,8 @@ class AxiLiteMaster(cocotbext.axi.AxiLiteMaster):
 
 
     def start_run(self, file):
+        """
+        Helper method to run a StimuliList on a master directly from file.
+        """
         return cocotb.start_soon(StimuliList.from_file(file, is_stream=False).run(self))
 

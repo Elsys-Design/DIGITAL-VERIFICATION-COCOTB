@@ -11,6 +11,10 @@ from ..logger import logger
 
 
 class AxiStreamSource(cocotbext.axi.AxiStreamSource):
+    """
+    Wrapper that adds support for Data.
+    Also adds support for transaction without tlast at the end.
+    """
 
     def __init__(self, bus, clock, reset=None, reset_active_level=True, **kwargs): 
         super().__init__(bus, clock, reset, reset_active_level, **kwargs)
@@ -22,10 +26,15 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
         self.bus_data_size = len(self.bus.tdata.value) // 8
 
     async def write_data(self, data):
+        """
+        Writes 'data' to the bus and wait until the write is over.
+        """
         # Just a warning in case there is no tkeep but the data doesn't fit exactly in the bus
         if not self.has_tkeep and data.length % self.bus_size  != 0:
-            logger.warning("Writing data of size {} to AxiStream bus of size {} with no tkeep -> {} * 0x0 bytes will" \
-                    "be added to the transaction".format(data.length, self.bus_size, data.length%self.bus_size))
+            logger.warning(
+                    "Writing data of size {} to AxiStream bus of size {} with no tkeep -> {} * 0x0 bytes will be " \
+                    "added to the end of the transaction".format(data.length, self.bus_size, data.length%self.bus_size)
+            )
 
         if self.has_tlast and not data.ends_with_tlast:
             cocotb.start_soon(self._remove_one_tlast())
@@ -39,7 +48,7 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
 
     async def write_frame(self, frame):
         """
-        Gives access to cocotb's AxiStreamSource.write
+        Gives access to cocotb's AxiStreamSource.write.
         """
         await super().write(frame)
 
@@ -58,11 +67,18 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
     
 
     def start_run(self, file):
-        return cocotb.start_soon(StimuliList.from_file(file, is_stream=True).run(self))
+        """
+        Helper method to run a StimuliList on a master directly from file.
+        /!\ is_stream = True is important for the parsing.
+        """
+        return cocotb.start_soon(StimuliList.from_file(file, is_stream = True).run(self))
 
 
 
     async def _remove_one_tlast(self):
+        """
+        Removes the next tlast (passes it back from 1 to zero in no simulation time).
+        """
         await RisingEdge(self.bus.tlast)
         self.bus.tlast.value = 0
         return
