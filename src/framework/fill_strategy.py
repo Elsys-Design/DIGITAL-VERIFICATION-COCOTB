@@ -4,8 +4,8 @@ import random
 
 class FillStrategy:
     """
-    Namespace more than a class because it only contains class attributes & a static method.
     Helper that represents a fill strategy as a int and can execute it on a bytearray.
+    Namespace more than a class because it only contains class attributes & a static method.
     """
     RANDOM = -1
     ZEROS = 0
@@ -13,7 +13,10 @@ class FillStrategy:
 
     @staticmethod
     def exec_on(strategy, barray, len_toadd):
-        assert len_toadd >= 0, "len_toadd must be >= 0"
+        """
+        Adds len_toadd bytes to barray according to the strategy parameter.
+        """
+        assert len_toadd >= 0, "len_toadd parameter must be >= 0"
 
         if strategy == FillStrategy.RANDOM:
             barray += bytearray(random.sample(range(0, 0xff), len_toadd))
@@ -29,4 +32,8 @@ class FillStrategy:
 
     @staticmethod
     def generate_custom_seed():
+        """
+        Generates a custom seed.
+        Seeds < 2 are not valid custom seeds.
+        """
         return random.randint(2, 10**6)
