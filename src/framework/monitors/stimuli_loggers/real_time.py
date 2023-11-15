@@ -5,6 +5,11 @@ from .base import BaseStimuliLogger
 
 
 class RealTimeStimuliLogger(BaseStimuliLogger):
+    """
+    Named real time because it logs received Stimuli (and Data) directly to files.
+
+    /!\ Specific logging format for AxiStream without tlast isn't supported.
+    """
 
     def __init__(self, dir_path, id_base=""):
         super().__init__(dir_path, id_base)
@@ -16,6 +21,9 @@ class RealTimeStimuliLogger(BaseStimuliLogger):
 
 
     def recv(self, stimuli):
+        """
+        Method to subscribe to AnalisysPorts.
+        """
         json_obj = stimuli.to_json(self.dir_path)
         
         self.stimuli_file.seek(-2, os.SEEK_END)
@@ -33,3 +41,4 @@ class RealTimeStimuliLogger(BaseStimuliLogger):
 
     def __del__(self):
         self.stimuli_file.close()
+

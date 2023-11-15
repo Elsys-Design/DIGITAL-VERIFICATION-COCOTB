@@ -8,6 +8,11 @@ from ...data_list import DataList
 
 
 class EfficientStimuliLogger(BaseStimuliLogger):
+    """
+    Named efficient because it only write the files when asked to (see write_to_dir method).
+    However it must keep all the stimulis stored and the write method simply removes the directory before rewritting
+    all files (it doesn't support incremental write).
+    """
 
     def __init__(self, dir_path, id_base="", is_stream_no_tlast=False):
         super().__init__(dir_path, id_base)
@@ -17,14 +22,21 @@ class EfficientStimuliLogger(BaseStimuliLogger):
 
 
     def recv(self, stimuli):
+        """
+        Method to subscribe to AnalisysPorts.
+        """
         self.stimulis.append(stimuli)
 
     def write_to_dir(self):
+        """
+        Writes the logs to self.dir_path
+        """
         if not self.is_stream_no_tlast:
+            # In almost all cases, we'll just use the StimuliList.write_to_dir method
             self.stimulis.write_to_dir(self.dir_path)
 
-        # This is just to handle AXI-Stream buses that have no tlast
         elif len(self.stimulis) > 0:
+            # This is just to handle AXI-Stream buses that have no tlast (they're printed in a specific way)
             json_objs = [self.stimulis[0].get_plain_json(force_to_file = True)]
             json_objs[0]["Desc"] = "Access on a bus that has no tlast"
             json_objs[0]["Size"] = self.stimulis[0].data_list[0].length
@@ -42,3 +54,4 @@ class EfficientStimuliLogger(BaseStimuliLogger):
             stimuli_file = open(self.stimuli_filepath, "w")
             json.dump(json_objs, stimuli_file, indent=4, ensure_ascii=False) 
             stimuli_file.close()
+

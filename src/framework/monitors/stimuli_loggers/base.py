@@ -3,6 +3,9 @@ import shutil
 
 
 class BaseStimuliLogger:
+    """
+    Base class for all StimuliLoggers.
+    """
 
     def __init__(self, dir_path, id_base=""):
         self.dir_path = dir_path
@@ -14,8 +17,12 @@ class BaseStimuliLogger:
         # make a new directory, recursive if the path doesn't yet exist
         os.makedirs(self.dir_path)
 
+        # store the stimuli filepath to use it in child classes
         self.stimuli_filepath = os.path.join(self.dir_path, "stimulis.json")
 
 
     def recv(self, stimuli):
+        """
+        Method to subscribe to AnalisysPorts.
+        """
         raise NotImplementedError("To implement in child classes")
