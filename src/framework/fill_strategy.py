@@ -27,4 +27,6 @@ class FillStrategy:
             # restoring the old state so the rest of the simulation isn't impacted
             random.setstate(rstate)
 
-
+    @staticmethod
+    def generate_custom_seed():
+        return random.randint(2, 10**6)

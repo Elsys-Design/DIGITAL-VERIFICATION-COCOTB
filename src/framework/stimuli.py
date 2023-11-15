@@ -100,7 +100,7 @@ class Stimuli:
 
 
     @classmethod
-    def _build_data_list(cls, json_obj, access, data_dir_path, is_stream = False):
+    def _build_data_list(cls, json_obj, id_, access, data_dir_path, is_stream = False):
         """
         Builds the data_list, either from json_obj fields or from a file depending on the Type.
         """
@@ -132,6 +132,9 @@ class Stimuli:
                 return DataList([data_obj])
         else: # Type = File
             fill_strategy = json_obj["Fill"]
+            if fill_strategy == FillStrategy.RANDOM:
+                fill_strategy = FillStrategy.generate_custom_seed()
+                logger.info("Generated fill strategy seed {} for Stimuli {}".format(fill_strategy, id_))
             if access == Access.WRITE:
                 return DataList.from_file(
                         os.path.join(data_dir_path, json_obj["FileName"]),
@@ -140,8 +143,6 @@ class Stimuli:
                         is_stream
                 )
             else:
-                # TODO: Should this be implemented ?
-                # See specs
                 raise NotImplementedError("Access: R and Type: File are not compatible (Read accesses are Simple only, see the"
                                  "monitor's output to get the data)")
 
@@ -171,7 +172,7 @@ class Stimuli:
         desc = json_obj["Desc"] if "Desc" in json_obj else ""
 
         # Creating the data_list
-        data_list = cls._build_data_list(json_obj, access, data_dir_path, is_stream)
+        data_list = cls._build_data_list(json_obj, id_, access, data_dir_path, is_stream)
 
         logger.info("Stimuli built from json_obj")
              
