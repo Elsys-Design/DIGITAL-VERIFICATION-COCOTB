@@ -18,21 +18,21 @@ All testbench examples follow the same structure:
     * run all tests in a file using `make MODULE=tests.testname`
 - wave.ghw and wave.vcd: signal dump that can be opened with gtkwave. It contains all the tests launched durign the last
   run, each separated by a reset.
+- results.xml contains the results of all the last tests launched
 
 #### Test directories
 Each test directory contains:
-* main.py: the test script (the method called is the one decorated with `@cocotb.test()`)
-* inputs/: if present, it contains handwritten data and/or stimuli files used as inputs in the test
-* generated\_inputs/: if present, it contains randomly generated data and/or stimuli files used as inputs in the test
-* stimlogs/: contains the monitor outputs, each directory contains the log of the monitor of the same name
-* golden\_stimlogs/: stores manually checked monitor logs to be automatically compared with stimlogs/
-    - for random tests, it contains directories named after the random seed used, all of which have contents similar
+- main.py: the test script (the method called is the one decorated with `@cocotb.test()`)
+- inputs/: if present, it contains handwritten data and/or stimuli files used as inputs in the test
+- generated\_inputs/: if present, it contains randomly generated data and/or stimuli files used as inputs in the test
+- stimlogs/: contains the monitor outputs, each directory contains the log of the monitor of the same name
+- golden\_stimlogs/: stores manually checked monitor logs to be automatically compared with stimlogs/
+    * for random tests, it contains directories named after the random seed used, all of which have contents similar
       to stimlogs/
-    - for regular tests, it's directly like stimlogs/ but manually checked
-* read\_data: present only for read tests, contains the data read
-* golden\_read\_data: stores manually checked read data (with the same distinction as golden\_stimlogs for
+    * for regular tests, it's directly like stimlogs/ but manually checked
+- read\_data: present only for read tests, contains the data read
+- golden\_read\_data: stores manually checked read data (with the same distinction as golden\_stimlogs for
   random tests)
-* results.xml contains the test's last result
 
 #### Testbench usage
 The constructor builds the testbench by connecting the framework's (or cocotbext-axi's) components to axi buses.  
