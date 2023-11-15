@@ -22,12 +22,15 @@ class Time:
 
     def __init__(self, value : float, unit : str):
         if value < 0:
-            raise ValueError("Time value cannot be less than zero")
+            raise ValueError("Time value ({}) cannot be less than zero".format(value))
 
-        if unit not in self.scale.values():
-            raise ValueError("{} unit isn't supported (supported units: {})".format(unit, *self.scale.values()))
+        if unit in self.scale.values():
+            self.value = cocotb.utils.get_sim_steps(value, unit, round_mode="round")
+        elif unit == 'step':
+            self.value = value
+        else:
+            raise ValueError("{} unit isn't supported (supported units: {} + 'step')".format(unit, *self.scale.values()))
 
-        self.value = cocotb.utils.get_sim_steps(value, unit, round_mode="round")
 
     async def wait(self):
         """

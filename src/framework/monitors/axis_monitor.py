@@ -26,7 +26,7 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
         # Id counter for stimulis
         self.current_id = 0
 
-        self.last_end_time = Time(0, 'fs')
+        self.last_start_time = Time(0, 'fs')
 
         
         # Bus' tdest and data sizes
@@ -50,6 +50,41 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
         # Starting monitor task
         cocotb.start_soon(self.monitor_stream())
 
+    def _log_stimuli(self, tdest, tdata, ends_with_tlast, start_time, end_time):
+        """
+        Helper to log a stimuli.
+        """
+        # Building a new dformat instance for each new Data object so that they're different objects (it could
+        # be built in the constructor as self.dformat and passed as reference to all Data objects but this
+        # would mean when a Data object changes it's word_size, all other Data generated here would change too)
+        dformat = DataFormat(
+                    word_size = self.bus_data_size,
+                    addr_size = self.bus_tdest_size
+        )
+
+        # Building Data
+        data = Data(tdest, tdata, ends_with_tlast, dformat)
+
+        # Building Stimuli
+        new_id = "{}_{}".format(self.name, self.current_id)
+        self.current_id += 1
+
+        s = Stimuli(
+                new_id,
+                Access.WRITE,
+                start_time - self.last_start_time,
+                DataList([data]),
+                "",
+                start_time,
+                end_time
+        )
+        
+        self.last_start_time = start_time
+
+        # Logging Stimuli
+        self.analysis_port.send(s)
+
+
 
     async def monitor_stream(self):
         """
@@ -59,48 +94,10 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
         /!\ If tlast is never asserted on a bus that has a tlast signal, we won't log any data.
         """
         while True:
-            await self.wait()
-
-            start_time = Time.now()
-
             frame = await self.recv()
 
-            end_time = Time.now()
-
-            def log_stimuli(tdest, tdata, ends_with_tlast):
-                """
-                Helper to log a stimuli.
-                """
-                # Building a new dformat instance for each new Data object so that they're different objects (it could
-                # be built in the constructor as self.dformat and passed as reference to all Data objects but this
-                # would mean when a Data object changes it's word_size, all other Data generated here would change too)
-                dformat = DataFormat(
-                            word_size = self.bus_data_size,
-                            addr_size = self.bus_tdest_size
-                )
-
-                # Building Data
-                data = Data(tdest, tdata, ends_with_tlast, dformat)
-
-                # Building Stimuli
-                new_id = "{}_{}".format(self.name, self.current_id)
-                self.current_id += 1
-
-                s = Stimuli(
-                        new_id,
-                        Access.WRITE,
-                        start_time - self.last_end_time,
-                        DataList([data]),
-                        "",
-                        start_time,
-                        end_time
-                )
-
-                self.last_end_time = end_time
-
-                # Logging Stimuli
-                self.analysis_port.send(s)
-
+            start_time = Time(frame.sim_time_start, 'step')
+            end_time = Time(frame.sim_time_end, 'step')
 
             if isinstance(frame.tdest, list):
                 # In the case there is a tlast but there is interleaving outside of tlast boundaries
@@ -113,8 +110,9 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
                     while i < len(frame.tdest) and frame.tdest[i] == frame.tdest[starti]:
                         i += 1
 
-                    log_stimuli(frame.tdest[starti], frame.tdata[starti:i], i==len(frame.tdest))
+                    # TODO: all the stimuli logged have the same start_time and end_time
+                    self._log_stimuli(frame.tdest[starti], frame.tdata[starti:i], i==len(frame.tdest), start_time, end_time)
             else:
                 # When all tdest are the same, the frame returned by self.recv() compacts the list in a single int
-                log_stimuli(frame.tdest, frame.tdata, True)
+                self._log_stimuli(frame.tdest, frame.tdata, True, start_time, end_time)
 
