@@ -1,0 +1,29 @@
+import os
+import shutil
+
+
+class BaseStimuliLogger:
+    """
+    Base class for all StimuliLoggers.
+    """
+
+    def __init__(self, dir_path, id_base = "", is_stream_no_tlast = False):
+        self.dir_path = dir_path
+        self.id_base = id_base
+        self.is_stream_no_tlast = is_stream_no_tlast
+
+        # remove the whole directory if it exists
+        if os.path.isdir(self.dir_path):
+            shutil.rmtree(self.dir_path)
+        # make a new directory, recursive if the path doesn't yet exist
+        os.makedirs(self.dir_path)
+
+        # store the stimuli filepath to use it in child classes
+        self.stimuli_filepath = os.path.join(self.dir_path, "stimulis.json")
+
+
+    def recv(self, stimuli):
+        """
+        Method to subscribe to AnalisysPorts.
+        """
+        raise NotImplementedError("To implement in child classes")
