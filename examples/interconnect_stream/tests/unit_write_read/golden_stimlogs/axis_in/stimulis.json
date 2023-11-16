@@ -7,7 +7,8 @@
         "Type": "File",
         "Address": "0x1",
         "FileName": "axis_in_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 4
     },
     {
         "ID": "axis_in_1",
@@ -17,7 +18,8 @@
         "Type": "File",
         "Address": "0x1",
         "FileName": "axis_in_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 4
     },
     {
         "ID": "axis_in_2",
@@ -27,7 +29,8 @@
         "Type": "File",
         "Address": "0x1",
         "FileName": "axis_in_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 4
     },
     {
         "ID": "axis_in_3",
@@ -37,36 +40,40 @@
         "Type": "File",
         "Address": "0x0",
         "FileName": "axis_in_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 4
     },
     {
         "ID": "axis_in_4",
         "Access": "W",
-        "RelTime": "0.030 us",
-        "AbsTime": "1510000001 fs",
+        "RelTime": "0.040 us",
+        "AbsTime": "1520000001 fs",
         "Type": "File",
         "Address": "0x0",
         "FileName": "axis_in_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 4
     },
     {
         "ID": "axis_in_5",
         "Access": "W",
         "RelTime": "0.020 us",
-        "AbsTime": "1530000001 fs",
+        "AbsTime": "1540000001 fs",
         "Type": "File",
         "Address": "0x0",
         "FileName": "axis_in_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 4
     },
     {
         "ID": "axis_in_6",
         "Access": "W",
         "RelTime": "0.020 us",
-        "AbsTime": "1550000001 fs",
+        "AbsTime": "1560000001 fs",
         "Type": "File",
         "Address": "0x2",
         "FileName": "axis_in_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 4
     }
 ]

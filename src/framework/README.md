@@ -2,29 +2,47 @@
 
 ## Framework package
 
+### Data structures
+#### StimuliList
+It's a list of Stimuli with a few specific methods to parse from / write to a directory.  
+It represents a whole stimuli.json file.  
+
+#### Stimuli
+It represents a single json object in a stimuli.json file.  
+It contains a single DataList.  
+
+#### DataList
+It's a list Data with a few specific methods to parse from / write to a file.  
+It represents a whole data.dat file.  
+Note: More often than not, a DataList contains only a single Data item.
+This class exists mostly to handle special cases like parsing or reading from an AxiStreamSink.  
+
+#### Data
+It represents a single (simple) sequence in a data.dat file.  
+Note: a parsed sequence may end up being multiple Data objects since Data objects are more restrictive than parsed
+sequences (if there is a tlast ('!') in the middle of a sequence, we'll have a first Data object ending with a tlast and
+then another for the rest of the sequence).  
+
+
+### Specific structures
+#### Time
+Time is just a custom class to properly represent time.
+Note: It could become a static class with methods that take a single int representing the time in the simulator's unit.
+
+#### FillStrategy
+Simplifies handling of the 'Fill' field in Stimuli json objects.
+
+
+### Custom logger
+The custom logger takes cocotb's formatter but changes the handler to print everything to a framework.log file.
+All framework loggers should inherit from the 'framework' logger.
+Note: It could eventually use a different formatter to have access to the line of the log.
+
+
 ### TODO
 
 
 ### To improve
-
-#### AxiStream errors
-Print a proper error when using a read Stimuli on an AxiStreamSource or a write Stimuli on an AxiStreamSink
-
-#### AxiStreamSink
-AxiStreamSink has been reimplemented to handle the tready as needed:
-Current cocotbext.axi.AxiStreamSink always puts it to True unless a pause is set (but we still can't get the data
-until a tlast has arrived).
-
-The only parameter the AxiStreamSink.read\_data() method needs is a length (address is useless) and the output can
-be many datas if there is one or multiple tlast during the read.
-For now, read data is only accessible through the monitors so this is not a problem
-(the method doesn't return any of the received data).
-
-If we wanted to return the read data, this changes the behaviour for this component which makes it harder to
-integrate with the others (who have only read\_data(data) and write\_data(data) methods).
-We could add read\_datalist() (and write\_datalist() ?) and only use these methods (this is the general case, with
-most calls using a DataList with only one Data).
-
 
 #### Error reporting
 - uses base python exceptions for now so messages are not printed in the custom logger

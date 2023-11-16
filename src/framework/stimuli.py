@@ -4,13 +4,13 @@ import os
 from dataclasses import dataclass
 import json
 from cocotb.triggers import Timer
+import logging
 
 from .fill_strategy import FillStrategy
 from .data_list import DataList
 from .data import Data, DataFormat
 from .time import Time
 from . import utils
-from .logger import logger
 
 
 class Access(Enum):
@@ -22,7 +22,7 @@ class Access(Enum):
         return "R" if self == Access.READ else "W"
 
 
-@dataclass
+@dataclass(init=False)
 class Stimuli:
     """
     Represents a single json object in Stimuli files
@@ -35,9 +35,25 @@ class Stimuli:
     data_list : DataList
     desc : str = ""
     
-    abs_time : int = 0
-    end_time : int = 0
+    abs_time : Time = Time(0, 'fs')
+    end_time : Time = Time(0, 'fs')
 
+    logger = logging.getLogger("framework.stimuli")
+
+#    @property
+#    def logger(self):
+#        return logging.getLogger("framework.stimuli." + self.id_)
+
+    def __init__(self, id_, access, rel_time, data_list, desc = "", abs_time = Time(0, 'fs'), end_time = Time(0, 'fs')):
+        self.id_ = id_
+        self.access = access
+        self.rel_time = rel_time
+        self.data_list = data_list
+        self.desc = desc
+        self.abs_time = abs_time
+        self.end_time = end_time
+
+        self.logger = logging.getLogger("framework.stimuli." + self.id_)
 
     @classmethod
     def _base_json_checks(cls, json_obj):
@@ -100,7 +116,7 @@ class Stimuli:
 
 
     @classmethod
-    def _build_data_list(cls, json_obj, access, data_dir_path, is_stream = False):
+    def _build_data_list(cls, json_obj, id_, access, data_dir_path, is_stream = False):
         """
         Builds the data_list, either from json_obj fields or from a file depending on the Type.
         """
@@ -111,7 +127,7 @@ class Stimuli:
             if access == Access.WRITE:
                 data = int(json_obj["Data"], 0)
                 if data.bit_length() > 8*size:
-                    logger.warning(
+                    cls.logger.warning(
                         "Data word 0x{word:X} is {word_size} bits long which is higher than the size specified"
                         "in the Size field ({descriptor_word_size} bits)" \
                         .format(word = data, word_size = data.bit_length(), descriptor_word_size = 8*size)
@@ -124,14 +140,15 @@ class Stimuli:
                     data_obj.alignment_check()
                 return DataList([data_obj])
             else:
-                data = bytearray()
-                FillStrategy.exec_on(FillStrategy.ZEROS, data, size)
-                data_obj = Data(addr, data, False, DataFormat(1))
+                data_obj = Data.build_empty(addr, size, False, DataFormat(1))
                 if is_stream:
                     data_obj.alignment_check()
                 return DataList([data_obj])
         else: # Type = File
             fill_strategy = json_obj["Fill"]
+            if fill_strategy == FillStrategy.RANDOM:
+                fill_strategy = FillStrategy.generate_custom_seed()
+                cls.logger.info("Generated fill strategy seed {} for Stimuli {}".format(fill_strategy, id_))
             if access == Access.WRITE:
                 return DataList.from_file(
                         os.path.join(data_dir_path, json_obj["FileName"]),
@@ -140,8 +157,6 @@ class Stimuli:
                         is_stream
                 )
             else:
-                # TODO: Should this be implemented ?
-                # See specs
                 raise NotImplementedError("Access: R and Type: File are not compatible (Read accesses are Simple only, see the"
                                  "monitor's output to get the data)")
 
@@ -152,9 +167,9 @@ class Stimuli:
         """
         Creates a Stimuli object from a json object.
         """
-        logger.info("Building Stimuli from json_obj (data_dir_path = {}, defaultid = {})" \
+        cls.logger.info("Building Stimuli from json_obj (data_dir_path = {}, defaultid = {})" \
                 .format(data_dir_path, defaultid))
-        logger.debug("\n" + json.dumps(json_obj))
+        cls.logger.debug("\n" + json.dumps(json_obj))
 
         cls._base_json_checks(json_obj)
 
@@ -171,9 +186,9 @@ class Stimuli:
         desc = json_obj["Desc"] if "Desc" in json_obj else ""
 
         # Creating the data_list
-        data_list = cls._build_data_list(json_obj, access, data_dir_path, is_stream)
+        data_list = cls._build_data_list(json_obj, id_, access, data_dir_path, is_stream)
 
-        logger.info("Stimuli built from json_obj")
+        cls.logger.info("Stimuli built from json_obj")
              
         return cls(id_, access, rel_time, data_list, desc)
 
@@ -182,15 +197,34 @@ class Stimuli:
         """
         Transforms a Stimuli object to a json object.
 
-        Only supports Stimuli objects that contain one and only one Data.
+        Only properly supports Stimuli objects that contain one and only one Data.
+        Partial support for multiple Data exists but only the address of the first data will be in JSON.
         This is because it's specified the address should be in the JSON so there is only one place for it but it's
-        stored in the Data object. (With multiple Data, which Data's address should be used ?)
+        stored in the Data object.
         """
 
-        if len(self.data_list) != 1:
-            raise NotImplementedError("Stimuli.to_json supports only one data item per stimuli")
+        if len(self.data_list) == 0:
+            raise NotImplementedError(
+                "Json conversion of stimuli with no associated data (data_list empty) isn't supported."
+            )
         
         data = self.data_list[0]
+
+        if len(self.data_list) > 1:
+            self.logger.warning(
+                    "Json conversion of stimuli with {} > 1 data items is only partially supported."
+                    "Only the address of the first data ({}) will be in the json object" \
+                    .format(len(self.data_list), data.addr)
+            )
+
+
+        if (data.is_word() or not data.is_allocated) \
+            and len(self.data_list) == 1 \
+            and not force_to_file:
+            type_ = "Simple"
+        else:
+            type_ = "File"
+
 
         json_obj = {
                 "ID": self.id_,
@@ -198,7 +232,7 @@ class Stimuli:
                 "Access": str(self.access),
                 "RelTime": str(self.rel_time),
                 "AbsTime": self.abs_time.full_str(),
-                "Type": "Simple" if data.is_word() and not force_to_file else "File",
+                "Type": type_,
                 "Address": utils.int_to_hex_string(int(data.addr), int(data.dformat.addr_size))
         }
 
@@ -209,10 +243,11 @@ class Stimuli:
             del json_obj["Desc"]
 
         if json_obj["Type"] == "Simple":
-            # Data is always the size of a word
-            json_obj["Data"] = data.to_words()[0]
+            if data.is_allocated:
+                # Data is always the size of a word
+                json_obj["Data"] = data.to_words()[0]
             # Size isn't the size of a word but the actual data size
-            json_obj["Size"] = len(data.data)
+            json_obj["Size"] = data.length
         else:
             json_obj["FileName"] = self.id_ + ".dat"
 
@@ -224,7 +259,7 @@ class Stimuli:
             # Writing data file in data_dir
             # We suppose the data_dir_path is a directory
             filepath = os.path.join(data_dir_path, json_obj["FileName"])
-            logger.info("Writting Stimuli datalist to {}".format(filepath))
+            self.logger.info("Writting Stimuli datalist to {}".format(filepath))
             self.data_list.to_file(filepath, addr_to_zero = True)
 
         return json_obj
@@ -232,11 +267,11 @@ class Stimuli:
 
     async def run(self, master):
         
-        logger.debug("Stimuli waits {}".format(self.rel_time))
+        self.logger.debug("Stimuli waits {}".format(self.rel_time))
 
         await self.rel_time.wait()
         
-        logger.debug("Stimuli waited {} and starts running".format(self.rel_time))
+        self.logger.debug("Stimuli waited {} and starts running".format(self.rel_time))
 
         # Updating start time to the real value
         self.abs_time = Time.now()
@@ -250,7 +285,13 @@ class Stimuli:
         
         self.end_time = Time.now()
 
-        logger.info("Stimuli's run ended")
+        self.logger.info("Stimuli's run ended")
+
+    def short_desc(self):
+        if len(self.data_list) == 0:
+            raise NotImplementedError("short_desc is only supported on Stimulis that have at least one Data object")
+        return "Stimuli(id={}, access={}, address={}, size={})" \
+                .format(self.id_, self.access, self.data_list[0].addr, self.data_list[0].length)
 
 
 
@@ -267,7 +308,7 @@ def stimuli_default_generator(data_list_generator, delay_range, access = Access.
             id_,
             access,
             Time(random.choice(delay_range), "fs"),
-            data_list_generator(),
+            data_list_generator(fill_data = access == Access.WRITE),
             desc.format(id_)
     )
 

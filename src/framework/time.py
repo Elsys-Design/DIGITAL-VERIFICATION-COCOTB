@@ -22,14 +22,20 @@ class Time:
 
     def __init__(self, value : float, unit : str):
         if value < 0:
-            raise ValueError("Time value cannot be less than zero")
+            raise ValueError("Time value ({}) cannot be less than zero".format(value))
 
-        if unit not in self.scale.values():
-            raise ValueError("{} unit isn't supported (supported units: {})".format(unit, *self.scale.values()))
+        if unit in self.scale.values():
+            self.value = cocotb.utils.get_sim_steps(value, unit, round_mode="round")
+        elif unit == 'step':
+            self.value = value
+        else:
+            raise ValueError("{} unit isn't supported (supported units: {} + 'step')".format(unit, *self.scale.values()))
 
-        self.value = cocotb.utils.get_sim_steps(value, unit, round_mode="round")
 
     async def wait(self):
+        """
+        Waits for the Time duration.
+        """
         if self.value > 0:
             await Timer(self.value, units='step', round_mode="round")
 
@@ -42,21 +48,31 @@ class Time:
                 val /= 10
                 ten_power += 1
 
-        # Move the power until finding a good unit
+        # Move the power again to get to the nearest bigger unit
+        # Since units are separated by a 10**3 factor, we know that we won't have the smallest non-zero digit further
+        # than at 10**-3
         float_pow = 3 - ten_power % 3
-        # Actualise the value and the power
         val /= 10**float_pow
+
         ten_power += float_pow
 
         # Printing format
         return "{:.3f} {}".format(val, self.scale[ten_power])
 
     def full_str(self):
+        """
+        Precision that isn't a plain unit (ex: 100fs) isn't supported.
+        This isn't a problem since GHDL only supports 1fs unless using mcode backend:
+        https://ghdl.github.io/ghdl/using/InvokingGHDL.html#cmdoption-ghdl-time-resolution
+        """
         return "{:d} {}".format(self.value, self.scale[cocotb.utils._get_simulator_precision()])
 
 
     @classmethod
     def now(cls):
+        """
+        Returns the current simulation time.
+        """
         return cls(get_sim_time('fs'), 'fs')
 
 

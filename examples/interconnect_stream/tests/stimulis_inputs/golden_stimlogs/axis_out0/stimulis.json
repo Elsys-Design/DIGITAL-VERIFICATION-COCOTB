@@ -7,7 +7,8 @@
         "Type": "File",
         "Address": "0x0",
         "FileName": "axis_out0_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 4
     },
     {
         "ID": "axis_out0_1",
@@ -17,6 +18,7 @@
         "Type": "File",
         "Address": "0x0",
         "FileName": "axis_out0_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 4
     }
 ]

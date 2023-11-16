@@ -1,0 +1,38 @@
+[
+    {
+        "ID": "in_axi_0",
+        "Access": "R",
+        "RelTime": "11010000.004 ps",
+        "AbsTime": "11010000004 fs",
+        "Type": "File",
+        "Address": "0x44A4763B",
+        "FileName": "in_axi_0.dat"
+    },
+    {
+        "ID": "in_axi_1",
+        "Access": "W",
+        "RelTime": "11180000.004 ps",
+        "AbsTime": "11180000004 fs",
+        "Type": "File",
+        "Address": "0x44A4FC50",
+        "FileName": "in_axi_1.dat"
+    },
+    {
+        "ID": "in_axi_2",
+        "Access": "W",
+        "RelTime": "0.170 us",
+        "AbsTime": "11350000004 fs",
+        "Type": "File",
+        "Address": "0x44A35A28",
+        "FileName": "in_axi_2.dat"
+    },
+    {
+        "ID": "in_axi_3",
+        "Access": "W",
+        "RelTime": "0.290 us",
+        "AbsTime": "11640000004 fs",
+        "Type": "File",
+        "Address": "0x44A4DFA0",
+        "FileName": "in_axi_3.dat"
+    }
+]

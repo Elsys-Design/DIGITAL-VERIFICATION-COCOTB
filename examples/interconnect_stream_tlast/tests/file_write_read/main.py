@@ -6,8 +6,7 @@ import cocotbext
 from cocotb.triggers import Edge, RisingEdge, FallingEdge, Timer, Join, Combine
 from cocotb.result import TestFailure, TestError
 
-from framework.data import stream_data_default_generator
-from framework.data_list import datalist_default_generator
+import framework
 
 from test_utils.filecmp import compare_to_golden
 
@@ -16,8 +15,11 @@ from tb import TB
 
 
 def generate_write_datalist():
+    """
+    Builds the Data and DataList generators, returns a generated DataList.
+    """
     data_gen = partial(
-            stream_data_default_generator,
+            framework.stream_data_default_generator,
             tdest_range = [0x0, 0x1, 0x2],
             size_range = range(1, 0x10),
             word_size_range = [2**i for i in range(4)],
@@ -25,7 +27,7 @@ def generate_write_datalist():
     )
 
     datalist_gen = partial(
-            datalist_default_generator,
+            framework.datalist_default_generator,
             data_gen,
             [10]
     )
@@ -57,25 +59,29 @@ async def cocotb_run(dut):
     data_list.to_file(data_filename)
 
     # Building tasks
+
+    # Creating a new thread for the axi source
     write_task = cocotb.start_soon(
             tb.axis_in.write_data_from_file(data_filename)
     )
 
     read_tasks = []
     for i in range(3):
+        # Saving the new thread handle for each sink
         read_tasks.append(
+                # Creating a new thread for each sink
                 cocotb.start_soon(
+                    # Function to execute in the thread
                     tb.axis_out[i].read_data_to_file("read_data/{}.dat".format(i), read_length[i])
                 )
         )
 
-    # Running simulation
+    # Letting the scenarios execute (passing simulation time)
     await Combine(write_task, *read_tasks)
 
-    # Writing stimlogs/ directory containing all the monitored data & stimulis
+    # Writing the stimulis and data logged by monitors (uses the monitors' default logger)
     tb.write_monitored_data()
 
     # Comparing stimlogs/ to golden_stimlogs/seed/
     compare_to_golden("stimlogs")
-    
     compare_to_golden("read_data")

@@ -1,5 +1,6 @@
 
 
-## Interconnect stream with TLAST
+## Interconnect stream tlast testbench
+![Diagramme en block](block_diagram.png)
 
-This example is exactly the same as interconnect\_stream except all buses have a tlast signal.
+

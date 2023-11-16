@@ -6,5 +6,6 @@ wave.*
 
 design_1
 *.o
+results.xml
 
 waveform.gtkw

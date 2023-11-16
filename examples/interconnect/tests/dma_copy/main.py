@@ -3,8 +3,7 @@ from cocotb.triggers import Combine, Timer
 from cocotb.result import TestFailure
 import os
 
-from framework.stimuli_list import StimuliList
-from framework.data import Data
+from framework import Data
 
 from test_utils.filecmp import check_dirs_equal
 
@@ -19,10 +18,10 @@ async def cocotb_run(dut):
     tb = TB(dut)
     await tb.reset()
 
-    # Loading & executing scenarios
+    # Loading scenarios
     tasks = []
     for i in range(2):
-        tasks.append(tb.masters_in[i].start_run("inputs/stimulis{}.json".format(i)))
+        tasks.append(tb.masters_in[i].init_run("inputs/stimulis{}.json".format(i)))
 
     # Letting the scenarios execute (passing simulation time)
     await Combine(*tasks)
@@ -37,7 +36,9 @@ async def cocotb_run(dut):
     print("\n\n")
     memory_final = []
     for i in range(2):
-        memory_final.append(tb.out_axilite_rams[i].read_data(0x0, 2**5))
+        d = Data.build_empty(0x0, 2**5)
+        tb.out_axilite_rams[i].read_data(d)
+        memory_final.append(d)
         print("RAM {}".format(i))
         print(memory_final[i])
 
@@ -46,6 +47,8 @@ async def cocotb_run(dut):
         raise TestFailure("AXI DMA didn't copy ram_out[0] in ram_out[1] properly")
 
 
+    # Writing the stimulis and data logged by monitors (uses the monitors' default logger)
     tb.write_monitor_data()
 
+    # Comparing stimlogs/ and golden_stimlogs/
     check_dirs_equal("stimlogs", "golden_stimlogs")

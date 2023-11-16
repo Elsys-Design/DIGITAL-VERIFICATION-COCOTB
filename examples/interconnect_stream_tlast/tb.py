@@ -8,11 +8,7 @@ from cocotb.clock import Clock
 from cocotb.triggers import Edge, RisingEdge, FallingEdge, Timer, Join, Combine
 from cocotbext.axi import AxiStreamBus
 
-from framework.drivers.axis_source import AxiStreamSource
-from framework.drivers.axis_sink import AxiStreamSink
-from framework.monitors.axis_monitor import AxiStreamMonitor
-from framework.monitors.analysis_port import AnalysisPort
-
+from framework import AxiStreamSource, AxiStreamSink, AxiStreamMonitor
 
 
 
@@ -46,9 +42,9 @@ class TB:
 
 
     def write_monitored_data(self):
-        self.axis_in_monitor.default_logger.write_to_dir()
+        self.axis_in_monitor.default_stimuli_logger.write_to_dir()
 
         for out_m in self.axis_out_monitors:
-            out_m.default_logger.write_to_dir()
+            out_m.default_stimuli_logger.write_to_dir()
 
 

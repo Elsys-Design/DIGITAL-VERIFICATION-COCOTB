@@ -7,7 +7,8 @@
         "Type": "File",
         "Address": "0x2",
         "FileName": "axis_out2_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 1
     },
     {
         "ID": "axis_out2_1",
@@ -17,7 +18,8 @@
         "Type": "File",
         "Address": "0x2",
         "FileName": "axis_out2_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 1
     },
     {
         "ID": "axis_out2_2",
@@ -27,7 +29,8 @@
         "Type": "File",
         "Address": "0x2",
         "FileName": "axis_out2_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 1
     },
     {
         "ID": "axis_out2_3",
@@ -37,7 +40,8 @@
         "Type": "File",
         "Address": "0x2",
         "FileName": "axis_out2_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 1
     },
     {
         "ID": "axis_out2_4",
@@ -47,7 +51,8 @@
         "Type": "File",
         "Address": "0x2",
         "FileName": "axis_out2_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 1
     },
     {
         "ID": "axis_out2_5",
@@ -57,7 +62,8 @@
         "Type": "File",
         "Address": "0x2",
         "FileName": "axis_out2_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 1
     },
     {
         "ID": "axis_out2_6",
@@ -67,7 +73,8 @@
         "Type": "File",
         "Address": "0x2",
         "FileName": "axis_out2_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 1
     },
     {
         "ID": "axis_out2_7",
@@ -77,6 +84,7 @@
         "Type": "File",
         "Address": "0x2",
         "FileName": "axis_out2_0.dat",
-        "Desc": "Access on a bus that has no tlast"
+        "Desc": "Access on a bus that has no tlast",
+        "Size": 1
     }
 ]

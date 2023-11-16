@@ -3,10 +3,11 @@ import random
 import copy
 from dataclasses import dataclass
 import logging
+from typing import Union
+import logging
 
 from . import utils
 from .fill_strategy import FillStrategy
-from .logger import logger
 
 
 class Encoding(Enum):
@@ -48,19 +49,64 @@ class Data:
     the wstrb/tstrb is continuous)
     """
     addr : int
-    data : bytearray
-    stream_tlast_end : bool = True
+    # data can either represent the data length or the data itself
+    # it's usefull for Read accesses where we only specify the size and set the bytearray later
+    data : Union[bytearray, int]
+    ends_with_tlast : bool = True
     dformat : DataFormat = None
 
-    def __init__(self, addr : int, data : bytearray, stream_tlast_end : bool = True, dformat : DataFormat = None):
-        self.addr = addr
-        self.data = data
-        self.stream_tlast_end = stream_tlast_end
-        if dformat == None:
-            self.dformat = DataFormat()
-        else:
-            self.dformat = dformat
+    logger = logging.getLogger("framework.data")
 
+
+    def __init__(self, addr : int, data: Union[bytearray, int], ends_with_tlast : bool = True, dformat : DataFormat = None):
+        """
+        data can either be a bytearray or an int.
+        If it's an int, it's considered to be a word.
+        """
+        self.addr = addr
+        self.ends_with_tlast = ends_with_tlast
+        self.dformat = dformat
+
+        self.data = None
+        if isinstance(data, int):
+            self.data = bytearray(data.to_bytes((data.bit_length()+7)//8, byteorder='big'))
+            if self.dformat == None:
+                self.dformat = DataFormat(len(self.data))
+        else:
+            self.data = data
+            if self.dformat == None:
+                self.dformat = DataFormat()
+
+    @classmethod
+    def build_empty(cls, addr : int, length : int, ends_with_tlast : bool = True, dformat : DataFormat = None):
+        out = cls(addr, None, ends_with_tlast, dformat)
+        # when data is an int, it's a length
+        out.data = length
+        return out
+
+
+    @property
+    def is_allocated(self):
+        return not isinstance(self.data, int)
+
+    @property
+    def length(self):
+        """
+        Returns the length of the data even though the data might not be allocated yet
+        """
+        return len(self.data) if self.is_allocated else self.data
+
+    @length.setter
+    def length(self, value):
+        if self.is_allocated:
+            raise ValueError("Cannot set the length of an allocated Data, change Data.data attribute directly")
+        self.data = value
+
+    def allocate_data(self, fill_strategy = FillStrategy.RANDOM):
+        if isinstance(self.data, int):
+            length = self.data
+            self.data = bytearray()
+            FillStrategy.exec_on(fill_strategy, self.data, length)
 
     def alignment_check(self):
         """
@@ -69,14 +115,13 @@ class Data:
         But they are only done when the Data is used in an AXI or AXI-Lite master
         (not for axi-stream, if tdest is over the size of tdest in the bus, it'll throw an error anyways)
         """
-        logger.info("Performing alignment checks on Data")
-        logger.debug("\n" + str(self))
+        self.logger.debug("Performing alignment checks on Data")
 
         if self.addr % self.dformat.word_size != 0:
             raise ValueError("Address (0x{0:X}) needs to be aligned on word size ({1})" \
                     .format(self.addr, self.dformat.word_size))
         
-        logger.info("passed")
+        self.logger.debug("passed")
 
     def __str__(self):
         return self.to_raw()
@@ -85,7 +130,7 @@ class Data:
         """
         Returns True is the data can be represented as a single word
         """
-        return len(self.data) <= self.dformat.word_size
+        return self.length <= self.dformat.word_size
 
     def to_words(self):
         """
@@ -94,8 +139,8 @@ class Data:
         hex_data = []
 
         x = 0
-        while x < len(self.data):
-            end_x = min(x+self.dformat.word_size, len(self.data))
+        while x < self.length:
+            end_x = min(x+self.dformat.word_size, self.length)
             hex_data.append(
                 utils.int_to_hex_string(int(self.data[x:end_x].hex(), 16), self.dformat.word_size)
             )
@@ -106,7 +151,7 @@ class Data:
         """
         Returns the representation of 'self' as a sequence
         """
-        logger.info("Writting Data to raw")
+        self.logger.debug("Writting Data to raw")
 
         if not self.dformat.is_supported():
             raise NotImplementedError("Unsupported format: \n{}".format(self.dformat))
@@ -114,31 +159,31 @@ class Data:
 
         last_fields = []
 
-        last_word_size = self.last_word_size()
-        if last_word_size != self.dformat.word_size:
-            last_fields.append(str(last_word_size))
-
-        if self.stream_tlast_end:
-            last_fields.append(self.dformat.tlast_char)
-
-
         data_file_addr = 0 if addr_to_zero else self.addr
 
-        out = "@ {addr}; {length}; {encoding}; {word_size}; {endianness}; {packet_separator};\n{data}".format(
+        out = "@ {addr}; {length}; {encoding}; {word_size}; {endianness}; {packet_separator};".format(
                 addr = utils.int_to_hex_string(data_file_addr, self.dformat.addr_size),
-                length = str(len(self.data)),
+                length = str(self.length),
                 encoding = "ascii" if self.dformat.encoding == Encoding.ASCII else "binary",
                 word_size = str(self.dformat.word_size),
                 endianness = "Big" if self.dformat.is_big_endian else "Little",
-                packet_separator = self.dformat.tlast_char,
-                data = "\n".join(self.to_words())
+                packet_separator = self.dformat.tlast_char
         )
 
-        if len(last_fields) > 0:
-            out += "; " +  "; ".join(last_fields)
+        if self.is_allocated:
+            out += "\n" + "\n".join(self.to_words())
 
-        logger.info("Data written to raw")
-        logger.debug("\n" + out)
+            last_word_size = self.last_word_size()
+            if last_word_size != self.dformat.word_size:
+                last_fields.append(str(last_word_size))
+
+            if self.ends_with_tlast:
+                last_fields.append(self.dformat.tlast_char)
+
+            if len(last_fields) > 0:
+                out += "; " +  "; ".join(last_fields)
+
+        self.logger.debug("Data written to raw")
 
         return out + '\n'
 
@@ -153,8 +198,7 @@ class Data:
 
         Once the whole sequence has been read, we either cut it or expand it depending on the 'size' parameter.
         """
-        logger.info("Building Data from raw (base_addr = 0x{0:X}, fill_strategy = {1})".format(base_addr, fill_strategy))
-        logger.debug("\n" + str(raw))
+        cls.logger.debug("Building Data from raw (base_addr = 0x{0:X}, fill_strategy = {1})".format(base_addr, fill_strategy))
 
         fields = raw.split('\n')
         fields = list(filter(None, fields))
@@ -185,7 +229,7 @@ class Data:
 
         current_length = 0
         data = bytearray()
-        stream_tlast_end = False
+        ends_with_tlast = False
         for x in range(len(data_fields)):
             dfields = data_fields[x].split(';')
             dfields = [d.strip() for d in dfields]
@@ -213,7 +257,7 @@ class Data:
                     if dfields[i] != dformat.tlast_char:
                         raise ValueError("End of packet descriptor isn't {} but {}" \
                                 .format(dformat.tlast_char, dfields[i]))
-                    stream_tlast_end = True
+                    ends_with_tlast = True
                     i += 1
 
                 if i < len(dfields):
@@ -224,26 +268,26 @@ class Data:
             # Handling the actual data (field 0)
             word = int(dfields[0], 0)
             if word.bit_length() > 8*word_size:
-                logger.warning(
+                cls.logger.warning(
                         "Data word 0x{word:X} is {word_size} bits long which is higher than the word size"
                         "in the descriptor ({descriptor_word_size} bits)" \
                         .format(word = word, word_size = word.bit_length(), descriptor_word_size = 8*word_size)
                 )
                 word &= (2**(8*word_size) - 1)
 
-            data += word.to_bytes(word_size, 'big' if dformat.is_big_endian else 'little')
+            data += bytearray(word.to_bytes(word_size, 'big' if dformat.is_big_endian else 'little'))
 
 
             # Cutting the sequence in multiple Data if we have an end of packet in the middle of it
             # Also handle the last data (even if it doesn't end with an end of packet)
-            if stream_tlast_end or x == len(data_fields)-1:
+            if ends_with_tlast or x == len(data_fields)-1:
                 addr = base_addr if is_stream else base_addr + current_length
-                out.append(Data(addr, data, stream_tlast_end, dformat))
+                out.append(Data(addr, data, ends_with_tlast, dformat))
             
                 # Reset vars for new data
                 current_length += len(data)
                 data = bytearray()
-                stream_tlast_end = False
+                ends_with_tlast = False
         
 
         # Expansion or Cutting of the data
@@ -255,21 +299,23 @@ class Data:
             out.append(Data(base_addr, data, False, dformat))
 
         # Handling input_length vs current_length (cutting or filling data) 
-        if current_length > input_length:
-            logger.warning(
-                    "Described data length ({}) is higher than the length specified in the descriptor ({})" \
-                            .format(current_length, input_length)
-            )
-
-            while len(out) > 0 and current_length - len(out[-1].data) >= input_length:
-                current_length -= len(out[-1].data)
-                out.pop()
+        # input_length == 0 -> we already have the right size
+        if input_length != 0:
             if current_length > input_length:
-                del out[-1].data[-(current_length-input_length):]
-        else:
-            FillStrategy.exec_on(fill_strategy, out[-1].data, input_length-current_length)
+                cls.logger.warning(
+                        "Described data length ({}) is higher than the length specified in the descriptor ({})" \
+                                .format(current_length, input_length)
+                )
+
+                while len(out) > 0 and current_length - len(out[-1].data) >= input_length:
+                    current_length -= len(out[-1].data)
+                    out.pop()
+                if current_length > input_length:
+                    del out[-1].data[-(current_length-input_length):]
+            else:
+                FillStrategy.exec_on(fill_strategy, out[-1].data, input_length-current_length)
         
-        logger.info("Data built from raw")
+        cls.logger.debug("Data built from raw")
 
         return out
 
@@ -285,7 +331,7 @@ class Data:
         return self.addr%self.dformat.word_size
 
     def last_word_size(self):
-        val = len(self.data) % self.dformat.word_size
+        val = self.length % self.dformat.word_size
         return val if val != 0 else self.dformat.word_size
 
     def first_word_size(self):
@@ -296,8 +342,8 @@ class Data:
 
 
 
-
-def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True):
+def empty_data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True,
+                                 fill_data = True):
     """
     Default random data generator
     Provided as an example but it fits many usecases
@@ -307,12 +353,24 @@ def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4]
     addr = random.choice(range(min_addr, max_addr-size))
     if word_aligned:
         addr = addr - (addr % word_size)
-    data = bytearray([random.randrange(0, 2**8) for _ in range(size)])
 
-    return Data(addr, data, False, DataFormat(word_size))
+    return Data.build_empty(addr, size, False, DataFormat(word_size))
 
 
-def stream_data_default_generator(tdest_range, size_range, word_size_range = [4], ends_with_tlast = True):
+def data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True, fill_data = True):
+    """
+    Default random data generator
+    Provided as an example but it fits many usecases
+    """
+    data = empty_data_default_generator(min_addr, max_addr, size_range, word_size_range, word_aligned)
+    if fill_data:
+        data.allocate_data(FillStrategy.RANDOM)
+    return data
+
+
+
+def stream_data_default_generator(tdest_range, size_range, word_size_range = [4], ends_with_tlast = True,
+                                  fill_data = True):
     """
     Default random data generator
     Provided as an example but it fits many usecases
@@ -320,10 +378,14 @@ def stream_data_default_generator(tdest_range, size_range, word_size_range = [4]
     size = random.choice(size_range)
     word_size = random.choice(word_size_range)
     addr = random.choice(tdest_range)
-    data = bytearray([random.randrange(0, 2**8) for _ in range(size)])
+
     if ends_with_tlast == None:
         ends_with_tlast = bool(random.getrandbits(1))
 
-    return Data(addr, data, ends_with_tlast, DataFormat(word_size))
+    if fill_data:
+        data = bytearray([random.randrange(0, 2**8) for _ in range(size)])
+        return Data(addr, data, ends_with_tlast, DataFormat(word_size))
+    else:
+        return Data.build_empty(addr, size, ends_with_tlast, DataFormat(word_size))
 
 
