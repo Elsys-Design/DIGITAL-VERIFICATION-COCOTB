@@ -20,12 +20,12 @@ async def cocotb_run(dut):
     await tb.reset()
 
     # Starting write stimulis on axi stream source
-    write_task = tb.axis_in.start_run("inputs/write_stimulis.json")
+    write_task = tb.axis_in.init_run("inputs/write_stimulis.json")
 
     # Starting read stimulis on axi stream sink
     read_tasks = []
     for i in range(3):
-        read_tasks.append(tb.axis_out[i].start_run("inputs/read_stimulis{}.json".format(i)))
+        read_tasks.append(tb.axis_out[i].init_run("inputs/read_stimulis{}.json".format(i)))
 
     # Letting the scenarios execute (passing simulation time)
     await Combine(write_task, *read_tasks)

@@ -62,7 +62,7 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         raise NotImplementedError("write_data isn't supported for AxiStreamSink.")
 
 
-    def start_run(self, file):
+    def init_run(self, file):
         """
         Helper method to run a StimuliList on a master directly from file.
         is_stream doesn't do anything here since parsing Data is what differs and this is only READ Accesses (so no

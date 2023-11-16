@@ -51,7 +51,7 @@ class AxiLiteMaster(cocotbext.axi.AxiLiteMaster):
 
 
 
-    def start_run(self, file):
+    def init_run(self, file):
         """
         Helper method to run a StimuliList on a master directly from file.
         """

@@ -70,7 +70,7 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
 
     
 
-    def start_run(self, file):
+    def init_run(self, file):
         """
         Helper method to run a StimuliList on a master directly from file.
         /!\\ is_stream = True is important for the parsing.

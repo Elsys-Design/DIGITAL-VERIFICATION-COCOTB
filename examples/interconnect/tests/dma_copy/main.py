@@ -21,7 +21,7 @@ async def cocotb_run(dut):
     # Loading scenarios
     tasks = []
     for i in range(2):
-        tasks.append(tb.masters_in[i].start_run("inputs/stimulis{}.json".format(i)))
+        tasks.append(tb.masters_in[i].init_run("inputs/stimulis{}.json".format(i)))
 
     # Letting the scenarios execute (passing simulation time)
     await Combine(*tasks)
