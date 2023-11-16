@@ -40,6 +40,7 @@ DUT: axi stream buses with an Axi Interconnect and Axi DWidth converter to have 
 ##### Tests
 - unit\_write\_read: tests unitary write and reads
 - stimuli\_inputs: tests the execution of a scenario described as a stimuli file
+- file\_write\_read: tests write from file and read to file using random inputs
 
 
 #### interconnect\_stream\_tlast
@@ -48,6 +49,7 @@ DUT: same as interconnect\_stream but with a tlast and a tkeep signal on all axi
 ##### Tests
 - unit\_write\_read: tests unitary write and reads
 - stimuli\_inputs: tests the execution of a scenario described as a stimuli file
+- file\_write\_read: tests write from file and read to file using random inputs
 
 
 ### Structure
