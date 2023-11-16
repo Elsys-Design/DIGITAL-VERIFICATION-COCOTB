@@ -18,6 +18,9 @@ It uses files to create input stimuli and output logs.
 - le framework ne prend pas en considération la taille physique du bus AXI. Pour garantir les accès unitaires, il faut que le champ taille soit égale à la taille du bus AXI.
 - Pour l'axi full/light Le framework ne gère pas le byte enable (`wstrb` pour Axi full/light) à l'intérieur des burst. Il ne gère les bytes enable que sur les accès unitaire et sur le dernier mot d'une transaction (burst ou stream). 
 - Pour l'axi stream, le framework ne gère pas le byte enable `tstrb` (utilisé pour l'alignement). Il gèrerera uniquement le Tkeep utilisé pour valider un octet ou non. 
+- le logger real time du framework ne gère pas les axi sans tlast. le logger par défaut supporte cela (efficient logger).
+- pour gerer les asistream sana stlast il ne faut pas mapper de signal logger sur bus axistream
+
 
 
 # License
