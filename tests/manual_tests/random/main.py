@@ -1,10 +1,10 @@
 from functools import partial
-from framework.data import *
-from framework.data_list import *
-from framework.stimuli import *
-from framework.stimuli_list import *
-from framework.time import Time
+import logging
 
+from framework import *
+
+
+logger.setLevel(logging.CRITICAL + 1)
 
 
 data_gen = partial(

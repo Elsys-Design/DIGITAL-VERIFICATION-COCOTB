@@ -1,9 +1,10 @@
-#!/bin/env python
-
 import sys
-from framework.data_list import DataList
-from framework.fill_strategy import FillStrategy
+import logging
 
+from framework import DataList, FillStrategy, logger
+
+
+logger.setLevel(logging.CRITICAL + 1)
 
 if len(sys.argv) != 3:
     raise ValueError("Args: data_file_path fill_strategy")

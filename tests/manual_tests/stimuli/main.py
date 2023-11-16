@@ -1,9 +1,10 @@
 import sys
 import json
-from framework.data_list import DataList
-from framework.stimuli_list import StimuliList
-from framework.fill_strategy import FillStrategy
+import logging
 
+from framework import DataList, StimuliList, FillStrategy, logger
+
+logger.setLevel(logging.CRITICAL + 1)
 
 stimlist = StimuliList.from_file(sys.argv[1])
 
