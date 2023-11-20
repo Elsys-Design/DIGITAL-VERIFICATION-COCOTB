@@ -37,6 +37,8 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
         self.bus_tdest_size = len(self.bus.tdest.value) // 8 if hasattr(self.bus, "tdest") else 1
         self.bus_data_size = len(self.bus.tdata.value) // 8
 
+        self.has_tlast = hasattr(self.bus, "tlast")
+
 
         # Building analysis port
         self.analysis_port = AnalysisPort()
@@ -46,7 +48,7 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
         if subscribe_default_stimuli_logger:
             self.default_stimuli_logger = EfficientStimuliLogger(
                     os.path.join("stimlogs/" + self.name),
-                    is_stream_no_tlast = not hasattr(self.bus, "tlast")
+                    is_stream_no_tlast = not self.has_tlast
             )
             self.analysis_port.subscribe(self.default_stimuli_logger.write)
         
@@ -115,9 +117,8 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
                     while i < len(frame.tdest) and frame.tdest[i] == frame.tdest[starti]:
                         i += 1
 
-                    # TODO: all the stimuli logged have the same start_time and end_time
                     self._log_stimuli(frame.tdest[starti], frame.tdata[starti:i], i==len(frame.tdest), start_time, end_time)
             else:
                 # When all tdest are the same, the frame returned by self.recv() compacts the list in a single int
-                self._log_stimuli(frame.tdest, frame.tdata, True, start_time, end_time)
+                self._log_stimuli(frame.tdest, frame.tdata, self.has_tlast, start_time, end_time)
 
