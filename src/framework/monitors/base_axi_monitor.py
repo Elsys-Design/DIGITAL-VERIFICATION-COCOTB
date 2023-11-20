@@ -166,7 +166,7 @@ class BaseAxiMonitor:
 
 
 
-    def _log_write_stimuli(self, data_obj, start_time, old_start_time, first_id = None, wstrb = None):
+    def _log_write_stimuli(self, data_obj, start_time, old_start_time, first_id = None, diff_awsize = None, wstrb = None):
         """
         Private helper method used in build_write_stimuli.
 
@@ -182,10 +182,15 @@ class BaseAxiMonitor:
         else:
             desc = first_id
 
-        if wstrb != None:
-            if first_id == None:
+        if wstrb is not None:
+            if len(desc) > 0:
                 desc += "| "
             desc += "wstrb = {}".format(wstrb)
+
+        if diff_awsize is not None:
+            if len(desc) > 0:
+                desc += "| "
+            desc += "awsize = {}".format(diff_awsize)
         
         # Building Stimuli
         stim = Stimuli(
@@ -225,6 +230,8 @@ class BaseAxiMonitor:
         start_time, old_start_time = self.write_start_time_queues[bid].popleft()
 
         awlen = aw_t.awlen if hasattr(aw_t, "awlen") else 0
+        
+        diff_awsize = 2**int(aw_t.awsize) if hasattr(aw_t, "awsize") and 2**int(aw_t.awsize) != self.wsize else None
 
         # Support for wstrb
         current_addr = int(aw_t.awaddr)
@@ -261,7 +268,7 @@ class BaseAxiMonitor:
                         current_addr += len(current_data)
                         current_data = bytearray()
 
-                        first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id)
+                        first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, diff_awsize)
 
                 # We arrive here either because i != awlen or because i == awlen and the last word isn't continuous
                 # (it's not an elif bus just a if)
@@ -270,13 +277,13 @@ class BaseAxiMonitor:
                     if len(current_data) != 0:
                         # Logging the current_data that is continuous
                         data_obj = Data(current_addr, current_data, False, DataFormat(self.wsize, addr_size = self.waddr_size))
-                        first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id)
+                        first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, diff_awsize)
                         current_addr += len(current_data)
                         current_data = bytearray()
 
                     # Logging unitary Stimuli with non continuous wstrb
                     data_obj = Data(current_addr, word, False, DataFormat(self.wsize, addr_size = self.waddr_size))
-                    first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, str(w_t.wstrb)[::-1])
+                    first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, diff_awsize, str(w_t.wstrb)[::-1])
                     # To handle addresses that are not aligned on the bus size
                     current_addr += self.wsize - (current_addr % self.wsize)
 
@@ -284,7 +291,7 @@ class BaseAxiMonitor:
         if len(current_data) > 0:
             data_obj = Data(current_addr, current_data, False, DataFormat(self.wsize, addr_size = self.waddr_size))
 
-            self._log_write_stimuli(data_obj, start_time, old_start_time, first_id)
+            self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, diff_awsize)
 
 
 
@@ -300,6 +307,8 @@ class BaseAxiMonitor:
         start_time, old_start_time = self.read_start_time_queues[rid].popleft()
 
         arlen = ar_t.arlen if hasattr(ar_t, "arlen") else 0
+        
+        diff_arsize = 2**int(ar_t.arsize) if hasattr(ar_t, "arsize") and 2**int(ar_t.arsize) != self.rsize else None
 
         # Concatenation of all r channel items' data
         data = bytearray()
@@ -321,7 +330,7 @@ class BaseAxiMonitor:
                 # diff_or_zero if the difference is negative because of access pipelining
                 start_time - old_start_time,
                 DataList([data_obj]),
-                "",
+                "arsize = {}".format(diff_arsize) if diff_arsize is not None else "",
                 start_time,
                 end_time
         )
