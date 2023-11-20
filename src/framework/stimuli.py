@@ -40,10 +40,6 @@ class Stimuli:
 
     logger = logging.getLogger("framework.stimuli")
 
-#    @property
-#    def logger(self):
-#        return logging.getLogger("framework.stimuli." + self.id_)
-
     def __init__(self, id_, access, rel_time, data_list, desc = "", abs_time = None, end_time = None):
         self.id_ = id_
         self.access = access
