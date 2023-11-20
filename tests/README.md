@@ -4,7 +4,8 @@
 
 ### Automatic tests
 Most tests are self checking.  
-They can be launched with pytest: `python -m pytest` in this directory launches all automatic tests.  
+They can be launched with pytest: `python3.8 -m pytest` in this directory launches all automatic tests.  
+`python3.8 -m pytest parsing` will launch all tests under the `parsing` directory.
 
 #### Fixtures
 Launching these tests without pytest won't work because there are 2 fixtures in conftest.py (a fixture is a function
