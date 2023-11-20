@@ -226,15 +226,6 @@ class BaseAxiMonitor:
 
         awlen = aw_t.awlen if hasattr(aw_t, "awlen") else 0
 
-        if hasattr(aw_t, "awsize"):
-            if 2**aw_t.awsize != self.wsize:
-                raise NotImplementedError(
-                        "{} monitor: awsize doesn't match bus size, BaseAxiMonitor has not been tested in these"
-                        "conditions.".format(self.name)
-                )
-        # In case it's supported someday
-        awsize = 2**aw_t.awsize if hasattr(aw_t, "awsize") else self.wsize
-
         # Support for wstrb
         current_addr = int(aw_t.awaddr)
         current_data = bytearray()
@@ -243,7 +234,7 @@ class BaseAxiMonitor:
             w_t = self.w_queues[wid].popleft()
             word = bytearray(reversed(w_t.wdata.buff))
 
-            if int(w_t.wstrb) == 2**awsize -1:
+            if int(w_t.wstrb) == 2**self.wsize-1:
                 # Full word
                 current_data += word
             else:
@@ -257,7 +248,7 @@ class BaseAxiMonitor:
                         last_word_size += 1
                     
                     # Continuing to check wstrb to see if there isn't another 1 after the first 0
-                    for x in range(last_word_size+1, awsize):
+                    for x in range(last_word_size+1, self.wsize):
                         if w_t.wstrb[-x] == 1:
                             is_continuous = False
                     
@@ -266,7 +257,7 @@ class BaseAxiMonitor:
                         last_word = word[:last_word_size]
                         current_data += last_word
 
-                        data_obj = Data(current_addr, current_data, False, DataFormat(awsize, addr_size = self.waddr_size))
+                        data_obj = Data(current_addr, current_data, False, DataFormat(self.wsize, addr_size = self.waddr_size))
                         current_addr += len(current_data)
                         current_data = bytearray()
 
@@ -278,20 +269,20 @@ class BaseAxiMonitor:
 
                     if len(current_data) != 0:
                         # Logging the current_data that is continuous
-                        data_obj = Data(current_addr, current_data, False, DataFormat(awsize, addr_size = self.waddr_size))
+                        data_obj = Data(current_addr, current_data, False, DataFormat(self.wsize, addr_size = self.waddr_size))
                         first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id)
                         current_addr += len(current_data)
                         current_data = bytearray()
 
                     # Logging unitary Stimuli with non continuous wstrb
-                    data_obj = Data(current_addr, word, False, DataFormat(awsize, addr_size = self.waddr_size))
+                    data_obj = Data(current_addr, word, False, DataFormat(self.wsize, addr_size = self.waddr_size))
                     first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, str(w_t.wstrb)[::-1])
                     # To handle addresses that are not aligned on the bus size
-                    current_addr += awsize - (current_addr % awsize)
+                    current_addr += self.wsize - (current_addr % self.wsize)
 
         # If we only had full wstrb for the last bytes, we log them at the end
         if len(current_data) > 0:
-            data_obj = Data(current_addr, current_data, False, DataFormat(awsize, addr_size = self.waddr_size))
+            data_obj = Data(current_addr, current_data, False, DataFormat(self.wsize, addr_size = self.waddr_size))
 
             self._log_write_stimuli(data_obj, start_time, old_start_time, first_id)
 
@@ -309,15 +300,6 @@ class BaseAxiMonitor:
         start_time, old_start_time = self.read_start_time_queues[rid].popleft()
 
         arlen = ar_t.arlen if hasattr(ar_t, "arlen") else 0
-
-        if hasattr(ar_t, "arsize"):
-            if 2**ar_t.arsize != self.rsize:
-                raise NotImplementedError(
-                        "{} monitor: arsize doesn't match bus size, BaseAxiMonitor has not been tested in these"
-                        "conditions.".format(self.name)
-                )
-        # In case it's supported someday
-        arsize = 2**ar_t.arsize if hasattr(ar_t, "arsize") else self.rsize
 
         # Concatenation of all r channel items' data
         data = bytearray()
