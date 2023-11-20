@@ -55,7 +55,7 @@ class StimuliList(list):
     def write_to_dir(self, output_dir_path):
         """
         Writes a whole StimuliList to a directory.
-        The stimuli file is named 'stimuli.json'.
+        The stimuli file is named 'stimulis.json'.
         """
         self.logger.info("Writing StimuliList to {}".format(output_dir_path))
 
@@ -73,11 +73,14 @@ class StimuliList(list):
         
         self.logger.info("StimuliList written to {}".format(output_dir_path))
 
-    async def run(self, master):
+    async def run(self, driver):
+        """
+        Running all stimulis on the driver.
+        """
         self.logger.info("StimuliList starts running")
 
         for stim in self:
-            await stim.run(master)
+            await stim.run(driver)
 
         self.logger.info("StimuliList's run ended")
 

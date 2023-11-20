@@ -82,8 +82,12 @@ class Data:
 
     @classmethod
     def build_empty(cls, addr : int, length : int, ends_with_tlast : bool = True, dformat : DataFormat = None):
+        """
+        Builds an empty Data object (doesn't contain an actual bytearray).
+        Usefull to specify future Reads without having to allocate an empty array (that would get replaced anyways).
+        """
         out = cls(addr, None, ends_with_tlast, dformat)
-        # when data is an int, it's a length
+        # when data is an int, it specifies a length (see length or is_allocated properties)
         out.data = length
         return out
 
@@ -101,12 +105,18 @@ class Data:
 
     @length.setter
     def length(self, value):
+        """
+        Changes the length of an unallocated Data object.
+        """
         if self.is_allocated:
             raise ValueError("Cannot set the length of an allocated Data, change Data.data attribute directly")
         self.data = value
 
     def allocate_data(self, fill_strategy = FillStrategy.RANDOM):
-        if isinstance(self.data, int):
+        """
+        Allocates this Data object.
+        """
+        if not self.is_allocated:
             length = self.data
             self.data = bytearray()
             FillStrategy.exec_on(fill_strategy, self.data, length)
@@ -115,7 +125,7 @@ class Data:
         """
         Performing an alignment verification on the Data
         These do not depend on the parsing method
-        But they are only done when the Data is used in an AXI or AXI-Lite master
+        but they are only done when the Data is used in an AXI or AXI-Lite master
         (not for axi-stream, if tdest is over the size of tdest in the bus, it'll throw an error anyways)
         """
         self.logger.debug("Performing alignment checks on Data")
@@ -123,8 +133,6 @@ class Data:
         if self.addr % self.dformat.word_size != 0:
             raise ValueError("Address (0x{0:X}) needs to be aligned on word size ({1})" \
                     .format(self.addr, self.dformat.word_size))
-        
-        self.logger.debug("passed")
 
     def __str__(self):
         return self.to_raw()
@@ -137,7 +145,7 @@ class Data:
 
     def to_words(self):
         """
-        Returns self.data (an array of bytes) as a list of strings representing hexadecimal numbers of word_size bytes
+        Returns self.data (an array of bytes) as a list of strings representing hexadecimal numbers of word_size bytes.
         """
         hex_data = []
 
@@ -152,7 +160,7 @@ class Data:
 
     def to_raw(self, addr_to_zero = False):
         """
-        Returns the representation of 'self' as a sequence
+        Returns the representation of 'self' as a sequence.
         """
         self.logger.debug("Writting Data to raw")
 
@@ -325,24 +333,17 @@ class Data:
 
     def represents_same_data_as(self, other, addr_offset = 0):
         """
-        Almost like the == operator but checking only what's meaningfull
+        Almost like the == operator but checking only what's meaningfull.
         """
         return self.data == other.data and self.addr == other.addr+addr_offset
 
 
-    def first_word_padding(self):
-        return self.addr%self.dformat.word_size
-
     def last_word_size(self):
+        """
+        Returns the size of the last word.
+        """
         val = self.length % self.dformat.word_size
         return val if val != 0 else self.dformat.word_size
-
-    def first_word_size(self):
-        return self.dformat.word_size - self.first_word_padding()
-
-    def last_word_padding(self):
-        return self.dformat.word_size - self.last_word_size()
-
 
 
 def empty_data_default_generator(min_addr, max_addr, size_range, word_size_range = [4], word_aligned = True,

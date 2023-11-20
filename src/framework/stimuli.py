@@ -116,7 +116,6 @@ class Stimuli:
         """
         Builds the data_list, either from json_obj fields or from a file depending on the Type.
         """
-        # TODO: clean this up
         addr = int(json_obj["Address"], 0)
         if json_obj["Type"] == "Simple":
             size = json_obj["Size"]
@@ -191,7 +190,8 @@ class Stimuli:
     
     def get_plain_json(self, force_to_file = False):
         """
-        Transforms a Stimuli object to a json object.
+        Returns a json object representing this Stimuli.
+        It doesn't write any file directly (the data isn't written).
 
         Only properly supports Stimuli objects that contain one and only one Data.
         Partial support for multiple Data exists but only the address of the first data will be in JSON.
@@ -214,6 +214,7 @@ class Stimuli:
             )
 
 
+        # not data.is_allocated => Reads that are printed back before actually being read
         if (data.is_word() or not data.is_allocated) \
             and len(self.data_list) == 1 \
             and not force_to_file:
@@ -238,7 +239,7 @@ class Stimuli:
         if not self.desc:
             del json_obj["Desc"]
 
-        if json_obj["Type"] == "Simple":
+        if type_ == "Simple":
             if data.is_allocated:
                 # Data is always the size of a word
                 json_obj["Data"] = data.to_words()[0]
@@ -250,6 +251,10 @@ class Stimuli:
         return json_obj
 
     def to_json(self, data_dir_path):
+        """
+        Returns a json object representing the Stimuli
+        AND writes the data to a file.
+        """
         json_obj = self.get_plain_json()
         if json_obj["Type"] == "File":
             # Writing data file in data_dir
@@ -261,7 +266,10 @@ class Stimuli:
         return json_obj
 
 
-    async def run(self, master):
+    async def run(self, driver):
+        """
+        Running the stimuli on the driver.
+        """
         
         self.logger.debug("Stimuli waits {}".format(self.rel_time))
 
@@ -273,17 +281,20 @@ class Stimuli:
         self.abs_time = Time.now()
 
         if self.access == Access.WRITE:
-            await master.write_datalist(self.data_list)
+            await driver.write_datalist(self.data_list)
         else:
             if len(self.data_list) > 1:
                 raise NotImplementedError("Reading more than 1 Data from Stimuli isn't supported")
-            await master.read_data(self.data_list[0])
+            await driver.read_data(self.data_list[0])
         
         self.end_time = Time.now()
 
         self.logger.info("Stimuli's run ended")
 
     def short_desc(self):
+        """
+        Returns a short description, usefull for logging.
+        """
         if len(self.data_list) == 0:
             raise NotImplementedError("short_desc is only supported on Stimulis that have at least one Data object")
         return "Stimuli(id={}, access={}, address={}, size={})" \
