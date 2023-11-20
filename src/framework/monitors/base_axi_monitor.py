@@ -1,5 +1,6 @@
 from collections import deque
-import copy
+import os
+
 import cocotb
 from cocotbext.axi.axil_channels import AxiLiteAWMonitor, AxiLiteWMonitor, AxiLiteBMonitor, AxiLiteARMonitor, AxiLiteRMonitor
 from cocotb.triggers import RisingEdge
@@ -33,7 +34,7 @@ class BaseAxiMonitor:
         # Building default logger
         self.default_stimuli_logger = None
         if subscribe_default_stimuli_logger:
-            self.default_stimuli_logger = EfficientStimuliLogger("stimlogs/" + self.name)
+            self.default_stimuli_logger = EfficientStimuliLogger(os.path.join("stimlogs/" + self.name))
             self.analysis_port.subscribe(self.default_stimuli_logger.recv)
 
         # Building channel monitors

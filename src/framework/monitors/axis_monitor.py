@@ -1,6 +1,8 @@
+import logging
+import os
+
 import cocotb
 import cocotbext.axi
-import logging
 
 from ..time import Time
 from ..data import Data, DataFormat
@@ -43,7 +45,7 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
         self.default_stimuli_logger = None
         if subscribe_default_stimuli_logger:
             self.default_stimuli_logger = EfficientStimuliLogger(
-                    "stimlogs/" + self.name,
+                    os.path.join("stimlogs/" + self.name),
                     is_stream_no_tlast = not hasattr(self.bus, "tlast")
             )
             self.analysis_port.subscribe(self.default_stimuli_logger.recv)
