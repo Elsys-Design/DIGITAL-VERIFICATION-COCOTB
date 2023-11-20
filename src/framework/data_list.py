@@ -79,6 +79,9 @@ class DataList(list):
         self.logger.debug("DataList written to {}".format(filepath))
 
     def full_bytearray(self):
+        """
+        Returns a bytearray representing all the data this object contains.
+        """
         out = bytearray()
         for d in self:
             out += d.data

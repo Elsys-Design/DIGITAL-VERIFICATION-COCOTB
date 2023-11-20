@@ -1,0 +1,62 @@
+[
+    {
+        "ID": "in_axi_0",
+        "Access": "R",
+        "RelTime": "4820000.001 ps",
+        "AbsTime": "4820000001 fs",
+        "Type": "File",
+        "Address": "0x0000000044A2763B",
+        "FileName": "in_axi_0.dat"
+    },
+    {
+        "ID": "in_axi_1",
+        "Access": "W",
+        "RelTime": "4970000.001 ps",
+        "AbsTime": "4970000001 fs",
+        "Type": "File",
+        "Address": "0x0000000044A3BD78",
+        "FileName": "in_axi_1.dat"
+    },
+    {
+        "ID": "in_axi_2",
+        "Desc": "wstrb = 00000011",
+        "Access": "W",
+        "RelTime": "0.110 us",
+        "AbsTime": "5080000001 fs",
+        "Type": "Simple",
+        "Address": "0x0000000044A2A0E6",
+        "Data": "0x0000000000007856",
+        "Size": 8
+    },
+    {
+        "ID": "in_axi_3",
+        "Desc": "in_axi_2",
+        "Access": "W",
+        "RelTime": "0.110 us",
+        "AbsTime": "5080000001 fs",
+        "Type": "File",
+        "Address": "0x0000000044A2A0E8",
+        "FileName": "in_axi_3.dat"
+    },
+    {
+        "ID": "in_axi_4",
+        "Desc": "wstrb = 00001111",
+        "Access": "W",
+        "RelTime": "0.220 us",
+        "AbsTime": "5300000001 fs",
+        "Type": "Simple",
+        "Address": "0x0000000044A1F7CC",
+        "Data": "0x0000000098378B20",
+        "Size": 8
+    },
+    {
+        "ID": "in_axi_5",
+        "Desc": "in_axi_4",
+        "Access": "W",
+        "RelTime": "0.220 us",
+        "AbsTime": "5300000001 fs",
+        "Type": "File",
+        "Address": "0x0000000044A1F7D0",
+        "FileName": "in_axi_5.dat"
+    }
+]

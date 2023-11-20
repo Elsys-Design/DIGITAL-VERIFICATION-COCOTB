@@ -33,7 +33,7 @@ Note: It could become a static class with methods that take a single int represe
 Simplifies handling of the 'Fill' field in Stimuli json objects.
 
 
-### Custom logger
+### Custom 'framework' logger
 The custom logger takes cocotb's formatter but changes the handler to print everything to a framework.log file.
 All framework loggers should inherit from the 'framework' logger.
 Note: It could eventually use a different formatter to have access to the line of the log.

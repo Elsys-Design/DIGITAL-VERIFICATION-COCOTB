@@ -23,7 +23,7 @@ class EfficientStimuliLogger(BaseStimuliLogger):
         self.logger = logging.getLogger("framework.efficient_stimuli_logger")
 
 
-    def recv(self, stimuli):
+    def write(self, stimuli):
         """
         Method to subscribe to AnalisysPorts.
         """
