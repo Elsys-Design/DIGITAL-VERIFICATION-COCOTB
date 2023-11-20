@@ -77,6 +77,9 @@ class Data:
             if self.dformat == None:
                 self.dformat = DataFormat()
 
+        if self.addr.bit_length() > 64:
+            raise ValueError("Data address cannot be written on 64 bits: 0x{0:X}".format(self.addr))
+
     @classmethod
     def build_empty(cls, addr : int, length : int, ends_with_tlast : bool = True, dformat : DataFormat = None):
         out = cls(addr, None, ends_with_tlast, dformat)

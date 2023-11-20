@@ -2,6 +2,7 @@
 ./base_data/nothing.dat                                                          -- File ./base_data/nothing.dat doesn't contain any valid data description
 ./base_data/wrong_endianness.dat                                                 -- Wrong endianness: big should be either Big or Little
 ./base_data/bin_word_size.dat                                                    -- invalid literal for int() with base 10: '0b100'
+./base_data/65bits_addr.dat                                                      -- Data address cannot be written on 64 bits: 0x15555555555555555
 ./base_data/last_word_size/last_word_size_greather_than_base.dat                 -- The last word size (5) cannot be superior to the base word size (4)
 ./base_data/last_word_size/last_word_size_in_the_middle.dat                      -- A smaller size can only be defined for the last data word
 ./base_data/unsupported_formats/different_encoding.dat                           -- Data format not supported:
