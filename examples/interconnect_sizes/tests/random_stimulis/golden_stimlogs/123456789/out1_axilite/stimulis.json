@@ -1,0 +1,74 @@
+[
+    {
+        "ID": "out1_axilite_0",
+        "Access": "W",
+        "RelTime": "5150000.001 ps",
+        "AbsTime": "5150000001 fs",
+        "Type": "Simple",
+        "Address": "0x0000000044A14178",
+        "Data": "0x00000000E5A0AA22",
+        "Size": 4
+    },
+    {
+        "ID": "out1_axilite_1",
+        "Desc": "wstrb = 00001111",
+        "Access": "W",
+        "RelTime": "0.040 us",
+        "AbsTime": "5190000001 fs",
+        "Type": "Simple",
+        "Address": "0x0000000044A1417C",
+        "Data": "0xB18136EAB18136EA",
+        "Size": 8
+    },
+    {
+        "ID": "out1_axilite_2",
+        "Access": "W",
+        "RelTime": "0.080 us",
+        "AbsTime": "5270000001 fs",
+        "Type": "Simple",
+        "Address": "0x0000000044A14180",
+        "Data": "0x000000007CBA3A4A",
+        "Size": 4
+    },
+    {
+        "ID": "out1_axilite_3",
+        "Desc": "wstrb = 00001111",
+        "Access": "W",
+        "RelTime": "0.050 us",
+        "AbsTime": "5320000001 fs",
+        "Type": "Simple",
+        "Address": "0x0000000044A1F7CC",
+        "Data": "0x0000000098378B20",
+        "Size": 8
+    },
+    {
+        "ID": "out1_axilite_4",
+        "Access": "W",
+        "RelTime": "0.020 us",
+        "AbsTime": "5340000001 fs",
+        "Type": "Simple",
+        "Address": "0x0000000044A1F7D0",
+        "Data": "0x4F4ABCC67CE63F39",
+        "Size": 8
+    },
+    {
+        "ID": "out1_axilite_5",
+        "Access": "W",
+        "RelTime": "0.020 us",
+        "AbsTime": "5360000001 fs",
+        "Type": "Simple",
+        "Address": "0x0000000044A1F7D8",
+        "Data": "0xA985CFD4727986A6",
+        "Size": 8
+    },
+    {
+        "ID": "out1_axilite_6",
+        "Access": "W",
+        "RelTime": "0.020 us",
+        "AbsTime": "5380000001 fs",
+        "Type": "Simple",
+        "Address": "0x0000000044A1F7E0",
+        "Data": "0x00000000004E0F1E",
+        "Size": 3
+    }
+]
