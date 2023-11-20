@@ -127,7 +127,7 @@ class BaseAxiMonitor:
         while True:
             b_t = await self.b.recv()
             # We have received a complete transaction, we can build the Stimuli
-            self.build_write_stimuli(b_t)
+            self._build_write_stimuli(b_t)
 
 
 
@@ -162,7 +162,7 @@ class BaseAxiMonitor:
             self.r_queues[rid].append(r_t)
 
             if not hasattr(r_t, "rlast") or r_t.rlast:
-                self.build_read_stimuli(rid)
+                self._build_read_stimuli(rid)
 
 
 
@@ -207,7 +207,7 @@ class BaseAxiMonitor:
         return first_id
 
     
-    def build_write_stimuli(self, b_t):
+    def _build_write_stimuli(self, b_t):
         """
         Builds a write Stimuli and the associated Data objects from:
         - aw_t = the last aw channel item for this id (= b_t.bid)
@@ -297,7 +297,7 @@ class BaseAxiMonitor:
 
 
 
-    def build_read_stimuli(self, rid):
+    def _build_read_stimuli(self, rid):
         """
         Builds a read Stimuli and the associated Data objects from:
         - ar_t = the last ar channel item for this id (= rid)
