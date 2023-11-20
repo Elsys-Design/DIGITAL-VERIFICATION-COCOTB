@@ -33,10 +33,10 @@ class Stimuli:
     access : Access
     rel_time : Time
     data_list : DataList
-    desc : str = ""
+    desc : str
     
-    abs_time : Time = Time(0, 'fs')
-    end_time : Time = Time(0, 'fs')
+    abs_time : Time
+    end_time : Time
 
     logger = logging.getLogger("framework.stimuli")
 
@@ -44,14 +44,14 @@ class Stimuli:
 #    def logger(self):
 #        return logging.getLogger("framework.stimuli." + self.id_)
 
-    def __init__(self, id_, access, rel_time, data_list, desc = "", abs_time = Time(0, 'fs'), end_time = Time(0, 'fs')):
+    def __init__(self, id_, access, rel_time, data_list, desc = "", abs_time = None, end_time = None):
         self.id_ = id_
         self.access = access
         self.rel_time = rel_time
         self.data_list = data_list
         self.desc = desc
-        self.abs_time = abs_time
-        self.end_time = end_time
+        self.abs_time = Time(0, 'fs') if abs_time is None else abs_time
+        self.end_time = Time(0, 'fs') if end_time is None else end_time
 
         self.logger = logging.getLogger("framework.stimuli." + self.id_)
 
