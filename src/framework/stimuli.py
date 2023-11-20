@@ -132,12 +132,12 @@ class Stimuli:
                     data = data & (2**(8*size) - 1)
                 data = bytearray(data.to_bytes(size, 'big'))
                 data_obj = Data(addr, data, True, DataFormat(size))
-                if is_stream:
+                if not is_stream:
                     data_obj.alignment_check()
                 return DataList([data_obj])
             else:
                 data_obj = Data.build_empty(addr, size, False, DataFormat(1))
-                if is_stream:
+                if not is_stream:
                     data_obj.alignment_check()
                 return DataList([data_obj])
         else: # Type = File
