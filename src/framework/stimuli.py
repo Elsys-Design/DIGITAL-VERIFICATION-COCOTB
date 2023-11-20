@@ -135,13 +135,14 @@ class Stimuli:
                     data_obj.alignment_check()
                 return DataList([data_obj])
             else:
+                # This Read data_obj is always aligned because its word_size == 1.
+                # There is no strb on the read channel in AXI so we get whole words aligned on the bus size anyways.
                 data_obj = Data.build_empty(addr, size, False, DataFormat(1))
-                if not is_stream:
-                    data_obj.alignment_check()
                 return DataList([data_obj])
         else: # Type = File
             fill_strategy = json_obj["Fill"]
             if fill_strategy == FillStrategy.RANDOM:
+                # Generating and logging a custom seed
                 fill_strategy = FillStrategy.generate_custom_seed()
                 cls.logger.info("Generated fill strategy seed {} for Stimuli {}".format(fill_strategy, id_))
             if access == Access.WRITE:

@@ -35,5 +35,6 @@ class FillStrategy:
         """
         Generates a custom seed.
         Seeds < 2 are not valid custom seeds.
+        Note: we're using the current random state to generate this seed.
         """
         return random.randint(2, 10**6)
