@@ -12,8 +12,6 @@ from ..data_list import DataList
 from ..stimuli import Stimuli, Access
 from .analysis_port import AnalysisPort
 
-from .stimuli_loggers.efficient import EfficientStimuliLogger
-
 
 class BaseAxiMonitor:
     """
@@ -22,7 +20,7 @@ class BaseAxiMonitor:
     """
 
 
-    def __init__(self, name, bus, clock, reset, reset_active_level, subscribe_default_stimuli_logger, bus_monitors, logger):
+    def __init__(self, name, bus, clock, reset, reset_active_level, default_stimuli_logger_class, bus_monitors, logger):
         self.name = name
         self.logger = logger
 
@@ -33,8 +31,8 @@ class BaseAxiMonitor:
 
         # Building default logger
         self.default_stimuli_logger = None
-        if subscribe_default_stimuli_logger:
-            self.default_stimuli_logger = EfficientStimuliLogger(os.path.join("stimlogs/" + self.name))
+        if default_stimuli_logger_class is not None:
+            self.default_stimuli_logger = default_stimuli_logger_class(os.path.join("stimlogs/" + self.name))
             self.analysis_port.subscribe(self.default_stimuli_logger.write)
 
         # Building channel monitors

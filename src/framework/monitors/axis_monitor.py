@@ -21,7 +21,7 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
     """
 
     def __init__(self, name, bus, clock, reset=None, reset_active_level=None, byte_size=None, byte_lanes=None,
-                 subscribe_default_stimuli_logger = True, *args, **kwargs):
+                 default_stimuli_logger_class = EfficientStimuliLogger, *args, **kwargs):
         super().__init__(bus, clock, reset, reset_active_level, byte_size, byte_lanes, *args, **kwargs)
 
         self.name = name
@@ -45,13 +45,13 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
 
         # Building default logger
         self.default_stimuli_logger = None
-        if subscribe_default_stimuli_logger:
-            self.default_stimuli_logger = EfficientStimuliLogger(
+        if default_stimuli_logger_class is not None:
+            self.default_stimuli_logger = default_stimuli_logger_class(
                     os.path.join("stimlogs/" + self.name),
                     is_stream_no_tlast = not self.has_tlast
             )
             self.analysis_port.subscribe(self.default_stimuli_logger.write)
-        
+
 
         # Starting monitor task
         cocotb.start_soon(self.monitor_stream())
