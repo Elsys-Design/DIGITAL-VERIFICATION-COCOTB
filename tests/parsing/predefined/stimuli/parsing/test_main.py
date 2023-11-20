@@ -1,15 +1,8 @@
-#!/bin/env python
-
 import sys
 import os
 import json
 
-from framework.data import Data, DataFormat
-from framework.data_list import DataList
-from framework.stimuli import Stimuli, Access
-from framework.stimuli_list import StimuliList
-from framework.fill_strategy import FillStrategy
-from framework.time import Time
+from framework import Data, DataFormat, DataList, Stimuli, Access, StimuliList, Time
 
 
 file = "stimulis"

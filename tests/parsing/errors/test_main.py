@@ -1,12 +1,8 @@
-#!/bin/env python
 import sys
 import os
 import filecmp
 
-from framework.data import Data
-from framework.data_list import DataList
-from framework.stimuli_list import StimuliList
-from framework.fill_strategy import FillStrategy
+from framework import DataList, StimuliList, FillStrategy
 
 
 

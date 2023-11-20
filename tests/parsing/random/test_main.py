@@ -1,13 +1,9 @@
-#!/bin/env python
-
 import sys
 import os
 from functools import partial
 import logging
 
-from framework.data import *
-from framework.data_list import *
-from framework.fill_strategy import FillStrategy
+from framework import data_default_generator, datalist_default_generator, DataList
 
 
 tests_nb = 100

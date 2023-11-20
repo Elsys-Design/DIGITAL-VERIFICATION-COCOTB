@@ -1,11 +1,8 @@
-#!/bin/env python
-
 import sys
 import os
 import filecmp
 
-from framework.data_list import DataList
-from framework.fill_strategy import FillStrategy
+from framework.data_list import DataList, FillStrategy
 
 
 res_filename = "res.dat"
