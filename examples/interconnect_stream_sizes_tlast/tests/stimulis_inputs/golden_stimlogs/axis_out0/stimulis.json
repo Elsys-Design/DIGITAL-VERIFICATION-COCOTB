@@ -1,0 +1,21 @@
+[
+    {
+        "ID": "axis_out0_0",
+        "Access": "W",
+        "RelTime": "0.595 us",
+        "AbsTime": "595000000 fs",
+        "Type": "Simple",
+        "Address": "0x0",
+        "Data": "0xABCDBCDECDEF",
+        "Size": 6
+    },
+    {
+        "ID": "axis_out0_1",
+        "Access": "W",
+        "RelTime": "0.230 us",
+        "AbsTime": "825000000 fs",
+        "Type": "File",
+        "Address": "0x0",
+        "FileName": "axis_out0_1.dat"
+    }
+]
