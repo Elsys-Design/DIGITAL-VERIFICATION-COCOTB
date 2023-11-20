@@ -14,7 +14,9 @@ manually verified (golden\_stimlogs directory).
 Hence, the monitor fonctionnality is tested in almost every tests.
 
 
-There are 3 example DUTs:
+There are 3 main example DUTs (interconnect, interconnect\_stream and interconnect\_stream\_tlast) as well as 2 example
+DUTs that change only the bus sizes (interconnect\_sizes and interconnect\_stream\_sizes\_tlast).
+
 #### interconnect
 DUT: axi and axi-lite buses, an Axi Interconnect, an AXI DMA and some Axi Data Fifo  
 
