@@ -35,7 +35,7 @@ class BaseAxiMonitor:
         self.default_stimuli_logger = None
         if subscribe_default_stimuli_logger:
             self.default_stimuli_logger = EfficientStimuliLogger(os.path.join("stimlogs/" + self.name))
-            self.analysis_port.subscribe(self.default_stimuli_logger.recv)
+            self.analysis_port.subscribe(self.default_stimuli_logger.write)
 
         # Building channel monitors
         # after this, self.aw is a cocotbext.axi.AxiAWMonitor (or AxiLiteAWMonitor),

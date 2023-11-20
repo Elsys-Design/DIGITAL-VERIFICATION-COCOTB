@@ -22,7 +22,7 @@ class BaseStimuliLogger:
         self.stimuli_filepath = os.path.join(self.dir_path, "stimulis.json")
 
 
-    def recv(self, stimuli):
+    def write(self, stimuli):
         """
         Method to subscribe to AnalisysPorts.
         """

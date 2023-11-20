@@ -48,7 +48,7 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
                     os.path.join("stimlogs/" + self.name),
                     is_stream_no_tlast = not hasattr(self.bus, "tlast")
             )
-            self.analysis_port.subscribe(self.default_stimuli_logger.recv)
+            self.analysis_port.subscribe(self.default_stimuli_logger.write)
         
 
         # Starting monitor task

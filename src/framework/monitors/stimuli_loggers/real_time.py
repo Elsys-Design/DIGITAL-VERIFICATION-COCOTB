@@ -28,7 +28,7 @@ class RealTimeStimuliLogger(BaseStimuliLogger):
                                 "specific format associated (writes into {})".format(self.dir_path))
 
 
-    def recv(self, stimuli):
+    def write(self, stimuli):
         """
         Method to subscribe to AnalisysPorts.
         """
