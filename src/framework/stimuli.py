@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import json
 from cocotb.triggers import Timer
 import logging
+from typing import Optional, List, Sequence, Callable, Dict, Union
 
 from .fill_strategy import FillStrategy
 from .data_list import DataList
@@ -13,10 +14,16 @@ from .time import Time
 from . import utils
 
 
+
 class Access(Enum):
+    """
+    Access types.
+
+    Access.ALL should only be used for random stimuli generation.
+    """
     READ = 0
     WRITE = 1
-    ALL = 2 # Should only be used for random stimuli generation
+    ALL = 2
 
     def __str__(self):
         return "R" if self == Access.READ else "W"
@@ -25,22 +32,50 @@ class Access(Enum):
 @dataclass(init=False)
 class Stimuli:
     """
-    Represents a single json object in Stimuli files
-    """
+    Represents a single json object in Stimuli files.
 
-    # id is a keyword in python
-    id_ : str
-    access : Access
-    rel_time : Time
-    data_list : DataList
-    desc : str
+    Attributes:
+        id_: ID, not just named 'id' because it's a keyword in python
+        access: Access (Read or Write)
+        rel_time: Time between 2 Stimulis:
+            For inputs, it's the delay from the moment the bus is idle to the moment the Stimuli is executed.
+            For monitor logs, it's the delay from the moment the last Stimuli was executed to the moment this Stimuli is
+                executed.
+        data_list: Datas associated with this Stimuli.
+        desc: Description of this Stimuli.
+
+        abs_time: Absolute time of the transaction's start, set by monitors.
+        end_time: Absolute time of the transaction's end, set by monitors
+
+        logger: By default, the Stimuli class logger (used in classmethods).
+            In actual Stimuli objects, the logger takes the name of the Stimuli id.
+    """
+    id_: str
+    access: Access
+    rel_time: Time
+    data_list: DataList
+    desc: str
     
-    abs_time : Time
-    end_time : Time
+    abs_time: Time
+    end_time: Time
 
     logger = logging.getLogger("framework.stimuli")
 
-    def __init__(self, id_, access, rel_time, data_list, desc = "", abs_time = None, end_time = None):
+    JsonObj = Dict[str, Union[str, int]]
+
+    def __init__(
+            self,
+            id_: str,
+            access: Access,
+            rel_time: Time,
+            data_list: List[Data],
+            desc: str = "",
+            abs_time: Optional[Time] = None,
+            end_time: Optional[Time] = None
+    ) -> None:
+        """
+        Builds a Stimuli object.
+        """
         self.id_ = id_
         self.access = access
         self.rel_time = rel_time
@@ -52,13 +87,20 @@ class Stimuli:
         self.logger = logging.getLogger("framework.stimuli." + self.id_)
 
     @classmethod
-    def _base_json_checks(cls, json_obj):
+    def _base_json_checks(cls, json_obj: JsonObj) -> None: 
         """
         Only checks:
         - the required fields existance
         - their types
         - the optional fields types
         - that there is no other field present
+
+        Args:
+            json_obj: The JSON object to check (which represents a Stimuli).
+
+        Raises:
+            ValueError: Parsing error.
+            KeyError:   Parsing error.
         """
         checked_fields = []
 
@@ -112,9 +154,30 @@ class Stimuli:
 
 
     @classmethod
-    def _build_data_list(cls, json_obj, id_, access, data_dir_path, is_stream = False):
+    def _build_data_list(
+            cls,
+            json_obj: JsonObj,
+            id_: str,
+            access: Access,
+            data_dir_path: str,
+            is_stream: bool = False
+    ) -> DataList:
         """
         Builds the data_list, either from json_obj fields or from a file depending on the Type.
+
+        Args:
+            id_: The new Stimuli ID.
+            access: The new Stimuli Access.
+            data_dir_path: The path to the data files.
+            is_stream: Whether the parsed Data is an AXI-Stream data or not.
+                An AXI-Stream Data doesn't need to be aligned so we shouldn't call Data.alignment_check.
+
+        Returns:
+            The DataList linked to the Stimuli represented by the json_obj.
+
+        Raises:
+            NotImplementedError: Read access with File type isn't supported, monitor logs are here for that.
+                Note: Supporting the generation of a Data file from Reads would be easy and might be usefull.
         """
         addr = int(json_obj["Address"], 0)
         if json_obj["Type"] == "Simple":
@@ -159,9 +222,22 @@ class Stimuli:
 
 
     @classmethod
-    def from_json(cls, json_obj, data_dir_path, defaultid = "", is_stream = False):
+    def from_json(
+            cls,
+            json_obj: JsonObj,
+            data_dir_path: str,
+            defaultid: str = "",
+            is_stream: bool = False
+    ) -> 'Stimuli':
         """
         Creates a Stimuli object from a json object.
+
+        Args:
+            json_obj: Json object from which the Stimuli is built.
+            data_dir_path: The path to the data files.
+            defaultid: Default Stimuli ID if the json_obj doesn't specify one.
+                This argument allows the StimuliList to give an ID based on the filename and the index of the json_obj.
+            is_stream: Whether the Stimuli refers to AXI-Stream datas or not.
         """
         cls.logger.info("Building Stimuli from json_obj (data_dir_path = {}, defaultid = {})" \
                 .format(data_dir_path, defaultid))
@@ -169,7 +245,7 @@ class Stimuli:
 
         cls._base_json_checks(json_obj)
 
-        # RelTime conversion to steps
+        # RelTime conversion to Time
         try:
             (value, unit) = json_obj["RelTime"].split(' ')
             rel_time = Time(float(value), unit)
@@ -181,7 +257,7 @@ class Stimuli:
         id_ = json_obj["ID"] if "ID" in json_obj else defaultid
         desc = json_obj["Desc"] if "Desc" in json_obj else ""
 
-        # Creating the data_list
+        # Building the data_list
         data_list = cls._build_data_list(json_obj, id_, access, data_dir_path, is_stream)
 
         cls.logger.info("Stimuli built from json_obj")
@@ -189,7 +265,7 @@ class Stimuli:
         return cls(id_, access, rel_time, data_list, desc)
 
     
-    def get_plain_json(self, force_to_file = False):
+    def get_plain_json(self, force_to_file: bool = False) -> JsonObj:
         """
         Returns a json object representing this Stimuli.
         It doesn't write any file directly (the data isn't written).
@@ -198,6 +274,17 @@ class Stimuli:
         Partial support for multiple Data exists but only the address of the first data will be in JSON.
         This is because it's specified the address should be in the JSON so there is only one place for it but it's
         stored in the Data object.
+
+        Args:
+            force_to_file: If True, the Data object(s) will be written to file regardless of other parameters
+                (it'll be written to a file even though the Data is a single word).
+                This allows StimuliLoggers to log Stimulis in specific ways.
+
+        Returns:
+            The json object representing this Stimuli.
+
+        Raises:
+            NotImplementedError: Cannot transform a Stimuli with no Data to json (where would we get the address ?).
         """
 
         if len(self.data_list) == 0:
@@ -251,10 +338,15 @@ class Stimuli:
 
         return json_obj
 
-    def to_json(self, data_dir_path):
+    def to_json(self, data_dir_path: str) -> JsonObj:
         """
-        Returns a json object representing the Stimuli
-        AND writes the data to a file.
+        Similar to get_plain_json() but it also writes the data to a file.
+
+        Args:
+            data_dir_path: Path to the directory where the Stimuli's Data will be written to a file.
+
+        Returns:
+            The json object representing this Stimuli.
         """
         json_obj = self.get_plain_json()
         if json_obj["Type"] == "File":
@@ -267,9 +359,15 @@ class Stimuli:
         return json_obj
 
 
-    async def run(self, driver):
+    async def run(self, driver) -> None:
         """
         Running the stimuli on the driver.
+
+        Args:
+            driver: The driver to run the Stimuli with.
+
+        Raises:
+            NotImplementedError: Read access with more than 1 Data object isn't supported.
         """
         
         self.logger.debug("Stimuli waits {}".format(self.rel_time))
@@ -292,9 +390,13 @@ class Stimuli:
 
         self.logger.info("Stimuli's run ended")
 
-    def short_desc(self):
+    def short_desc(self) -> str:
         """
-        Returns a short description, usefull for logging.
+        Returns:
+            A short description, usefull for logging.
+
+        Raises:
+            NotImplementedError: Not implemented for Stimulis with no Data object.
         """
         if len(self.data_list) == 0:
             raise NotImplementedError("short_desc is only supported on Stimulis that have at least one Data object")
@@ -303,11 +405,26 @@ class Stimuli:
 
 
 
-def stimuli_default_generator(data_list_generator, delay_range, access = Access.ALL,
-                        desc = "Stimuli {} generated using the default generator", id_ = ""):
+def stimuli_default_generator(
+        data_list_generator: Callable,
+        delay_range: Sequence[int],
+        access: Access = Access.ALL,
+        desc: str = "Stimuli {id_} generated using the default generator",
+        id_: str = ""
+) -> Stimuli:
     """
-    Default random stimuli generator
-    Provided as an example but it fits many usecases
+    Default random stimuli generator.
+    Provided as an example but it fits many usecases.
+
+    Args:
+        data_list_generator: DataList generator function.
+        delay_range: Sequence of possible delays in simulator 'step' (unit = 'step').
+        access: Access type, if it's Access.ALL then the access type is random (equal probability of write and read).
+        desc: Description of the generated Stimulis. The `{id_}` in it will be replaced by the id of the Stimuli.
+        id_: ID of the Stimuli, there is no randomisation on this field.
+
+    Returns:
+        A randomly generated Stimuli.
     """
     if access == Access.ALL:
         access = random.choice([Access.WRITE, Access.READ])
@@ -315,8 +432,8 @@ def stimuli_default_generator(data_list_generator, delay_range, access = Access.
     return Stimuli(
             id_,
             access,
-            Time(random.choice(delay_range), "fs"),
+            Time(random.choice(delay_range), "step"),
             data_list_generator(fill_data = access == Access.WRITE),
-            desc.format(id_)
+            desc.format(id_=id_)
     )
 
