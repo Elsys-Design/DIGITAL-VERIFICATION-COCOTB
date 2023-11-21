@@ -90,12 +90,11 @@ class Data:
         dformat : Optional[DataFormat] = None
     ) -> None:
         """
+        Builds a Data object.
+
         Args:
             data: Can either be a bytearray or an int.
                 If it's an int, it's considered to be a word.
-        
-        Returns:
-            A new (allocated) Data object.
         """
         self.addr = addr
         self.ends_with_tlast = ends_with_tlast

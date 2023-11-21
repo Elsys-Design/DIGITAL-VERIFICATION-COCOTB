@@ -19,6 +19,9 @@ class DataList(list):
     logger = logging.getLogger("framework.data_list")
 
     def __init__(self, base : List[Data] = []) -> None:
+        """
+        Builds a DataList object.
+        """
         super().__init__(base)
 
     @classmethod
