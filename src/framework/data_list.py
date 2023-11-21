@@ -18,19 +18,18 @@ class DataList(list):
     # Class attribute, never changes
     logger = logging.getLogger("framework.data_list")
 
-    def __init__(self, base : List[Data] = []) -> None:
+    def __init__(self, base: List[Data] = []) -> None:
         """
-        Builds a DataList object.
         """
         super().__init__(base)
 
     @classmethod
     def from_file(
             cls,
-            filename : str,
-            base_addr : int = 0,
-            fill_strategy : FillStrategy = FillStrategy.ZEROS,
-            is_stream : bool = False
+            filename: str,
+            base_addr: int = 0,
+            fill_strategy: FillStrategy = FillStrategy.ZEROS,
+            is_stream: bool = False
     ) -> None:
         """
         Creates a data list from a data text file.
@@ -95,7 +94,7 @@ class DataList(list):
 
         return "\n".join(string_list) + "\n"
 
-    def to_file(self, filepath : str, addr_to_zero : bool = False) -> None:
+    def to_file(self, filepath: str, addr_to_zero: bool = False) -> None:
         """
         Writes a whole data list to a file.
 
@@ -127,7 +126,7 @@ class DataList(list):
         return out
 
 
-    def represents_same_data_as(self, other : 'DataList', addr_offset : int = 0) -> bool:
+    def represents_same_data_as(self, other: 'DataList', addr_offset: int = 0) -> bool:
         """
         Almost like the == operator but checking only what's meaningfull.
 
@@ -146,9 +145,9 @@ class DataList(list):
 
 
 def datalist_default_generator(
-        data_generator : Callable,
-        size_range : Sequence[int],
-        fill_data : Optional[bool] = None
+        data_generator: Callable,
+        size_range: Sequence[int],
+        fill_data: Optional[bool] = None
 ) -> DataList:
     """
     Random data list generator.

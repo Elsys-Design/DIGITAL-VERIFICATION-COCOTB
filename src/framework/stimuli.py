@@ -74,7 +74,6 @@ class Stimuli:
             end_time: Optional[Time] = None
     ) -> None:
         """
-        Builds a Stimuli object.
         """
         self.id_ = id_
         self.access = access

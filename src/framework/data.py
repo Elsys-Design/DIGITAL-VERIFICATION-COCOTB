@@ -26,11 +26,11 @@ class DataFormat:
         - determine how to understand the Data (is_big_endian, word_size)
         - determine how to print back the Data (tlast_char, encoding, ...)
     """
-    word_size : int = 4
-    is_big_endian : bool = True
-    encoding : Encoding = Encoding.ASCII
-    tlast_char : str = '!'
-    addr_size : int = 4
+    word_size: int = 4
+    is_big_endian: bool = True
+    encoding: Encoding = Encoding.ASCII
+    tlast_char: str = '!'
+    addr_size: int = 4
 
     def is_supported(self) -> bool:
         """
@@ -71,27 +71,25 @@ class Data:
 
         logger: Data class logger (class attribute).
     """
-    addr : int
-    ends_with_tlast : bool
-    dformat : DataFormat
+    addr: int
+    ends_with_tlast: bool
+    dformat: DataFormat
 
     # Class attribute, never changes
     logger = logging.getLogger("framework.data")
     
     # Private attribute
-    _data_or_length : Union[bytearray, int]
+    _data_or_length: Union[bytearray, int]
 
 
     def __init__(
         self,
-        addr : int,
+        addr: int,
         data: Union[bytearray, int],
-        ends_with_tlast : bool = True,
-        dformat : Optional[DataFormat] = None
+        ends_with_tlast: bool = True,
+        dformat: Optional[DataFormat] = None
     ) -> None:
         """
-        Builds a Data object.
-
         Args:
             data: Can either be a bytearray or an int.
                 If it's an int, it's considered to be a word.
@@ -116,10 +114,10 @@ class Data:
     @classmethod
     def build_empty(
             cls,
-            addr : int,
-            length : int,
-            ends_with_tlast : bool = True,
-            dformat : Optional[DataFormat] = None
+            addr: int,
+            length: int,
+            ends_with_tlast: bool = True,
+            dformat: Optional[DataFormat] = None
     ) -> 'Data':
         """
         Args:
@@ -153,7 +151,7 @@ class Data:
         return len(self._data_or_length) if self.is_allocated else self._data_or_length
 
     @length.setter
-    def length(self, value : int) -> None:
+    def length(self, value: int) -> None:
         """
         Only for unallocated Data objects.
 
@@ -180,7 +178,7 @@ class Data:
         return self._data_or_length
 
     @data.setter
-    def data(self, data : bytearray) -> None:
+    def data(self, data: bytearray) -> None:
         """
         This setter allocates the Data if it wasn't allocated before.
 
@@ -236,7 +234,7 @@ class Data:
             x = end_x
         return hex_data
 
-    def to_raw(self, addr_to_zero : bool = False) -> str:
+    def to_raw(self, addr_to_zero: bool = False) -> str:
         """
         Args:
             addr_to_zero: If True, the address in the descriptor will be fixed to zero.
@@ -286,10 +284,10 @@ class Data:
     @classmethod
     def from_raw(
             cls,
-            raw : str,
-            base_addr : int,
-            fill_strategy : FillStrategy,
-            is_stream : bool = False
+            raw: str,
+            base_addr: int,
+            fill_strategy: FillStrategy,
+            is_stream: bool = False
     ) -> List['Data']:
         """
         Reads a sequence with a descriptor and returns a list of Data.
@@ -437,7 +435,7 @@ class Data:
         return out
 
 
-    def represents_same_data_as(self, other : 'Data', addr_offset : int = 0) -> bool:
+    def represents_same_data_as(self, other: 'Data', addr_offset: int = 0) -> bool:
         """
         Almost like the == operator but checking only what's meaningfull.
 
@@ -463,12 +461,12 @@ class Data:
 
 
 def data_default_generator(
-        min_addr : int,
-        max_addr : int,
-        size_range : Sequence[int],
-        word_size_range : Sequence[int] = [4],
-        word_aligned : bool = True,
-        fill_data : bool = True
+        min_addr: int,
+        max_addr: int,
+        size_range: Sequence[int],
+        word_size_range: Sequence[int] = [4],
+        word_aligned: bool = True,
+        fill_data: bool = True
 ) -> Data:
     """
     Default random data generator for AXI and AXI-Lite buses.
@@ -503,11 +501,11 @@ def data_default_generator(
 
 
 def stream_data_default_generator(
-        tdest_range : Sequence[int],
-        size_range : Sequence[int],
-        word_size_range : Sequence[int] = [4],
-        ends_with_tlast : bool = True,
-        fill_data : bool = True
+        tdest_range: Sequence[int],
+        size_range: Sequence[int],
+        word_size_range: Sequence[int] = [4],
+        ends_with_tlast: bool = True,
+        fill_data: bool = True
 ) -> Data:
     """
     Default random data generator for AXI-Stream buses.
