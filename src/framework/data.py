@@ -4,7 +4,7 @@ import copy
 from dataclasses import dataclass
 import logging
 import logging
-from typing import List, Union, Sequence
+from typing import List, Union, Sequence, Optional
 
 from . import utils
 from .fill_strategy import FillStrategy
@@ -87,7 +87,7 @@ class Data:
         addr : int,
         data: Union[bytearray, int],
         ends_with_tlast : bool = True,
-        dformat : DataFormat = None
+        dformat : Optional[DataFormat] = None
     ) -> None:
         """
         Args:
@@ -120,7 +120,7 @@ class Data:
             addr : int,
             length : int,
             ends_with_tlast : bool = True,
-            dformat : DataFormat = None
+            dformat : Optional[DataFormat] = None
     ) -> 'Data':
         """
         Args:
@@ -243,6 +243,8 @@ class Data:
             addr_to_zero: If True, the address in the descriptor will be fixed to zero.
         Returns:
             The string representation in Data format.
+        Raises:
+            NotImplementedError: When trying to parse an unsupported format (see DataFormat.is_supported).
         """
         self.logger.debug("Writting Data to raw")
 
@@ -309,6 +311,10 @@ class Data:
 
         Returns:
             The parsed Data objects in a list.
+
+        Raises:
+            ValueError: Parsing error.
+            NotImplementedError: Parsing error.
         """
         cls.logger.debug("Building Data from raw (base_addr = 0x{0:X}, fill_strategy = {1})".format(base_addr, fill_strategy))
 
