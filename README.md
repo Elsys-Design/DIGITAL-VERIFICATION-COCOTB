@@ -7,8 +7,16 @@ It uses files to create input stimuli and output logs.
 
 ## Getting started
 
+### prerequisite
+- download and install OSS-CAD-SUITE: https://github.com/YosysHQ/oss-cad-suite-build/releases/tag/2023-10-23 in folder `/opt/`
+- use a linux system (or WSL for windows). Native windows was not tested
+- latest xilinx vivado (to get the lastest unisim libraries otherwise you can use the one included)
+
 ### installation
-   Installation description
+- load osscad environnement with command `source /opt/oss-cad-suite-linux-x64-20231121/oss-cad-suite/environment`
+** from now on use only command found in the folder `/opt/oss-cad-suite-linux-x64-20231121/oss-cad-suite/py3bin/` for `pip` and `python`
+- install cocotb axi driver with command `pip3.8 install cocotbext-axi`
+- install unisim libraries in ghdl with command `/opt/oss-cad-suite-linux-x64-20231121/oss-cad-suite/lib/ghdl/vendors/compile-xilinx-vivado.sh --unisim --source ./ressources/2023.1/ --output compiled_unisim`
 
 ### example
 ... 
