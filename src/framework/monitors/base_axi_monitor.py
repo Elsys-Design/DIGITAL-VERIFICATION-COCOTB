@@ -1,10 +1,12 @@
 from collections import deque
 import os
+import logging
+from typing import List, Union, Dict, Type, Optional
 
 import cocotb
-from cocotbext.axi.axil_channels import AxiLiteAWMonitor, AxiLiteWMonitor, AxiLiteBMonitor, AxiLiteARMonitor, AxiLiteRMonitor
 from cocotb.triggers import RisingEdge
 from cocotb.queue import Queue
+import cocotbext.axi
 
 from ..time import Time
 from ..data import Data, DataFormat
@@ -17,10 +19,37 @@ class BaseAxiMonitor:
     """
     Base class for AxiMonitor and AxiLiteMonitor.
     It wraps all of cocotbext.axi channel monitors to generate Stimuli and Data objects.
+
+    Attributes:
+        name: Name of the monitor.
+        logger: Custom logger, should inherit from the framework's logger.
+
+        write_analysis_port: AnalysisPort to which all Write Stimulis are sent.
+        read_analysis_port: AnalysisPort to which all Read Stimulis are sent.
+        analysis_port: AnalysisPort to which all Stimulis are sent (Write and Read).
+
+        default_stimuli_logger: Default StimuliLogger connected to the analysis_port.
+            Instanciated only if the default_stimuli_logger_class is not None in the constructor.
     """
 
 
-    def __init__(self, name, bus, clock, reset, reset_active_level, default_stimuli_logger_class, bus_monitors, logger):
+    def __init__(
+            self,
+            name: str,
+            bus: Union[cocotbext.axi.AxiBus, cocotbext.axi.AxiLiteBus],
+            clock, reset, reset_active_level,
+            default_stimuli_logger_class: Type,
+            bus_monitors : Dict[str, Type],
+            logger: logging.Logger
+    ) -> None:
+        """
+        Args:
+            bus: The bus to monitor.
+            default_stimuli_logger_class: If None, no default StimuliLogger is instancianted.
+                If not None, a new StimuliLogger is instanciated with this class.
+            bus_monitors: Dictionnary of the types of all bus monitors with their name (aw, w, b, ar, r) as keys.
+                This allows to use either cocotbext.axi.AxiLite*Monitor or cocotbext.axi.Axi*Monitor classes.
+        """
         self.name = name
         self.logger = logger
 
@@ -91,7 +120,7 @@ class BaseAxiMonitor:
         cocotb.start_soon(self.monitor_r())
 
 
-    async def monitor_aw(self):
+    async def monitor_aw(self) -> None:
         """
         Monitors the aw channel.
         """
@@ -103,7 +132,7 @@ class BaseAxiMonitor:
             self.write_start_time_queues[awid].append((current_time, self.last_write_start_time))
             self.last_write_start_time = current_time
 
-    async def monitor_w(self):
+    async def monitor_w(self) -> None:
         """
         Monitors the w channel.
         It has ids only in Axi3 (to test).
@@ -116,7 +145,7 @@ class BaseAxiMonitor:
             w_t = await self.w.recv()
             self.w_queues[w_t.wid if self.has_wid else 0].append(w_t)
 
-    async def monitor_b(self):
+    async def monitor_b(self) -> None:
         """
         Monitors the b channel.
         This always means that a write transaction is over so we don't need a queue, we simply pass it to the
@@ -129,7 +158,7 @@ class BaseAxiMonitor:
 
 
 
-    async def monitor_ar(self):
+    async def monitor_ar(self) -> None:
         """
         Monitors the ar channel.
         """
@@ -141,13 +170,13 @@ class BaseAxiMonitor:
             self.read_start_time_queues[arid].append((current_time, self.last_read_start_time))
             self.last_read_start_time = current_time
 
-    async def monitor_r(self):
+    async def monitor_r(self) -> None:
         """
         Monitors the r channel.
         If there are no 'rlast' signal on the bus, it's an Axi-Lite bus
             -> we build the read stimuli directly (since there is no burst support)
         If there is an 'rlast' signal on the bus, it's an Axi bus
-            -> 
+            -> we wait for rlast to be asserted to build the Stimuli.
 
         Possible ISSUE: an axi master may not have an rlast signal but an axi slave always does.
         This has never posed any problems on any tests but in theory if the bus is build from an axi master that has no
@@ -164,12 +193,26 @@ class BaseAxiMonitor:
 
 
 
-    def _log_write_stimuli(self, data_obj, start_time, old_start_time, first_id = None, diff_awsize = None, wstrb = None):
+    def _log_write_stimuli(
+            self,
+            data_obj: Data,
+            start_time: Time,
+            old_start_time: Time,
+            first_id: Optional[str] = None,
+            diff_awsize: Optional[int] = None,
+            wstrb: Optional[int] = None
+    ) -> str:
         """
         Private helper method used in build_write_stimuli.
 
-        first_id parameter allows to link multiple Stimuli objects by putting the id of the first Stimuli of the burst
-        in the description of all other Stimulis of the same burst.
+        Args:
+            data_obj: Data of the new Stimuli.
+            first_id: allows to link multiple Stimuli objects by putting the id of the first Stimuli of the burst
+                in the description of all other Stimulis of the same burst.
+            diff_awsize: None if 2**awsize == bus data size else 2**awsize.
+                This is given with the wstrb (so it's redundant) but it may allow to understand logs better.
+            wstrb: None if wstrb full else wstrb.
+                Allows to add the wstrb in the description of the Stimuli when it's not full.
         """
         # Building id and desc
         new_id = "{}_{}".format(self.name, self.current_id)
@@ -210,12 +253,17 @@ class BaseAxiMonitor:
         return first_id
 
     
-    def _build_write_stimuli(self, b_t):
+    def _build_write_stimuli(self, b_t: cocotbext.axi.axi_channels.AxiBTransaction) -> None:
         """
-        Builds a write Stimuli and the associated Data objects from:
+        Builds (and logs) a write Stimuli and the associated Data objects from:
         - aw_t = the last aw channel item for this id (= b_t.bid)
         - w_t(s) = the last aw_t.awlen+1 w channel items for this id (the ones linked to the aw_t item)
         - b_t = the last b channel item received
+
+        Args:
+            b_t: The last b channel item received.
+                It's not passed through a queue like other channel items because when we receive it we know there is
+                a transaction that is over so we can directly handle it.
         """
         # Getting the id of the finished transaction
         bid = b_t.bid if self.has_write_id else 0
@@ -293,11 +341,14 @@ class BaseAxiMonitor:
 
 
 
-    def _build_read_stimuli(self, rid):
+    def _build_read_stimuli(self, rid: int) -> None:
         """
         Builds a read Stimuli and the associated Data objects from:
         - ar_t = the last ar channel item for this id (= rid)
         - r_t(s) = the last ar_t.arlen+1 r channel items for this id (the ones linked to the ar_t item)
+
+        Args:
+            rid: Read id of the read transaction that just ended to use the right queues.
         """
         # Getting the last ar channel item for this id
         ar_t = self.ar_queues[rid].popleft()
