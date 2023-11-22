@@ -1,9 +1,9 @@
 import sys
 import os
 import json
+import filecmp
 
 from framework import Data, DataFormat, DataList, Stimuli, Access, StimuliList, Time
-from test_utils import filecmp
 
 
 file = "stimulis"
@@ -88,7 +88,14 @@ def test_stim_printing():
     print_stimlist.write_to_dir("tmp")
 
     print("Comparing directories, result :\n", "-"*10, sep="")
-    assert filecmp.is_same("tmp", "reference"), "Some files differ between tmp and reference directories"
+    dcmp = filecmp.dircmp("tmp", "reference")
+
+    dcmp.report()
+    print("-"*10)
+
+    assert not dcmp.diff_files, "Some files differ between tmp and reference directories:\n{}".format(dcmp.diff_files)
+    assert not dcmp.left_only, "StimuliList.write_to_dir generates the following unknown files:\n{}".format(dcmp.left_only)
+    assert not dcmp.right_only, "StimuliList.write_to_dir doesn't generate the following files:\n{}".format(dcmp.right_only)
 
     print("StimuliList print test passed")
 

@@ -1,16 +1,22 @@
 import os
-import subprocess
+import filecmp
 
 import cocotb
 
 
-def is_same(dirpath0, dirpath1):
-    ret = os.system("diff -rZ {} {} 2>&1 > /dev/null".format(dirpath0, dirpath1))
-    return ret == 0
+# force content compare instead of os.stat attributes only comparison
+filecmp.cmpfiles.__defaults__ = (False,)
+
+
+def has_differences(dcmp):
+    differences = dcmp.left_only + dcmp.right_only + dcmp.diff_files
+    if differences:
+        return True
+    return any([has_differences(subdcmp) for subdcmp in dcmp.subdirs.values()])
 
 
 def check_dirs_equal(dirpath0, dirpath1):
-    assert is_same(dirpath0, dirpath1), \
+    assert not has_differences(filecmp.dircmp(dirpath0, dirpath1)), \
                 "Some files differ between {} and {} directories".format(dirpath0, dirpath1)
 
 
