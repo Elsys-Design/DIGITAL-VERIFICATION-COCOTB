@@ -1,34 +1,34 @@
-./base_data/hex_word_size.dat                                                    -- invalid literal for int() with base 10: '0x4'
-./base_data/nothing.dat                                                          -- File ./base_data/nothing.dat doesn't contain any valid data description
-./base_data/wrong_endianness.dat                                                 -- Wrong endianness: big should be either Big or Little
-./base_data/bin_word_size.dat                                                    -- invalid literal for int() with base 10: '0b100'
 ./base_data/65bits_addr.dat                                                      -- Data address cannot be written on 64 bits: 0x15555555555555555
+./base_data/bin_word_size.dat                                                    -- invalid literal for int() with base 10: '0b100'
+./base_data/hex_word_size.dat                                                    -- invalid literal for int() with base 10: '0x4'
 ./base_data/last_word_size/last_word_size_greather_than_base.dat                 -- The last word size (5) cannot be superior to the base word size (4)
 ./base_data/last_word_size/last_word_size_in_the_middle.dat                      -- A smaller size can only be defined for the last data word
+./base_data/nothing.dat                                                          -- File ./base_data/nothing.dat doesn't contain any valid data description
 ./base_data/unsupported_formats/different_encoding.dat                           -- Data format not supported:
 DataFormat(word_size=4, is_big_endian=True, encoding=<Encoding.BINARY: 1>, tlast_char='!', addr_size=4)
 ./base_data/unsupported_formats/different_end_of_packet.dat                      -- Data format not supported:
 DataFormat(word_size=4, is_big_endian=True, encoding=<Encoding.ASCII: 0>, tlast_char='?', addr_size=4)
 ./base_data/unsupported_formats/little_endian.dat                                -- Data format not supported:
 DataFormat(word_size=4, is_big_endian=False, encoding=<Encoding.ASCII: 0>, tlast_char='!', addr_size=4)
-./stimulis/same_id.json                                                          -- Stimuli ID same_id_1 already exists in this stimuli list
-./stimulis/unaligned_address.json                                                -- Address (0x12345676) needs to be aligned on word size (4)
-./stimulis/field_added/filename.json                                             -- "Fields {'FileName'} are not valid for this Type (Simple)"
+./base_data/wrong_endianness.dat                                                 -- Wrong endianness: big should be either Big or Little
 ./stimulis/field_added/data.json                                                 -- "Fields {'Data'} are not valid for this Type (File)"
-./stimulis/field_added/size.json                                                 -- "Fields {'Size'} are not valid for this Type (File)"
+./stimulis/field_added/filename.json                                             -- "Fields {'FileName'} are not valid for this Type (Simple)"
 ./stimulis/field_added/fill.json                                                 -- "Fields {'Fill'} are not valid for this Type (Simple)"
 ./stimulis/field_added/random.json                                               -- "Fields {'UnknownField'} are not valid"
-./stimulis/field_missing/filename.json                                           -- 'FileName mandatory field is missing'
-./stimulis/field_missing/data.json                                               -- 'Data mandatory field is missing'
-./stimulis/field_missing/address.json                                            -- 'Address mandatory field is missing'
+./stimulis/field_added/size.json                                                 -- "Fields {'Size'} are not valid for this Type (File)"
 ./stimulis/field_missing/access.json                                             -- 'Access mandatory field is missing'
-./stimulis/field_missing/type.json                                               -- 'Type mandatory field is missing'
-./stimulis/field_missing/size.json                                               -- 'Size mandatory field is missing'
+./stimulis/field_missing/address.json                                            -- 'Address mandatory field is missing'
+./stimulis/field_missing/data.json                                               -- 'Data mandatory field is missing'
+./stimulis/field_missing/filename.json                                           -- 'FileName mandatory field is missing'
 ./stimulis/field_missing/fill.json                                               -- 'Fill mandatory field is missing'
 ./stimulis/field_missing/rel_time.json                                           -- 'RelTime mandatory field is missing'
-./stimulis/wrong_field/data.json                                                 -- Field Data has a value of type <class 'int'> instead of <class 'str'>
-./stimulis/wrong_field/address.json                                              -- Field Address has a value of type <class 'int'> instead of <class 'str'>
+./stimulis/field_missing/size.json                                               -- 'Size mandatory field is missing'
+./stimulis/field_missing/type.json                                               -- 'Type mandatory field is missing'
+./stimulis/same_id.json                                                          -- Stimuli ID same_id_1 already exists in this stimuli list
+./stimulis/unaligned_address.json                                                -- Address (0x12345676) needs to be aligned on word size (4)
 ./stimulis/wrong_field/access.json                                               -- Access: T isn't valid
-./stimulis/wrong_field/type.json                                                 -- Type: Unknown isn't valid
-./stimulis/wrong_field/size.json                                                 -- Field Size has a value of type <class 'str'> instead of <class 'int'>
+./stimulis/wrong_field/address.json                                              -- Field Address has a value of type <class 'int'> instead of <class 'str'>
+./stimulis/wrong_field/data.json                                                 -- Field Data has a value of type <class 'int'> instead of <class 'str'>
 ./stimulis/wrong_field/rel_time.json                                             -- RelTime field isn't properly formatted (100ps)
+./stimulis/wrong_field/size.json                                                 -- Field Size has a value of type <class 'str'> instead of <class 'int'>
+./stimulis/wrong_field/type.json                                                 -- Type: Unknown isn't valid

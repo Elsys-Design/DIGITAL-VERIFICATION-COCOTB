@@ -1,6 +1,7 @@
 import sys
 import os
 import filecmp
+from pathlib import Path
 
 from framework import DataList, StimuliList, FillStrategy
 
@@ -32,13 +33,21 @@ def test_errors():
 
     log_file = open("log", "w")
 
-    for subdir, dirs, files in sorted(os.walk(".")):
-        for file in files:
-            filepath = os.path.join(subdir, file)
-            if os.path.splitext(file)[1] == ".dat":
-                _test_data_file(filepath, log_file)
-            elif os.path.splitext(file)[1] == ".json":
-                _test_stimuli_file(filepath, log_file)
+    # Getting all test filepaths
+    test_files = []
+    for (dirpath, dirnames, filenames) in os.walk("."):
+        for filename in filenames:
+            test_files.append(os.path.join(dirpath, filename))
+    # Sorting them since os.walk returns files in arbitrary orders
+    test_files.sort()
+
+    # Actual tests
+    for filepath in test_files:
+        suffix = Path(filepath).suffix
+        if suffix == ".dat":
+            _test_data_file(filepath, log_file)
+        elif suffix == ".json":
+            _test_stimuli_file(filepath, log_file)
 
     log_file.close()
 
