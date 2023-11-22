@@ -1,8 +1,8 @@
 import sys
 import os
-import filecmp
 
 from framework.data_list import DataList, FillStrategy
+from test_utils import filecmp
 
 
 res_filename = "res.dat"
@@ -21,7 +21,7 @@ def test_data():
                 print("Testing {}".format(filepath))
                 datalist = DataList.from_file(filepath, 0, FillStrategy.ZEROS)
                 datalist.to_file(tmp_filepath, addr_to_zero = False)
-                assert filecmp.cmp(res_path, tmp_filepath), \
+                assert filecmp.is_same(res_path, tmp_filepath), \
                         "Parsed & printed {} isn't conform to the associated res.dat, printed file is {}" \
                         .format(filepath, tmp_filepath)
 
