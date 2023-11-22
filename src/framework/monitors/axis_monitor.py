@@ -18,6 +18,15 @@ from .stimuli_loggers.efficient import EfficientStimuliLogger
 class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
     """
     Wrapper for the cocotbext.axi.AxiStreamMonitor but logs Data and Stimuli.
+
+    Attributes:
+        name: Name of the monitor.
+        logger: Custom logger, should inherit from the framework's logger.
+
+        analysis_port: AnalysisPort to which all Stimulis are sent (as Write Stimulis).
+
+        default_stimuli_logger: Default StimuliLogger connected to the analysis_port.
+            Instanciated only if the default_stimuli_logger_class is not None in the constructor.
     """
 
     def __init__(self, name, bus, clock, reset=None, reset_active_level=None, byte_size=None, byte_lanes=None,
@@ -56,7 +65,14 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
         # Starting monitor task
         cocotb.start_soon(self.monitor_stream())
 
-    def _log_stimuli(self, tdest, tdata, ends_with_tlast, start_time, end_time):
+    def _log_stimuli(
+            self,
+            tdest: int,
+            tdata: bytearray,
+            ends_with_tlast: bool,
+            start_time: Time,
+            end_time: Time
+    ) -> None:
         """
         Helper to log a stimuli.
         """
@@ -93,12 +109,13 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
         self.logger.info("Logged " + stim.short_desc())
 
 
-    async def monitor_stream(self):
+    async def monitor_stream(self) -> None:
         """
         Monitors the bus using cocotbext.axi.AxiStreamMonitor.recv() to receive entire frames.
         On buses that don't have a tlast signal, frames are received directly after each unitary transfer.
         On buses that have a tlast signal, frames are received when tlast is asserted.
-        /!\\ If tlast is never asserted on a bus that has a tlast signal, we won't log any data.
+        /!\\ If tlast is never asserted on a bus that has a tlast signal, we won't log any data (unless there is a tdest
+        and it changes).
         """
         while True:
             frame = await self.recv()

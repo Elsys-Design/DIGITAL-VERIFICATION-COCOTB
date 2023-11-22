@@ -9,6 +9,10 @@ class Time:
     It can be constructed using a value and an unit.
 
     Note: min and hr units aren't supported yet.
+
+    Attributes:
+        value: Time in the 'step' unit (the simulator's unit).
+        scale: Class attribute that allows to get the unit name from a power of ten.
     """
     scale = {
             -15: 'fs',
@@ -20,7 +24,15 @@ class Time:
     }
 
 
-    def __init__(self, value : float, unit : str):
+    def __init__(self, value : float, unit : str) -> None:
+        """
+        Args:
+            value: Time value, must be positive.
+            unit: Unit of the value parameter.
+
+        Raises:
+            ValueError: The value isn't positive or the unit isn't supported.
+        """
         if value < 0:
             raise ValueError("Time value ({}) cannot be less than zero".format(value))
 
@@ -31,15 +43,27 @@ class Time:
         else:
             raise ValueError("{} unit isn't supported (supported units: {} + 'step')".format(unit, *self.scale.values()))
 
+    @classmethod
+    def now(cls) -> 'Time':
+        """
+        Returns:
+            The current simulation time as a Time object.
+        """
+        return cls(get_sim_time('step'), 'step')
 
-    async def wait(self):
+
+    async def wait(self) -> None:
         """
         Waits for the Time duration.
         """
         if self.value > 0:
             await Timer(self.value, units='step', round_mode="round")
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        Returns:
+            The Time with 3 digits after the decimal point and the highest unit possible.
+        """
         val = self.value
         ten_power = cocotb.utils._get_simulator_precision()
         # Find the actual precision
@@ -59,28 +83,24 @@ class Time:
         # Printing format
         return "{:.3f} {}".format(val, self.scale[ten_power])
 
-    def full_str(self):
+    def full_str(self) -> str:
         """
+        Returns:
+            The Time in the simulator unit.
+
         Precision that isn't a plain unit (ex: 100fs) isn't supported.
         This isn't a problem since GHDL only supports 1fs unless using mcode backend:
         https://ghdl.github.io/ghdl/using/InvokingGHDL.html#cmdoption-ghdl-time-resolution
+        And even if it's not the default, it only supports full units (ps, ns, ... and not 10ns or 100ps).
         """
         return "{:d} {}".format(self.value, self.scale[cocotb.utils._get_simulator_precision()])
 
 
-    @classmethod
-    def now(cls):
-        """
-        Returns the current simulation time.
-        """
-        return cls(get_sim_time('fs'), 'fs')
+    def __add__(self, other) -> 'Time':
+        return Time(self.value + other.value, 'step')
 
+    def __sub__(self, other) -> 'Time':
+        return Time(self.value - other.value, 'step')
 
-    def __add__(self, other):
-        return Time(self.value + other.value, 'fs')
-
-    def __sub__(self, other):
-        return Time(self.value - other.value, 'fs')
-
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return self.value == other.value
