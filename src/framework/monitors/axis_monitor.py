@@ -137,5 +137,5 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
                     self._log_stimuli(frame.tdest[starti], frame.tdata[starti:i], i==len(frame.tdest), start_time, end_time)
             else:
                 # When all tdest are the same, the frame returned by self.recv() compacts the list in a single int
-                self._log_stimuli(frame.tdest, frame.tdata, self.has_tlast, start_time, end_time)
+                self._log_stimuli(frame.tdest if frame.tdest is not None else 0, frame.tdata, self.has_tlast, start_time, end_time)
 
