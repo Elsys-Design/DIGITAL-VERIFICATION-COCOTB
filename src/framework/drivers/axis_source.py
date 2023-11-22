@@ -14,6 +14,9 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
     """
     Wrapper that adds support for Data.
     Also adds support for transaction without tlast at the end.
+
+    Attributes:
+        logger: Custom logger inheriting framework's logger but with the name of the bus.
     """
 
     def __init__(self, bus, clock, reset=None, reset_active_level=True, **kwargs): 
@@ -27,7 +30,7 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
         
         self.logger = logging.getLogger("framework.axis_source." + bus._name)
 
-    async def write_data(self, data):
+    async def write_data(self, data: Data) -> None:
         """
         Writes 'data' to the bus and wait until the write is over.
         """
@@ -50,17 +53,17 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
         await self.wait()
 
 
-    async def write_frame(self, frame):
+    async def write_frame(self, frame: cocotbext.axi.AxiStreamFrame) -> None:
         """
         Gives access to cocotb's AxiStreamSource.write.
         """
         await super().write(frame)
 
-    async def write_datalist(self, data_list):
+    async def write_datalist(self, data_list: DataList) -> None:
         for d in data_list:
             await self.write_data(d)
 
-    async def write_data_from_file(self, filepath):
+    async def write_data_from_file(self, filepath: str) -> None:
         await self.write_datalist(DataList.from_file(filepath, is_stream=True))
 
 
@@ -70,10 +73,16 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
 
     
 
-    def init_run(self, file):
+    def init_run(self, file: str) -> None:
         """
         Helper method to run a StimuliList on a master directly from file.
         /!\\ is_stream = True is important for the parsing.
+
+        Args:
+            file: Path of the stimuli file to run on this driver.
+
+        Returns:
+            The new cocotb Task.
         """
         stim_list = StimuliList.from_file(file, is_stream = True)
         self.logger.info("Starting run with {}".format(stim_list.name))
@@ -81,7 +90,7 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
 
 
 
-    async def _remove_one_tlast(self):
+    async def _remove_one_tlast(self) -> None:
         """
         Removes the next tlast (passes it back from 1 to zero in no simulation time).
         """

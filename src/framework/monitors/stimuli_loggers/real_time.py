@@ -5,14 +5,28 @@ import logging
 import copy
 
 from .base import BaseStimuliLogger
+from ...stimuli import Stimuli
+from ...custom_types import JsonObject
 
 
 class RealTimeStimuliLogger(BaseStimuliLogger):
     """
-    Named real time because it logs received Stimuli (and Data) directly to files.
-    """
+    Logs received Stimuli (and Data) directly to files.
+    Not optimised for axi stream without tlast (but it works): it simply rewrittes the whole Data file every time
+    a Stimuli is added.
 
-    def __init__(self, dir_path, id_base="", is_stream_no_tlast=False):
+    Attributes:
+        logger: Class logger, inherits from the framework's logger
+        stimuli_file: Opened file to the stimuli object.
+        is_first_stimuli: True if no stimuli were received yet. Becomes False when the first stimuli is received.
+
+        data_filename: Only when self.is_stream_no_tlast == True, stores the unique Data file name.
+        data_file: Only when self.is_stream_no_tlast == True, stores the unique Data file handle (opened).
+        current_data: Only when self.is_stream_no_tlast == True, stores the whole data item.
+    """
+    logger = logging.getLogger("framework.real_time_stimuli_logger")
+
+    def __init__(self, dir_path: str, id_base: str = "", is_stream_no_tlast: bool = False):
         super().__init__(dir_path, id_base, is_stream_no_tlast)
         
         self.stimuli_file = open(self.stimuli_filepath, "wb")
@@ -20,17 +34,18 @@ class RealTimeStimuliLogger(BaseStimuliLogger):
 
         self.is_first_stimuli = True
 
-        self.logger = logging.getLogger("framework.real_time_stimuli_logger")
-
         if self.is_stream_no_tlast:
             self.data_filename = None
             self.data_file = None
             self.current_data = None
 
 
-    def write(self, stimuli):
+    def write(self, stimuli: Stimuli) -> None:
         """
         Method to subscribe to AnalisysPorts.
+
+        Args:
+            stimuli: Stimuli to log.
         """
         if not self.is_stream_no_tlast:
             self._append_to_json(stimuli.to_json(self.dir_path))
@@ -49,7 +64,11 @@ class RealTimeStimuliLogger(BaseStimuliLogger):
         self._append_to_json(json_obj)
         self._update_data_file()
         
-    def _append_to_json(self, obj):
+    def _append_to_json(self, obj: JsonObject) -> None:
+        """
+        Args:
+            obj: JSON object to append to the json file.
+        """
         self.stimuli_file.seek(-2, os.SEEK_END)
 
         toadd = ""
@@ -64,7 +83,7 @@ class RealTimeStimuliLogger(BaseStimuliLogger):
         self.stimuli_file.write(toadd.encode('utf-8'))
         self.stimuli_file.flush()
 
-    def _update_data_file(self):
+    def _update_data_file(self) -> None:
         """
         Only called if is_stream_no_tlast.
         Rewrittes the whole data file at every call because there is no other simple way to update the data length.
@@ -75,7 +94,10 @@ class RealTimeStimuliLogger(BaseStimuliLogger):
         self.data_file.flush()
 
        
-    def __del__(self):
+    def __del__(self) -> None:
+        """
+        Closes opened files.
+        """
         self.stimuli_file.close()
         if self.is_stream_no_tlast and self.data_file is not None:
             self.data_file.close()

@@ -34,14 +34,15 @@ async def cocotb_run(dut):
     tb.fill_memories()
 
     # Building Data generator
-    # we use the empty_data_default_generator to generate only an address and length
+    # we use the data_default_generator to generate only an address and length (fill_data = False)
     # and not the actual data since we're going to read
     data_gen = partial(
-            framework.empty_data_default_generator,
+            framework.data_default_generator,
             min_addr = 0x44A00000,
             max_addr = 0x44A4FFFF,
             size_range = range(1, 0x20),
-            word_size_range = [2**i for i in range(4)]
+            word_size_range = [2**i for i in range(4)],
+            fill_data = False
     )
 
     # Building DataList generator using the Data generator
