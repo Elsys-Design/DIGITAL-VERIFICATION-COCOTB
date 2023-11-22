@@ -14,15 +14,17 @@ It uses files to create input stimuli and output logs.
 
 ### installation
 we are installing python libraries inside the osscad python framework (and not the os one).
-- load osscad environnement with command `source /opt/oss-cad-suite-linux-x64-20231121/oss-cad-suite/environment`
-** from now on use only command found in the folder `/opt/oss-cad-suite-linux-x64-20231121/oss-cad-suite/py3bin/` for `pip` and `python`
+- load osscad environnement with command `source /opt/oss-cad-suite-linux-x64-20231023/oss-cad-suite/environment`
+** from now on use only command found in the folder `/opt/oss-cad-suite-linux-x64-20231023/oss-cad-suite/py3bin/` for `pip` and `python`
 - install cocotb axi driver with command `pip3.8 install cocotbext-axi`
-- install unisim libraries in ghdl with command `/opt/oss-cad-suite-linux-x64-20231121/oss-cad-suite/lib/ghdl/vendors/compile-xilinx-vivado.sh --unisim --source ./ressources/2023.1/ --output compiled_unisim`   
+- install unisim libraries in ghdl with command `/opt/oss-cad-suite-linux-x64-20231023/oss-cad-suite/lib/ghdl/vendors/compile-xilinx-vivado.sh --unisim --source ./ressources/2023.1/ --output vivado_lib`   
 
 ### execution
 Prior to any use of the framework do the following lines:
-- load osscad environnement with command `source /opt/oss-cad-suite-linux-x64-20231121/oss-cad-suite/environment`
+- load osscad environnement with command `source /opt/oss-cad-suite-linux-x64-20231023/oss-cad-suite/environment`
 - export osscad python path : `export PYTHONPATH=$(pwd)/src:$PYTHONPATH`
+- export usisim path: `export UNISIM_PATH=$(pwd)/../vivado_lib/vivado_lib/unisim/v93/`
+*Note* you can source `quick_setup.sh`  with command `source quick_setup.sh`
 
 ## FAQ
 - Error `ImportError while loading conftest '/home/flo/FLORENT/GIT/framework_simulation_cocotb_axi/tests/conftest.py'.
