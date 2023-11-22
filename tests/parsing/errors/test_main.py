@@ -1,9 +1,9 @@
 import sys
 import os
+import filecmp
 from pathlib import Path
 
 from framework import DataList, StimuliList, FillStrategy
-from test_utils import filecmp
 
 
 
@@ -51,7 +51,7 @@ def test_errors():
 
     log_file.close()
 
-    assert filecmp.is_same("log", "golden_log"), "log and golden_log are not the same"
+    assert filecmp.cmp("log", "golden_log"), "log and golden_log are not the same"
 
     print("Error parsing tests passed")
 

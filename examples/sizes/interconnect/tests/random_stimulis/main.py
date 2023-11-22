@@ -1,6 +1,7 @@
 import os
 import random
 from functools import partial
+import filecmp
 
 import cocotb
 from cocotb.triggers import Combine, Timer
