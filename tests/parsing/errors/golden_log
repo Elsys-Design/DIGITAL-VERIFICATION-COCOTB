@@ -13,12 +13,6 @@ DataFormat(word_size=4, is_big_endian=True, encoding=<Encoding.ASCII: 0>, tlast_
 DataFormat(word_size=4, is_big_endian=False, encoding=<Encoding.ASCII: 0>, tlast_char='!', addr_size=4)
 ./stimulis/same_id.json                                                          -- Stimuli ID same_id_1 already exists in this stimuli list
 ./stimulis/unaligned_address.json                                                -- Address (0x12345676) needs to be aligned on word size (4)
-./stimulis/wrong_field/data.json                                                 -- Field Data has a value of type <class 'int'> instead of <class 'str'>
-./stimulis/wrong_field/address.json                                              -- Field Address has a value of type <class 'int'> instead of <class 'str'>
-./stimulis/wrong_field/access.json                                               -- Access: T isn't valid
-./stimulis/wrong_field/type.json                                                 -- Type: Unknown isn't valid
-./stimulis/wrong_field/size.json                                                 -- Field Size has a value of type <class 'str'> instead of <class 'int'>
-./stimulis/wrong_field/rel_time.json                                             -- RelTime field isn't properly formatted (100ps)
 ./stimulis/field_added/filename.json                                             -- "Fields {'FileName'} are not valid for this Type (Simple)"
 ./stimulis/field_added/data.json                                                 -- "Fields {'Data'} are not valid for this Type (File)"
 ./stimulis/field_added/size.json                                                 -- "Fields {'Size'} are not valid for this Type (File)"
@@ -32,3 +26,9 @@ DataFormat(word_size=4, is_big_endian=False, encoding=<Encoding.ASCII: 0>, tlast
 ./stimulis/field_missing/size.json                                               -- 'Size mandatory field is missing'
 ./stimulis/field_missing/fill.json                                               -- 'Fill mandatory field is missing'
 ./stimulis/field_missing/rel_time.json                                           -- 'RelTime mandatory field is missing'
+./stimulis/wrong_field/data.json                                                 -- Field Data has a value of type <class 'int'> instead of <class 'str'>
+./stimulis/wrong_field/address.json                                              -- Field Address has a value of type <class 'int'> instead of <class 'str'>
+./stimulis/wrong_field/access.json                                               -- Access: T isn't valid
+./stimulis/wrong_field/type.json                                                 -- Type: Unknown isn't valid
+./stimulis/wrong_field/size.json                                                 -- Field Size has a value of type <class 'str'> instead of <class 'int'>
+./stimulis/wrong_field/rel_time.json                                             -- RelTime field isn't properly formatted (100ps)

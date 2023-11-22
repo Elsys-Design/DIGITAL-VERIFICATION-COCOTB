@@ -32,7 +32,7 @@ def test_errors():
 
     log_file = open("log", "w")
 
-    for subdir, dirs, files in os.walk("."):
+    for subdir, dirs, files in sorted(os.walk(".")):
         for file in files:
             filepath = os.path.join(subdir, file)
             if os.path.splitext(file)[1] == ".dat":
