@@ -61,7 +61,7 @@ class Stimuli:
 
     logger = logging.getLogger("framework.stimuli")
 
-    JsonObj = Dict[str, Union[str, int]]
+    JsonObject = Dict[str, Union[str, int]]
 
     def __init__(
             self,
@@ -86,7 +86,7 @@ class Stimuli:
         self.logger = logging.getLogger("framework.stimuli." + self.id_)
 
     @classmethod
-    def _base_json_checks(cls, json_obj: JsonObj) -> None: 
+    def _base_json_checks(cls, json_obj: JsonObject) -> None: 
         """
         Only checks:
         - the required fields existance
@@ -155,7 +155,7 @@ class Stimuli:
     @classmethod
     def _build_data_list(
             cls,
-            json_obj: JsonObj,
+            json_obj: JsonObject,
             id_: str,
             access: Access,
             data_dir_path: str,
@@ -223,7 +223,7 @@ class Stimuli:
     @classmethod
     def from_json(
             cls,
-            json_obj: JsonObj,
+            json_obj: JsonObject,
             data_dir_path: str,
             defaultid: str = "",
             is_stream: bool = False
@@ -264,7 +264,7 @@ class Stimuli:
         return cls(id_, access, rel_time, data_list, desc)
 
     
-    def get_plain_json(self, force_to_file: bool = False) -> JsonObj:
+    def get_plain_json(self, force_to_file: bool = False) -> JsonObject:
         """
         Returns a json object representing this Stimuli.
         It doesn't write any file directly (the data isn't written).
@@ -337,7 +337,7 @@ class Stimuli:
 
         return json_obj
 
-    def to_json(self, data_dir_path: str) -> JsonObj:
+    def to_json(self, data_dir_path: str) -> JsonObject:
         """
         Similar to get_plain_json() but it also writes the data to a file.
 

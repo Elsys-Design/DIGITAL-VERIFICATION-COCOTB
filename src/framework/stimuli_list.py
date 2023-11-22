@@ -73,6 +73,7 @@ class StimuliList(list):
         Args:
             output_dir_path: Path to the output directory.
                 If the directory doesn't exist, it's created.
+                If the directory exists, it's removed and a new empty one is created.
         """
         self.logger.info("Writing StimuliList to {}".format(output_dir_path))
 
