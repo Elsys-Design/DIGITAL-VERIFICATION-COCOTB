@@ -17,6 +17,13 @@ The framework's loggers use a format containing the simulation time but since th
 are launched without any DUT), we cannot use it.
 Another solution would be to change the logger's formatter to still have access to the framework's custom logs.
 
+#### Warning
+The Time module is used (and tested) in these automatic tests.
+This module uses the simulator's time unit designed by cocotb as 'step'.
+However, during unit testing there is not DUT and no simulator, so the simulator precision defaults to 1fs.
+This shows a warning but it's actually a good behaviour for the tests because GHDL's precision is fixed at 1fs unless
+a specific backend is used (see https://ghdl.github.io/ghdl/using/InvokingGHDL.html#cmdoption-ghdl-time-resolution).
+
 ### Manual tests
 - Manual tests are scripts that print their outputs.
 They are not self checking.

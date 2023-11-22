@@ -64,6 +64,7 @@ class Time:
         Precision that isn't a plain unit (ex: 100fs) isn't supported.
         This isn't a problem since GHDL only supports 1fs unless using mcode backend:
         https://ghdl.github.io/ghdl/using/InvokingGHDL.html#cmdoption-ghdl-time-resolution
+        And even if it's not the default, it only supports full units (ps, ns, ... and not 10ns or 100ps).
         """
         return "{:d} {}".format(self.value, self.scale[cocotb.utils._get_simulator_precision()])
 
