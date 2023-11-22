@@ -13,13 +13,30 @@ It uses files to create input stimuli and output logs.
 - latest xilinx vivado (to get the lastest unisim libraries otherwise you can use the one included)
 
 ### installation
+we are installing python libraries inside the osscad python framework (and not the os one).
 - load osscad environnement with command `source /opt/oss-cad-suite-linux-x64-20231121/oss-cad-suite/environment`
 ** from now on use only command found in the folder `/opt/oss-cad-suite-linux-x64-20231121/oss-cad-suite/py3bin/` for `pip` and `python`
 - install cocotb axi driver with command `pip3.8 install cocotbext-axi`
-- install unisim libraries in ghdl with command `/opt/oss-cad-suite-linux-x64-20231121/oss-cad-suite/lib/ghdl/vendors/compile-xilinx-vivado.sh --unisim --source ./ressources/2023.1/ --output compiled_unisim`
+- install unisim libraries in ghdl with command `/opt/oss-cad-suite-linux-x64-20231121/oss-cad-suite/lib/ghdl/vendors/compile-xilinx-vivado.sh --unisim --source ./ressources/2023.1/ --output compiled_unisim`   
+
+### execution
+Prior to any use of the framework do the following lines:
+- load osscad environnement with command `source /opt/oss-cad-suite-linux-x64-20231121/oss-cad-suite/environment`
+- export osscad python path : `export PYTHONPATH=$(pwd)/src:$PYTHONPATH`
+
+## FAQ
+- Error `ImportError while loading conftest '/home/flo/FLORENT/GIT/framework_simulation_cocotb_axi/tests/conftest.py'.
+conftest.py:5: in <module>`
+In latest oss-cad, cocotb release version is `2.0.0beta` which is not supported right now. Please use osscad release 2023-10-23 (see [prerequisite](#prerequisite) ) 
+
 
 ### example
 ... 
+
+### Framework tests
+- Unitary tests (automatic via pytest and manual) are located in `./tests` folder. See [readme](./tests/README.md) 
+- example tests are located in `./examples` folder. 
+
 
 ### limitations
 - le framework ne supporte pas la gestion des tuser dans l'AXI stream
