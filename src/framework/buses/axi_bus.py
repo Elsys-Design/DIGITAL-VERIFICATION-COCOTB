@@ -9,14 +9,18 @@ class FixHandle:
     Used to replace a ModifiableObject for a signal that doesn't exist.
     The difference is that this object doesn't try to propagate modifications to the simulator
     since that would cause an error.
+
+    Attributes:
+        value: A cocotb.binary.BinaryValue object representing the current value.
     """
-    def __init__(self, value):
+    def __init__(self, value: BinaryValue) -> None:
         self.value = value
 
-    def setimmediatevalue(self, value):
+    def setimmediatevalue(self, value: BinaryValue) -> None:
+        """ cocotbext.axi uses this method so it must be defined to avoid errors """
         self.value = value
     
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.value)
 
 
