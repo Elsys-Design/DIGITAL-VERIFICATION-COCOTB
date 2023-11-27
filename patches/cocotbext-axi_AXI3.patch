@@ -1,0 +1,20 @@
+diff -ruN ./axi_channels.py /home/paul/Documents/cocotb/oss-cad-suite/lib/python3.8/site-packages/cocotbext/axi/axi_channels.py
+--- ./axi_channels.py	2023-11-24 11:26:18.293724332 +0100
++++ /home/paul/Documents/cocotb/oss-cad-suite/lib/python3.8/site-packages/cocotbext/axi/axi_channels.py	2023-11-24 15:19:05.002417527 +0100
+@@ -28,7 +28,7 @@
+ AxiAWBus, AxiAWTransaction, AxiAWSource, AxiAWSink, AxiAWMonitor = define_stream("AxiAW",
+     signals=["awid", "awaddr", "awlen", "awsize", "awburst", "awvalid", "awready"],
+     optional_signals=["awlock", "awcache", "awprot", "awqos", "awregion", "awuser"],
+-    signal_widths={"awlen": 8, "awsize": 3, "awburst": 2, "awlock": 1,
++    signal_widths={"awsize": 3, "awburst": 2,
+         "awcache": 4, "awprot": 3, "awqos": 4, "awregion": 4}
+ )
+ 
+@@ -50,7 +50,7 @@
+ AxiARBus, AxiARTransaction, AxiARSource, AxiARSink, AxiARMonitor = define_stream("AxiAR",
+     signals=["arid", "araddr", "arlen", "arsize", "arburst", "arvalid", "arready"],
+     optional_signals=["arlock", "arcache", "arprot", "arqos", "arregion", "aruser"],
+-    signal_widths={"arlen": 8, "arsize": 3, "arburst": 2, "arlock": 1,
++    signal_widths={"arsize": 3, "arburst": 2,
+         "arcache": 4, "arprot": 3, "arqos": 4, "arregion": 4}
+ )

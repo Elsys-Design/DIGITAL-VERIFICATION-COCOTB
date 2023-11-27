@@ -6,9 +6,9 @@ import cocotb
 import cocotbext
 from cocotb.clock import Clock
 from cocotb.triggers import Edge, RisingEdge, FallingEdge, Timer, Join, Combine
-from cocotbext.axi import AxiLiteBus, AxiBus
+from cocotbext.axi import AxiLiteBus
 
-from framework import   AxiMaster, AxiLiteMaster, AxiRam, AxiLiteRam, \
+from framework import   AxiBus, AxiMaster, AxiLiteMaster, AxiRam, AxiLiteRam, \
                         AxiMonitor, AxiLiteMonitor, \
                         Data
 
