@@ -6,9 +6,9 @@ import os
 
 from framework import Data
 from cocotb.triggers import Edge, RisingEdge, FallingEdge, Timer, Join, Combine
-from cocotbext.axi import AxiLiteBus, AxiBus
+from cocotbext.axi import AxiLiteBus
 
-from framework import   AxiMaster, AxiLiteMaster, AxiRam, AxiLiteRam, \
+from framework import   AxiBus, AxiMaster, AxiLiteMaster, AxiRam, AxiLiteRam, \
                         AxiMonitor, AxiLiteMonitor, \
                         Data
 from test_utils.filecmp import check_dirs_equal
@@ -33,15 +33,13 @@ async def cocotb_run(dut):
 
 
     #create bus axi light
-    bus_in= AxiLiteBus.from_prefix(dut, "S00_AXI_0")
+    bus_in= AxiBus.from_prefix(dut, "S00_AXI_0")
 
     #create master axilight
-    master_in=AxiLiteMaster(bus_in,dut.aclk_0, dut.aresetn_0,  reset_active_level=False)
+    master_in=AxiMaster(bus_in,dut.aclk_0, dut.aresetn_0,  reset_active_level=False)
 
     #create monitor
-    monitor_in=AxiLiteMonitor("S00_AXI_0",bus_in,dut.aclk_0, dut.aresetn_0,reset_active_level=False )
-    #write data logged to its respected folder
-    monitor_in.default_stimuli_logger.write_to_dir()
+    monitor_in=AxiMonitor("S00_AXI_0",bus_in,dut.aclk_0, dut.aresetn_0,reset_active_level=False )
     
     #prepare testbench
     tasks = []
@@ -67,11 +65,11 @@ async def cocotb_run(dut):
     await FallingEdge(dut.IPIC_0_req)
     dut.IPIC_0_ack.value = 0
 
-    # Letting the scenarios execute (passing simulation time)
+    # Letting the scenarios execute
     await Combine(*tasks)
 
     # Waiting for the VHDL to finish
     await Timer(10, units="ns")
 
     # Writing the stimulis and data logged by monitors (uses the monitors' default logger)
-    tb.write_monitor_data()
+    monitor_in.default_stimuli_logger.write_to_dir()
