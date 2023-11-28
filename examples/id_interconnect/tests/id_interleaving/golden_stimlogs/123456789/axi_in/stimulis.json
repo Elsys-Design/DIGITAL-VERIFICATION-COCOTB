@@ -1,0 +1,21 @@
+[
+    {
+        "ID": "axi_in_0",
+        "Access": "R",
+        "RelTime": "0.020 us",
+        "AbsTime": "675000000 fs",
+        "Type": "Simple",
+        "Address": "0x44A10000",
+        "Data": "0x00000000",
+        "Size": 4
+    },
+    {
+        "ID": "axi_in_1",
+        "Access": "R",
+        "RelTime": "0.655 us",
+        "AbsTime": "655000000 fs",
+        "Type": "File",
+        "Address": "0x44A00000",
+        "FileName": "axi_in_1.dat"
+    }
+]
