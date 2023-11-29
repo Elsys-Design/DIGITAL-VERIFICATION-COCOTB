@@ -80,21 +80,21 @@ class BaseAxiMonitor:
 
 
         # Helpers to avoid using hasattr() everywhere
-        self.has_write_id =  hasattr(self.aw, "awid")
-        self.has_read_id =  hasattr(self.ar, "arid")
-        self.has_wid =  hasattr(self.w, "wid") # for AXI3 support
+        self.has_write_id =  hasattr(self.aw.bus, "awid")
+        self.has_read_id =  hasattr(self.ar.bus, "arid")
+        self.has_wid =  hasattr(self.w.bus, "wid") # for AXI3 support
 
         # Queues to contain channel transaction items until the transaction ends so we can process them all at once
         # If there is no ids (AXI-Lite or AXI without id) these are just [deque()] so basically no overhead
         # -> this is a general solution for ids since Axi-Lite and Axi without id buses behave (id wise) like Axi buses
         #       with transactions ids being only 0.
-        self.aw_queues = [deque() for _ in range(len(self.aw.awid) if self.has_write_id else 1)]
-        self.w_queues = [deque() for _ in range(len(self.w.wid) if self.has_wid else 1)]
-        self.write_start_time_queues = [deque() for _ in range(len(self.aw.awid) if self.has_write_id else 1)]
+        self.aw_queues = [deque() for _ in range(2**len(self.aw.bus.awid) if self.has_write_id else 1)]
+        self.w_queues = [deque() for _ in range(2**len(self.w.bus.wid) if self.has_wid else 1)]
+        self.write_start_time_queues = [deque() for _ in range(2**len(self.aw.bus.awid) if self.has_write_id else 1)]
 
-        self.ar_queues = [deque() for _ in range(len(self.ar.arid) if self.has_read_id else 1)]
-        self.r_queues = [deque() for _ in range(len(self.r.rid) if self.has_read_id else 1)]
-        self.read_start_time_queues = [deque() for _ in range(len(self.ar.arid) if self.has_read_id else 1)]
+        self.ar_queues = [deque() for _ in range(2**len(self.ar.bus.arid) if self.has_read_id else 1)]
+        self.r_queues = [deque() for _ in range(2**len(self.r.bus.rid) if self.has_read_id else 1)]
+        self.read_start_time_queues = [deque() for _ in range(2**len(self.ar.bus.arid) if self.has_read_id else 1)]
 
         # Data sizes for write and read buses
         self.wsize = len(self.w.bus.wdata)//8
@@ -126,7 +126,7 @@ class BaseAxiMonitor:
         """
         while True:
             aw_t = await self.aw.recv()
-            awid = aw_t.awid if self.has_write_id else 0
+            awid = int(aw_t.awid) if self.has_write_id else 0
             self.aw_queues[awid].append(aw_t)
             current_time = Time.now()
             self.write_start_time_queues[awid].append((current_time, self.last_write_start_time))
@@ -164,7 +164,7 @@ class BaseAxiMonitor:
         """
         while True:
             ar_t = await self.ar.recv()
-            arid = ar_t.arid if self.has_read_id else 0
+            arid = int(ar_t.arid) if self.has_read_id else 0
             self.ar_queues[arid].append(ar_t)
             current_time = Time.now()
             self.read_start_time_queues[arid].append((current_time, self.last_read_start_time))
@@ -185,7 +185,7 @@ class BaseAxiMonitor:
         """
         while True:
             r_t = await self.r.recv()
-            rid = r_t.rid if self.has_read_id else 0
+            rid = int(r_t.rid) if self.has_read_id else 0
             self.r_queues[rid].append(r_t)
 
             if not hasattr(r_t, "rlast") or r_t.rlast:
@@ -266,16 +266,16 @@ class BaseAxiMonitor:
                 a transaction that is over so we can directly handle it.
         """
         # Getting the id of the finished transaction
-        bid = b_t.bid if self.has_write_id else 0
+        bid = int(b_t.bid) if self.has_write_id else 0
         # For Axi3 support
-        wid = bid if self.has_wid else 0
+        wid = int(bid) if self.has_wid else 0
 
         # Getting the last aw channel item for this id
         aw_t = self.aw_queues[bid].popleft()
 
         start_time, old_start_time = self.write_start_time_queues[bid].popleft()
 
-        awlen = aw_t.awlen if hasattr(aw_t, "awlen") else 0
+        awlen = int(aw_t.awlen) if hasattr(aw_t, "awlen") else 0
         
         diff_awsize = 2**int(aw_t.awsize) if hasattr(aw_t, "awsize") and 2**int(aw_t.awsize) != self.wsize else None
 
@@ -355,7 +355,7 @@ class BaseAxiMonitor:
 
         start_time, old_start_time = self.read_start_time_queues[rid].popleft()
 
-        arlen = ar_t.arlen if hasattr(ar_t, "arlen") else 0
+        arlen = int(ar_t.arlen) if hasattr(ar_t, "arlen") else 0
         
         diff_arsize = 2**int(ar_t.arsize) if hasattr(ar_t, "arsize") and 2**int(ar_t.arsize) != self.rsize else None
 
