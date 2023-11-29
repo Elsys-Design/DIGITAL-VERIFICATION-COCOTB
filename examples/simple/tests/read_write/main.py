@@ -15,6 +15,9 @@ from test_utils.filecmp import check_dirs_equal
 from cocotb.clock import Clock
 from cocotb.triggers import Edge, RisingEdge, FallingEdge, Timer, Join, Combine
 
+#if using real time logger instead of efficient logger
+from framework import RealTimeStimuliLogger
+
 
 @cocotb.test()
 async def cocotb_run(dut):
@@ -32,14 +35,19 @@ async def cocotb_run(dut):
     dut.aresetn_0.value = 1
 
 
-    #create bus axi light
+    #create bus axi 
     bus_in= AxiBus.from_prefix(dut, "S00_AXI_0")
 
-    #create master axilight
+    #create master axi
     master_in=AxiMaster(bus_in,dut.aclk_0, dut.aresetn_0,  reset_active_level=False)
 
-    #create monitor
-    monitor_in=AxiMonitor("S00_AXI_0",bus_in,dut.aclk_0, dut.aresetn_0,reset_active_level=False )
+    #create efficient monitor
+    #monitor_in=AxiMonitor("S00_AXI_0",bus_in,dut.aclk_0, dut.aresetn_0,reset_active_level=False )
+
+    #or create real time logger
+    monitor_in=AxiMonitor("S00_AXI_0",bus_in,dut.aclk_0, dut.aresetn_0,reset_active_level=False,
+                      default_stimuli_logger_class = RealTimeStimuliLogger)
+
     
     #prepare testbench
     tasks = []
@@ -72,4 +80,5 @@ async def cocotb_run(dut):
     await Timer(10, units="ns")
 
     # Writing the stimulis and data logged by monitors (uses the monitors' default logger)
-    monitor_in.default_stimuli_logger.write_to_dir()
+    #use it only for efficient logger
+    #monitor_in.default_stimuli_logger.write_to_dir()
