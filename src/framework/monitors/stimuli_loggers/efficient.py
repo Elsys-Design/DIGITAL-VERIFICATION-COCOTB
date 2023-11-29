@@ -4,34 +4,41 @@ import os
 import logging
 
 from ...stimuli_list import StimuliList
+from ...stimuli import Stimuli
 from .base import BaseStimuliLogger
 from ...data_list import DataList
 
 
 class EfficientStimuliLogger(BaseStimuliLogger):
     """
-    Named efficient because it only write the files when asked to (see write_to_dir method).
-    However it must keep all the stimulis stored and the write method simply removes the directory before rewritting
-    all files (it doesn't support incremental write).
-    """
+    StimuliLogger that only write the files when asked to (see write_to_dir method).
+    However it must keep all the stimulis stored in the self.stimulis list.
 
-    def __init__(self, dir_path, id_base="", is_stream_no_tlast=False):
+    Attributes:
+        stimulis: List of all logged Stimulis.
+        logger: Class logger, inherits from the framework's logger
+    """
+    logger = logging.getLogger("framework.efficient_stimuli_logger")
+
+    def __init__(self, dir_path: str, id_base: str = "", is_stream_no_tlast: bool = False):
         super().__init__(dir_path, id_base, is_stream_no_tlast)
 
         self.stimulis = StimuliList()
         
-        self.logger = logging.getLogger("framework.efficient_stimuli_logger")
 
 
-    def recv(self, stimuli):
+    def write(self, stimuli: Stimuli) -> None:
         """
         Method to subscribe to AnalisysPorts.
+
+        Args:
+            stimuli: Stimuli to log.
         """
         self.stimulis.append(stimuli)
 
-    def write_to_dir(self):
+    def write_to_dir(self) -> None:
         """
-        Writes the logs to self.dir_path
+        Writes the logs to self.dir_path.
         """
         if not self.is_stream_no_tlast:
             # In almost all cases, we'll just use the StimuliList.write_to_dir method

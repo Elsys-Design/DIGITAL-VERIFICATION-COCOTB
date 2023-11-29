@@ -2,3 +2,8 @@
 
 **/__pycache__
 **/framework.log
+compiled_unisim
+vivado_lib
+**/*.o
+**/*.cf
+examples/simple/design_1

@@ -12,11 +12,20 @@ class FillStrategy:
     ONES = 1
 
     @staticmethod
-    def exec_on(strategy, barray, len_toadd):
+    def exec_on(strategy : 'FillStrategy', barray : bytearray, len_toadd : int) -> None:
         """
         Adds len_toadd bytes to barray according to the strategy parameter.
+        
+        Args:
+            strategy: The fill strategy to adopt.
+            barray: The bytearray to fill.
+            len_toadd: The number of bytes to add at the end of barray using the strategy.
+
+        Raises:
+            ValueError: len_toadd is < than 0.
         """
-        assert len_toadd >= 0, "len_toadd parameter must be >= 0"
+        if len_toadd < 0:
+            raise ValueError("len_toadd parameter must be >= 0")
 
         if strategy == FillStrategy.RANDOM:
             barray += bytearray(random.sample(range(0, 0xff), len_toadd))
@@ -33,7 +42,8 @@ class FillStrategy:
     @staticmethod
     def generate_custom_seed():
         """
-        Generates a custom seed.
-        Seeds < 2 are not valid custom seeds.
+        Returns:
+            A custom seed generated randomly using the current random state.
+            This doesn't create seeds < 2 which are not valid custom seeds (but a defined FillStrategy).
         """
         return random.randint(2, 10**6)

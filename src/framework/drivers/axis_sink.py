@@ -2,6 +2,7 @@ import cocotbext.axi.axis
 import cocotb
 from cocotb.triggers import RisingEdge, Event, Combine, Timer
 import logging
+from typing import Union
 
 from ..stimuli_list import StimuliList
 from ..data_list import DataList
@@ -14,6 +15,9 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
     Adds support for Data and for reads of fixed size (and not just until the tlast).
     This is a custom AxiStreamSink that doesn't inherit cocotbext.axi.AxiStreamSink but cocotbext.axi.AxiStreamSink's
     parent class directly.
+
+    Attributes:
+        logger: Custom logger inheriting framework's logger but with the name of the bus.
     """
 
     def __init__(self, bus, clock, reset=None, reset_active_level=True, **kwargs): 
@@ -27,9 +31,15 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         
         self.logger = logging.getLogger("framework.axis_sink." + bus._name)
 
-    async def read_data(self, length):
+    async def read_data(self, length: Union[int, Data]) -> DataList:
         """
         Reads 'data' to the bus and wait until the read is over.
+
+        Args:
+            length: Either the length of the read directly or a Data object with the right length.
+
+        Returns:
+            A DataList containing all the data read (a new Data is created for every tlast).
         """
         if isinstance(length, Data):
             length = length.length
@@ -44,17 +54,22 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         self.read_done.clear()
         return self.read_done.data
 
-    async def read_word(self, length : int):
+    async def read_word(self, length: int) -> int:
         """
         Helper that directly converts the data to an int.
-        To use only for small accessesi (if it's over the bus' word size, the endianess will break things).
+
+        Args:
+            length: The length of the data. Shouldn't be over the bus' data size.
+
+        Returns:
+            An int representing the data received.
         """
         data_list = await self.read_data(length)
         data = data_list.full_bytearray()
         return int(data.hex(), 16)
 
 
-    async def read_data_to_file(self, filepath, length):
+    async def read_data_to_file(self, filepath: str, length: int) -> None:
         data_list = await self.read_data(length)
         data_list.to_file(filepath)
 
@@ -62,19 +77,24 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         raise NotImplementedError("write_data isn't supported for AxiStreamSink.")
 
 
-    def init_run(self, file):
+    def init_run(self, file: str) -> cocotb.triggers.Task:
         """
         Helper method to run a StimuliList on a master directly from file.
-        is_stream doesn't do anything here since parsing Data is what differs and this is only READ Accesses (so no
-        data to parse).
-        TODO: We could eventually accept stimulis without an Address field here since it's not used anyways.
+
+        Args:
+            file: Path of the stimuli file to run on this driver.
+
+        Returns:
+            The new cocotb Task.
         """
+        # is_stream doesn't do anything here since parsing Data is what differs and this is only READ Accesses
+        # (so there's no data to parse).
         stim_list = StimuliList.from_file(file, is_stream=True)
         self.logger.info("Starting run with {}".format(stim_list.name))
         return cocotb.start_soon(stim_list.run(self))
 
 
-    async def _run(self):
+    async def _run(self) -> None:
         if not hasattr(self.bus, "tready"):
             return NotImplementedError("Bus has no tready")
         

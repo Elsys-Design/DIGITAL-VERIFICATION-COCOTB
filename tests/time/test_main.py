@@ -1,6 +1,5 @@
-#!/bin/env python
 
-from framework.time import Time
+from framework import Time
 
 
 def _test(d, string):
