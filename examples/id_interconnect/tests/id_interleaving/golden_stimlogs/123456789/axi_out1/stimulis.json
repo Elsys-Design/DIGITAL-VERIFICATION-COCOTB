@@ -1,0 +1,12 @@
+[
+    {
+        "ID": "axi_out1_0",
+        "Access": "R",
+        "RelTime": "0.675 us",
+        "AbsTime": "675000000 fs",
+        "Type": "Simple",
+        "Address": "0x44A10000",
+        "Data": "0x00000000",
+        "Size": 4
+    }
+]
