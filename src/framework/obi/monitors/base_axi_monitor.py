@@ -1,9 +1,7 @@
-from collections import deque
 import os
 import logging
-from typing import Union, Dict, Type, Optional
+from typing import Union, Type
 
-import cocotb
 import cocotbext.obi
 
 from ...time import Time
@@ -14,15 +12,14 @@ from ...monitors.analysis_port import AnalysisPort
 
 
 class ObiMonitor(cocotbext.obi.ObiMonitor):
-    """
-    """
+    """ """
 
     def __init__(
         self,
         name: str,
         bus: Union[cocotbext.axi.AxiBus, cocotbext.axi.AxiLiteBus],
         clock,
-        default_stimuli_logger_class: Type
+        default_stimuli_logger_class: Type,
     ) -> None:
         """
         Args:
@@ -33,7 +30,7 @@ class ObiMonitor(cocotbext.obi.ObiMonitor):
                 This allows to use either cocotbext.axi.AxiLite*Monitor or cocotbext.axi.Axi*Monitor classes.
         """
         self.name = name
-        self.logger = logging.getLogger("framework.obi.obi_monitor." + name),
+        self.logger = (logging.getLogger("framework.obi.obi_monitor." + name),)
 
         # Building analysis ports
         self.write_analysis_port = AnalysisPort()
@@ -51,28 +48,29 @@ class ObiMonitor(cocotbext.obi.ObiMonitor):
         # Id counter for stimulis
         self.current_id = 0
 
-
-
     def _on_recv(self, item):
-        data_obj = Data(item.addr, item.data.to_bytes(self.bus.size, byteorder="big"),
-                        DataFormat(word_size=self.bus.size, addr_size=self.bus.addr_size))
+        data_obj = Data(
+            item.addr,
+            item.data.to_bytes(self.bus.size, byteorder="big"),
+            DataFormat(word_size=self.bus.size, addr_size=self.bus.addr_size),
+        )
 
         # Building id and desc
         new_id = "{}_{}".format(self.name, self.current_id)
         self.current_id += 1
 
         desc = ""
-        if be is not None:
-            desc += "be = {}".format(be)
+        if item.be is not None:
+            desc += "be = {}".format(item.be)
 
         # Building Stimuli
         stim = Stimuli(
             new_id,
             Access.WRITE if item.we else Access.READ,
-            Time.now(), # TOCHANGE
+            Time.now(),  # TOCHANGE
             DataList([data_obj]),
             desc,
-            Time.now(), # TOCHANGE
+            Time.now(),  # TOCHANGE
             Time.now(),
         )
 
@@ -84,4 +82,3 @@ class ObiMonitor(cocotbext.obi.ObiMonitor):
         self.analysis_port.send(stim)
 
         self.logger.info("Logged " + stim.short_desc())
-

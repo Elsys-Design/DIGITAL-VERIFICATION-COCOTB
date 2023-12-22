@@ -14,13 +14,8 @@ class ObiRam(cocotbext.obi.ObiRam):
         logger: Custom logger inheriting framework's logger but with the name of the bus.
     """
 
-    def __init__(
-        self,
-        bus,
-        clock,
-        size=2**64
-    ):
-        super().__init__(bus, clock, mem)
+    def __init__(self, bus, clock, size=2**64):
+        super().__init__(bus, clock, size)
 
         self.logger = logging.getLogger("framework.obi_ram." + bus._name)
 
