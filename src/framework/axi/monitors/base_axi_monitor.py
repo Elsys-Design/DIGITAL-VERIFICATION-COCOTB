@@ -6,11 +6,11 @@ from typing import Union, Dict, Type, Optional
 import cocotb
 import cocotbext.axi
 
-from ..time import Time
-from ..data import Data, DataFormat
-from ..data_list import DataList
-from ..stimuli import Stimuli, Access
-from .analysis_port import AnalysisPort
+from ...time import Time
+from ...data import Data, DataFormat
+from ...data_list import DataList
+from ...stimuli import Stimuli, Access
+from ...monitors.analysis_port import AnalysisPort
 
 
 class BaseAxiMonitor:

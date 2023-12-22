@@ -1,18 +1,18 @@
 import logging
 
-from cocotbext.axi.axil_channels import (
-    AxiLiteAWMonitor,
-    AxiLiteWMonitor,
-    AxiLiteBMonitor,
-    AxiLiteARMonitor,
-    AxiLiteRMonitor,
+from cocotbext.axi.axi_channels import (
+    AxiAWMonitor,
+    AxiWMonitor,
+    AxiBMonitor,
+    AxiARMonitor,
+    AxiRMonitor,
 )
 
+from ...monitors.stimuli_loggers.efficient import EfficientStimuliLogger
 from .base_axi_monitor import BaseAxiMonitor
-from .stimuli_loggers.efficient import EfficientStimuliLogger
 
 
-class AxiLiteMonitor(BaseAxiMonitor):
+class AxiMonitor(BaseAxiMonitor):
     def __init__(
         self,
         name,
@@ -30,11 +30,11 @@ class AxiLiteMonitor(BaseAxiMonitor):
             reset_active_level,
             default_stimuli_logger_class,
             {
-                "aw": AxiLiteAWMonitor,
-                "w": AxiLiteWMonitor,
-                "b": AxiLiteBMonitor,
-                "ar": AxiLiteARMonitor,
-                "r": AxiLiteRMonitor,
+                "aw": AxiAWMonitor,
+                "w": AxiWMonitor,
+                "b": AxiBMonitor,
+                "ar": AxiARMonitor,
+                "r": AxiRMonitor,
             },
             logger=logging.getLogger("framework.axi_monitor." + name),
         )

@@ -3,9 +3,9 @@ import cocotb
 from cocotb.triggers import RisingEdge
 import logging
 
-from ..stimuli_list import StimuliList
-from ..data_list import DataList
-from ..data import Data
+from ...stimuli_list import StimuliList
+from ...data_list import DataList
+from ...data import Data
 
 
 class AxiStreamSource(cocotbext.axi.AxiStreamSource):

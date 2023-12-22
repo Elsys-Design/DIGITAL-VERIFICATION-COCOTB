@@ -2,12 +2,12 @@ import cocotbext.axi
 import cocotb
 import logging
 
-from ..stimuli_list import StimuliList
-from ..data_list import DataList
-from ..data import Data
+from ...stimuli_list import StimuliList
+from ...data_list import DataList
+from ...data import Data
 
 
-class AxiMaster(cocotbext.axi.AxiMaster):
+class AxiLiteMaster(cocotbext.axi.AxiLiteMaster):
     """
     Wrapper that adds support for Data.
 
@@ -15,16 +15,8 @@ class AxiMaster(cocotbext.axi.AxiMaster):
         logger: Custom logger inheriting framework's logger but with the name of the bus.
     """
 
-    def __init__(
-        self,
-        bus,
-        clock,
-        reset=None,
-        reset_active_level=True,
-        max_burst_len=256,
-        **kwargs,
-    ):
-        super().__init__(bus, clock, reset, reset_active_level, max_burst_len, **kwargs)
+    def __init__(self, bus, clock, reset=None, reset_active_level=True, **kwargs):
+        super().__init__(bus, clock, reset, reset_active_level, **kwargs)
 
         self.logger = logging.getLogger("framework.axi_master." + bus.write.aw._name)
 
@@ -33,13 +25,13 @@ class AxiMaster(cocotbext.axi.AxiMaster):
             "Writting Data(addr={}, length={})".format(data.addr, data.length)
         )
         data.alignment_check()
-        await self.write(data.addr, data.data, awid=0)
+        await self.write(data.addr, data.data)
 
     async def read_data(self, data: Data) -> None:
         self.logger.info(
             "Reading Data(addr={}, length={})".format(data.addr, data.length)
         )
-        read_response = await self.read(data.addr, data.length, arid=0)
+        read_response = await self.read(data.addr, data.length)
         # Filling data but it's not used yet as we can log everything with the monitors
         data.data = bytearray(read_response.data)
 

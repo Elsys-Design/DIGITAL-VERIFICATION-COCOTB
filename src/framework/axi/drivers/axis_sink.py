@@ -4,9 +4,9 @@ from cocotb.triggers import RisingEdge, Event
 import logging
 from typing import Union
 
-from ..stimuli_list import StimuliList
-from ..data_list import DataList
-from ..data import Data, DataFormat
+from ...stimuli_list import StimuliList
+from ...data_list import DataList
+from ...data import Data, DataFormat
 
 
 class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):

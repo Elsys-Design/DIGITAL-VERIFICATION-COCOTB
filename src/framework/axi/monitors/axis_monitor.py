@@ -4,13 +4,12 @@ import os
 import cocotb
 import cocotbext.axi
 
-from ..time import Time
-from ..data import Data, DataFormat
-from ..data_list import DataList
-from ..stimuli import Stimuli, Access
-from .analysis_port import AnalysisPort
-
-from .stimuli_loggers.efficient import EfficientStimuliLogger
+from ...time import Time
+from ...data import Data, DataFormat
+from ...data_list import DataList
+from ...stimuli import Stimuli, Access
+from ...monitors.analysis_port import AnalysisPort
+from ...monitors.stimuli_loggers.efficient import EfficientStimuliLogger
 
 
 class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):

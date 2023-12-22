@@ -1,8 +1,8 @@
 import cocotbext.axi
 import logging
 
-from ..data_list import DataList
-from ..data import Data
+from ...data_list import DataList
+from ...data import Data
 
 
 class AxiRam(cocotbext.axi.AxiRam):

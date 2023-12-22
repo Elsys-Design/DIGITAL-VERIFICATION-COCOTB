@@ -12,6 +12,6 @@ from .data_list import DataList, datalist_default_generator
 from .stimuli import Stimuli, Access, stimuli_default_generator
 from .stimuli_list import StimuliList, stimulilist_default_generator
 
-from .buses import *
-from .drivers import *
 from .monitors import *
+
+from .axi import *
