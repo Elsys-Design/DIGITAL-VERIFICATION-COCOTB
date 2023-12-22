@@ -1,16 +1,13 @@
 import os
 
 import cocotb
-import cocotbext
-from cocotb.triggers import Edge, RisingEdge, FallingEdge, Timer, Join, Combine
-from cocotb.result import TestFailure, TestError
+from cocotb.triggers import Combine
 
 from test_utils.filecmp import check_dirs_equal
 
 from framework.data import Data
 
 from tb import TB
-
 
 
 async def unit_write(tb):
@@ -39,6 +36,7 @@ async def read_test(tb, out_idx, length, expected_value):
 
 # There is no tkeep on this DUT
 
+
 async def unit_read0(tb):
     """
     Read scenario for axi sink 0
@@ -46,6 +44,7 @@ async def unit_read0(tb):
     await read_test(tb, 0, 1, 0x7B)
     await read_test(tb, 0, 2, 0x8B9B)
     await read_test(tb, 0, 3, 0xA0B0C0)
+
 
 async def unit_read1(tb):
     """
@@ -59,13 +58,13 @@ async def unit_read1(tb):
     # The two lines above are similar to:
     await read_test(tb, 1, 4, 0xEF010000)
 
+
 async def unit_read2(tb):
     """
     Read scenario for axi sink 2
     """
     await read_test(tb, 2, 1, 0x05)
     await read_test(tb, 2, 1, 0x55)
-
 
 
 @cocotb.test()

@@ -1,6 +1,4 @@
 
-export PYTHONPATH := $(PWD):$(PYTHONPATH)
-export UNISIM_PATH := $(PWD)/../../vivado_lib/unisim/v93/
 TOPLEVEL_LANG = vhdl
 VHDL_SOURCES =  ./src/*
 

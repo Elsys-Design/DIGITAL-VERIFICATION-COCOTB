@@ -1,18 +1,14 @@
 import os
-import random
 from functools import partial
-import filecmp
 
 import cocotb
-from cocotb.triggers import Combine, Timer, Join
-from cocotb.result import TestFailure
+from cocotb.triggers import Join
 
 import framework
 
 from test_utils.filecmp import compare_to_golden
 
 from tb import TB
-
 
 
 @cocotb.test()
@@ -25,35 +21,27 @@ async def cocotb_run(dut):
 
     # Building Data generator
     data_gen = partial(
-            framework.data_default_generator,
-            min_addr = 0x44A00000,
-            max_addr = 0x44A1FFFF,
-            size_range = range(1, 0x20),
-            word_size_range = [2**i for i in range(4)]
+        framework.data_default_generator,
+        min_addr=0x44A00000,
+        max_addr=0x44A1FFFF,
+        size_range=range(1, 0x20),
+        word_size_range=[2**i for i in range(4)],
     )
 
     # Building DataList generator using the Data generator
-    datalist_gen = partial(
-            framework.datalist_default_generator,
-            data_gen,
-            [1]
-    )
+    datalist_gen = partial(framework.datalist_default_generator, data_gen, [1])
 
     # Building Stimuli generator using the DataList generator
     stimuli_gen = partial(
-            framework.stimuli_default_generator,
-            datalist_gen,
-            delay_range = range(0, framework.Time(100, 'ns').value)
+        framework.stimuli_default_generator,
+        datalist_gen,
+        delay_range=range(0, framework.Time(100, "ns").value),
     )
 
     # Building the StimuliList generator using the Stimuli Generator
     stimulilist_gen = partial(
-            framework.stimulilist_default_generator,
-            stimuli_gen,
-            size_range = [4]
+        framework.stimulilist_default_generator, stimuli_gen, size_range=[4]
     )
-
-
 
     # Loading scenario
     # StimuliList random generation
@@ -73,7 +61,3 @@ async def cocotb_run(dut):
     compare_to_golden("stimlogs")
 
     print("random_stimulis test passed")
-
-
-
-

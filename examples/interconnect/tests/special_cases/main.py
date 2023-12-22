@@ -1,23 +1,13 @@
 import os
-import random
-from functools import partial
-import filecmp
 
 import cocotb
-from cocotb.triggers import Combine, Timer
-from cocotb.result import TestFailure
+from cocotb.triggers import Combine
 
 from framework.stimuli_list import StimuliList
-from framework.data import Data, data_default_generator
-from framework.data_list import DataList, datalist_default_generator
-from framework.stimuli import stimuli_default_generator
-from framework.stimuli_list import stimulilist_default_generator
-from framework.time import Time
 
 from test_utils.filecmp import compare_to_golden
 
 from tb import TB
-
 
 
 @cocotb.test()
@@ -36,11 +26,11 @@ async def cocotb_run(dut):
 
         # Saving the new thread handle for each master
         tasks.append(
-                # Creating a new thread for each master
-                cocotb.start_soon(
-                    # Function to execute in the thread
-                    stim_list.run(tb.masters_in[i])
-                )
+            # Creating a new thread for each master
+            cocotb.start_soon(
+                # Function to execute in the thread
+                stim_list.run(tb.masters_in[i])
+            )
         )
 
     # Letting the scenarios execute (passing simulation time)
@@ -53,7 +43,3 @@ async def cocotb_run(dut):
     compare_to_golden("stimlogs")
 
     print("stimulis_inputs test passed")
-
-
-
-

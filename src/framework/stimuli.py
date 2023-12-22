@@ -3,7 +3,6 @@ import random
 import os
 from dataclasses import dataclass
 import json
-from cocotb.triggers import Timer
 import logging
 from typing import Optional, List, Sequence, Callable, Dict, Union
 
@@ -14,13 +13,13 @@ from .time import Time
 from . import utils
 
 
-
 class Access(Enum):
     """
     Access types.
 
     Access.ALL should only be used for random stimuli generation.
     """
+
     READ = 0
     WRITE = 1
     ALL = 2
@@ -50,12 +49,13 @@ class Stimuli:
         logger: By default, the Stimuli class logger (used in classmethods).
             In actual Stimuli objects, the logger takes the name of the Stimuli id.
     """
+
     id_: str
     access: Access
     rel_time: Time
     data_list: DataList
     desc: str
-    
+
     abs_time: Time
     end_time: Time
 
@@ -64,29 +64,28 @@ class Stimuli:
     JsonObject = Dict[str, Union[str, int]]
 
     def __init__(
-            self,
-            id_: str,
-            access: Access,
-            rel_time: Time,
-            data_list: List[Data],
-            desc: str = "",
-            abs_time: Optional[Time] = None,
-            end_time: Optional[Time] = None
+        self,
+        id_: str,
+        access: Access,
+        rel_time: Time,
+        data_list: List[Data],
+        desc: str = "",
+        abs_time: Optional[Time] = None,
+        end_time: Optional[Time] = None,
     ) -> None:
-        """
-        """
+        """ """
         self.id_ = id_
         self.access = access
         self.rel_time = rel_time
         self.data_list = data_list
         self.desc = desc
-        self.abs_time = Time(0, 'fs') if abs_time is None else abs_time
-        self.end_time = Time(0, 'fs') if end_time is None else end_time
+        self.abs_time = Time(0, "fs") if abs_time is None else abs_time
+        self.end_time = Time(0, "fs") if end_time is None else end_time
 
         self.logger = logging.getLogger("framework.stimuli." + self.id_)
 
     @classmethod
-    def _base_json_checks(cls, json_obj: JsonObject) -> None: 
+    def _base_json_checks(cls, json_obj: JsonObject) -> None:
         """
         Only checks:
         - the required fields existance
@@ -112,8 +111,11 @@ class Stimuli:
             # We need to check the existance before checking the type
             check_existance(field)
             if not isinstance(json_obj[field], _type):
-                raise ValueError("Field {} has a value of type {} instead of {}" \
-                        .format(field, type(json_obj[field]), _type))
+                raise ValueError(
+                    "Field {} has a value of type {} instead of {}".format(
+                        field, type(json_obj[field]), _type
+                    )
+                )
 
         def check_value(field, _type, values):
             check_type(field, _type)
@@ -135,7 +137,7 @@ class Stimuli:
             check_type("Size", int)
             if json_obj["Access"] == "W":
                 check_type("Data", str)
-        else: # type = File
+        else:  # type = File
             check_type("FileName", str)
             check_type("Fill", int)
 
@@ -143,23 +145,28 @@ class Stimuli:
         check_optional("Desc", str)
 
         unchecked_keys = set(json_obj.keys()) - set(checked_fields)
-        type_fields = unchecked_keys.intersection(set(["Size", "Data", "FileName", "Fill"]))
+        type_fields = unchecked_keys.intersection(
+            set(["Size", "Data", "FileName", "Fill"])
+        )
         if type_fields:
-            raise KeyError("Fields {} are not valid for this Type ({})".format(type_fields, json_obj["Type"]))
+            raise KeyError(
+                "Fields {} are not valid for this Type ({})".format(
+                    type_fields, json_obj["Type"]
+                )
+            )
 
         unknown_fields = unchecked_keys - type_fields
         if unknown_fields:
             raise KeyError("Fields {} are not valid".format(unknown_fields))
 
-
     @classmethod
     def _build_data_list(
-            cls,
-            json_obj: JsonObject,
-            id_: str,
-            access: Access,
-            data_dir_path: str,
-            is_stream: bool = False
+        cls,
+        json_obj: JsonObject,
+        id_: str,
+        access: Access,
+        data_dir_path: str,
+        is_stream: bool = False,
     ) -> DataList:
         """
         Builds the data_list, either from json_obj fields or from a file depending on the Type.
@@ -183,15 +190,18 @@ class Stimuli:
             size = json_obj["Size"]
             if access == Access.WRITE:
                 data = int(json_obj["Data"], 0)
-                if data.bit_length() > 8*size:
+                if data.bit_length() > 8 * size:
                     cls.logger.warning(
                         "Data word 0x{word:X} is {word_size} bits long which is higher than the size specified"
-                        "in the Size field ({descriptor_word_size} bits)" \
-                        .format(word = data, word_size = data.bit_length(), descriptor_word_size = 8*size)
+                        "in the Size field ({descriptor_word_size} bits)".format(
+                            word=data,
+                            word_size=data.bit_length(),
+                            descriptor_word_size=8 * size,
+                        )
                     )
                     # Removing MSB to fit the size
-                    data = data & (2**(8*size) - 1)
-                data = bytearray(data.to_bytes(size, 'big'))
+                    data = data & (2 ** (8 * size) - 1)
+                data = bytearray(data.to_bytes(size, "big"))
                 data_obj = Data(addr, data, True, DataFormat(size))
                 if not is_stream:
                     data_obj.alignment_check()
@@ -201,33 +211,37 @@ class Stimuli:
                 # There is no strb on the read channel in AXI so we get whole words aligned on the bus size anyways.
                 data_obj = Data.build_empty(addr, size, False, DataFormat(1))
                 return DataList([data_obj])
-        else: # Type = File
+        else:  # Type = File
             fill_strategy = json_obj["Fill"]
             if fill_strategy == FillStrategy.RANDOM:
                 # Generating and logging a custom seed
                 fill_strategy = FillStrategy.generate_custom_seed()
-                cls.logger.info("Generated fill strategy seed {} for Stimuli {}".format(fill_strategy, id_))
+                cls.logger.info(
+                    "Generated fill strategy seed {} for Stimuli {}".format(
+                        fill_strategy, id_
+                    )
+                )
             if access == Access.WRITE:
                 return DataList.from_file(
-                        os.path.join(data_dir_path, json_obj["FileName"]),
-                        addr,
-                        fill_strategy,
-                        is_stream
+                    os.path.join(data_dir_path, json_obj["FileName"]),
+                    addr,
+                    fill_strategy,
+                    is_stream,
                 )
             else:
-                raise NotImplementedError("Access: R and Type: File are not compatible (Read accesses are Simple only, see the"
-                                 "monitor's output to get the data)")
-
-
+                raise NotImplementedError(
+                    "Access: R and Type: File are not compatible (Read accesses are Simple only, see the"
+                    "monitor's output to get the data)"
+                )
 
     @classmethod
     def from_json(
-            cls,
-            json_obj: JsonObject,
-            data_dir_path: str,
-            defaultid: str = "",
-            is_stream: bool = False
-    ) -> 'Stimuli':
+        cls,
+        json_obj: JsonObject,
+        data_dir_path: str,
+        defaultid: str = "",
+        is_stream: bool = False,
+    ) -> "Stimuli":
         """
         Creates a Stimuli object from a json object.
 
@@ -238,18 +252,25 @@ class Stimuli:
                 This argument allows the StimuliList to give an ID based on the filename and the index of the json_obj.
             is_stream: Whether the Stimuli refers to AXI-Stream datas or not.
         """
-        cls.logger.info("Building Stimuli from json_obj (data_dir_path = {}, defaultid = {})" \
-                .format(data_dir_path, defaultid))
+        cls.logger.info(
+            "Building Stimuli from json_obj (data_dir_path = {}, defaultid = {})".format(
+                data_dir_path, defaultid
+            )
+        )
         cls.logger.debug("\n" + json.dumps(json_obj))
 
         cls._base_json_checks(json_obj)
 
         # RelTime conversion to Time
         try:
-            (value, unit) = json_obj["RelTime"].split(' ')
+            (value, unit) = json_obj["RelTime"].split(" ")
             rel_time = Time(float(value), unit)
-        except Exception as e:
-            raise ValueError("RelTime field isn't properly formatted ({})".format(json_obj["RelTime"]))
+        except Exception:
+            raise ValueError(
+                "RelTime field isn't properly formatted ({})".format(
+                    json_obj["RelTime"]
+                )
+            )
 
         access = Access.WRITE if json_obj["Access"] == "W" else Access.READ
 
@@ -257,13 +278,14 @@ class Stimuli:
         desc = json_obj["Desc"] if "Desc" in json_obj else ""
 
         # Building the data_list
-        data_list = cls._build_data_list(json_obj, id_, access, data_dir_path, is_stream)
+        data_list = cls._build_data_list(
+            json_obj, id_, access, data_dir_path, is_stream
+        )
 
         cls.logger.info("Stimuli built from json_obj")
-             
+
         return cls(id_, access, rel_time, data_list, desc)
 
-    
     def get_plain_json(self, force_to_file: bool = False) -> JsonObject:
         """
         Returns a json object representing this Stimuli.
@@ -290,34 +312,37 @@ class Stimuli:
             raise NotImplementedError(
                 "Json conversion of stimuli with no associated data (data_list empty) isn't supported."
             )
-        
+
         data = self.data_list[0]
 
         if len(self.data_list) > 1:
             self.logger.warning(
-                    "Json conversion of stimuli with {} > 1 data items is only partially supported."
-                    "Only the address of the first data ({}) will be in the json object" \
-                    .format(len(self.data_list), data.addr)
+                "Json conversion of stimuli with {} > 1 data items is only partially supported."
+                "Only the address of the first data ({}) will be in the json object".format(
+                    len(self.data_list), data.addr
+                )
             )
 
-
         # not data.is_allocated => Reads that are printed back before actually being read
-        if (data.is_word() or not data.is_allocated) \
-            and len(self.data_list) == 1 \
-            and not force_to_file:
+        if (
+            (data.is_word() or not data.is_allocated)
+            and len(self.data_list) == 1
+            and not force_to_file
+        ):
             type_ = "Simple"
         else:
             type_ = "File"
 
-
         json_obj = {
-                "ID": self.id_,
-                "Desc": self.desc,
-                "Access": str(self.access),
-                "RelTime": str(self.rel_time),
-                "AbsTime": self.abs_time.full_str(),
-                "Type": type_,
-                "Address": utils.int_to_hex_string(int(data.addr), int(data.dformat.addr_size))
+            "ID": self.id_,
+            "Desc": self.desc,
+            "Access": str(self.access),
+            "RelTime": str(self.rel_time),
+            "AbsTime": self.abs_time.full_str(),
+            "Type": type_,
+            "Address": utils.int_to_hex_string(
+                int(data.addr), int(data.dformat.addr_size)
+            ),
         }
 
         # Addind desc anyway and removing it if it's empty
@@ -353,10 +378,9 @@ class Stimuli:
             # We suppose the data_dir_path is a directory
             filepath = os.path.join(data_dir_path, json_obj["FileName"])
             self.logger.info("Writting Stimuli datalist to {}".format(filepath))
-            self.data_list.to_file(filepath, addr_to_zero = True)
+            self.data_list.to_file(filepath, addr_to_zero=True)
 
         return json_obj
-
 
     async def run(self, driver) -> None:
         """
@@ -368,11 +392,11 @@ class Stimuli:
         Raises:
             NotImplementedError: Read access with more than 1 Data object isn't supported.
         """
-        
+
         self.logger.debug("Stimuli waits {}".format(self.rel_time))
 
         await self.rel_time.wait()
-        
+
         self.logger.debug("Stimuli waited {} and starts running".format(self.rel_time))
 
         # Updating start time to the real value
@@ -382,9 +406,11 @@ class Stimuli:
             await driver.write_datalist(self.data_list)
         else:
             if len(self.data_list) > 1:
-                raise NotImplementedError("Reading more than 1 Data from Stimuli isn't supported")
+                raise NotImplementedError(
+                    "Reading more than 1 Data from Stimuli isn't supported"
+                )
             await driver.read_data(self.data_list[0])
-        
+
         self.end_time = Time.now()
 
         self.logger.info("Stimuli's run ended")
@@ -398,18 +424,20 @@ class Stimuli:
             NotImplementedError: Not implemented for Stimulis with no Data object.
         """
         if len(self.data_list) == 0:
-            raise NotImplementedError("short_desc is only supported on Stimulis that have at least one Data object")
-        return "Stimuli(id={}, access={}, address={}, size={})" \
-                .format(self.id_, self.access, self.data_list[0].addr, self.data_list[0].length)
-
+            raise NotImplementedError(
+                "short_desc is only supported on Stimulis that have at least one Data object"
+            )
+        return "Stimuli(id={}, access={}, address={}, size={})".format(
+            self.id_, self.access, self.data_list[0].addr, self.data_list[0].length
+        )
 
 
 def stimuli_default_generator(
-        data_list_generator: Callable,
-        delay_range: Sequence[int],
-        access: Access = Access.ALL,
-        desc: str = "Stimuli {id_} generated using the default generator",
-        id_: str = ""
+    data_list_generator: Callable,
+    delay_range: Sequence[int],
+    access: Access = Access.ALL,
+    desc: str = "Stimuli {id_} generated using the default generator",
+    id_: str = "",
 ) -> Stimuli:
     """
     Default random stimuli generator.
@@ -429,10 +457,9 @@ def stimuli_default_generator(
         access = random.choice([Access.WRITE, Access.READ])
 
     return Stimuli(
-            id_,
-            access,
-            Time(random.choice(delay_range), "step"),
-            data_list_generator(fill_data = access == Access.WRITE),
-            desc.format(id_=id_)
+        id_,
+        access,
+        Time(random.choice(delay_range), "step"),
+        data_list_generator(fill_data=access == Access.WRITE),
+        desc.format(id_=id_),
     )
-

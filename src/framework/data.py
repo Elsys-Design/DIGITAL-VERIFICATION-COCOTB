@@ -1,8 +1,6 @@
 from enum import Enum
 import random
-import copy
 from dataclasses import dataclass
-import logging
 import logging
 from typing import List, Union, Sequence, Optional
 
@@ -14,6 +12,7 @@ class Encoding(Enum):
     """
     Encoding enumeration (see Encoding field in sequences descriptors in Data files).
     """
+
     ASCII = 0
     BINARY = 1
 
@@ -26,23 +25,28 @@ class DataFormat:
         - determine how to understand the Data (is_big_endian, word_size)
         - determine how to print back the Data (tlast_char, encoding, ...)
     """
+
     word_size: int = 4
     is_big_endian: bool = True
     encoding: Encoding = Encoding.ASCII
-    tlast_char: str = '!'
+    tlast_char: str = "!"
     addr_size: int = 4
 
     def is_supported(self) -> bool:
         """
         Returns:
             True if the DataFormat is currently supported.
-        
+
         This method should be updated as functionalities are added.
         """
-        return self.is_big_endian == True and self.encoding == Encoding.ASCII and self.tlast_char == '!'
+        return (
+            self.is_big_endian
+            and self.encoding == Encoding.ASCII
+            and self.tlast_char == "!"
+        )
 
 
-@dataclass(init = False)
+@dataclass(init=False)
 class Data:
     """
     Represents either:
@@ -63,7 +67,7 @@ class Data:
         addr: Start address of the transaction.
         ends_with_tlast: True if this Data object ends with a end of packet descriptor.
         dformat: Printing format for this Data object.
-        
+
         is_allocated: Read-only property that is True if the data attribute is allocated (it's a bytearray).
         length: Property returning the length of the Data. It can only be set if the Data isn't allocated.
         data: Property returning the transaction data (bytearray). It can only be accessed when the Data is allocated,
@@ -71,23 +75,23 @@ class Data:
 
         logger: Data class logger (class attribute).
     """
+
     addr: int
     ends_with_tlast: bool
     dformat: DataFormat
 
     # Class attribute, never changes
     logger = logging.getLogger("framework.data")
-    
+
     # Private attribute
     _data_or_length: Union[bytearray, int]
-
 
     def __init__(
         self,
         addr: int,
         data: Union[bytearray, int],
         ends_with_tlast: bool = True,
-        dformat: Optional[DataFormat] = None
+        dformat: Optional[DataFormat] = None,
     ) -> None:
         """
         Args:
@@ -100,25 +104,29 @@ class Data:
 
         self._data_or_length = None
         if isinstance(data, int):
-            self._data_or_length = bytearray(data.to_bytes((data.bit_length()+7)//8, byteorder='big'))
-            if self.dformat == None:
+            self._data_or_length = bytearray(
+                data.to_bytes((data.bit_length() + 7) // 8, byteorder="big")
+            )
+            if self.dformat is None:
                 self.dformat = DataFormat(len(self.data))
-        else: # data is a bytearray
+        else:  # data is a bytearray
             self._data_or_length = data
-            if self.dformat == None:
+            if self.dformat is None:
                 self.dformat = DataFormat()
 
         if self.addr.bit_length() > 64:
-            raise ValueError("Data address cannot be written on 64 bits: 0x{0:X}".format(self.addr))
+            raise ValueError(
+                "Data address cannot be written on 64 bits: 0x{0:X}".format(self.addr)
+            )
 
     @classmethod
     def build_empty(
-            cls,
-            addr: int,
-            length: int,
-            ends_with_tlast: bool = True,
-            dformat: Optional[DataFormat] = None
-    ) -> 'Data':
+        cls,
+        addr: int,
+        length: int,
+        ends_with_tlast: bool = True,
+        dformat: Optional[DataFormat] = None,
+    ) -> "Data":
         """
         Args:
             length: The length of the Data to build.
@@ -130,7 +138,6 @@ class Data:
         # when data is an int, it specifies a length (see length or is_allocated properties)
         out._data_or_length = length
         return out
-
 
     @property
     def is_allocated(self) -> bool:
@@ -162,7 +169,9 @@ class Data:
             RuntimeError: This method shouldn't be used on allocated Data objects
         """
         if self.is_allocated:
-            raise RuntimeError("Cannot set the length of an allocated Data, change Data.data attribute directly")
+            raise RuntimeError(
+                "Cannot set the length of an allocated Data, change Data.data attribute directly"
+            )
         self._data_or_length = value
 
     @property
@@ -187,8 +196,6 @@ class Data:
         """
         self._data_or_length = data
 
-
-
     def alignment_check(self) -> None:
         """
         Performing an alignment verification on the Data.
@@ -201,8 +208,11 @@ class Data:
         self.logger.debug("Performing alignment checks on Data")
 
         if self.addr % self.dformat.word_size != 0:
-            raise ValueError("Address (0x{0:X}) needs to be aligned on word size ({1})" \
-                    .format(self.addr, self.dformat.word_size))
+            raise ValueError(
+                "Address (0x{0:X}) needs to be aligned on word size ({1})".format(
+                    self.addr, self.dformat.word_size
+                )
+            )
 
     def __str__(self) -> str:
         """
@@ -227,9 +237,11 @@ class Data:
 
         x = 0
         while x < self.length:
-            end_x = min(x+self.dformat.word_size, self.length)
+            end_x = min(x + self.dformat.word_size, self.length)
             hex_data.append(
-                utils.int_to_hex_string(int(self.data[x:end_x].hex(), 16), self.dformat.word_size)
+                utils.int_to_hex_string(
+                    int(self.data[x:end_x].hex(), 16), self.dformat.word_size
+                )
             )
             x = end_x
         return hex_data
@@ -247,19 +259,18 @@ class Data:
 
         if not self.dformat.is_supported():
             raise NotImplementedError("Unsupported format: \n{}".format(self.dformat))
-        
 
         last_fields = []
 
         data_file_addr = 0 if addr_to_zero else self.addr
 
         out = "@ {addr}; {length}; {encoding}; {word_size}; {endianness}; {packet_separator};".format(
-                addr = utils.int_to_hex_string(data_file_addr, self.dformat.addr_size),
-                length = str(self.length),
-                encoding = "ascii" if self.dformat.encoding == Encoding.ASCII else "binary",
-                word_size = str(self.dformat.word_size),
-                endianness = "Big" if self.dformat.is_big_endian else "Little",
-                packet_separator = self.dformat.tlast_char
+            addr=utils.int_to_hex_string(data_file_addr, self.dformat.addr_size),
+            length=str(self.length),
+            encoding="ascii" if self.dformat.encoding == Encoding.ASCII else "binary",
+            word_size=str(self.dformat.word_size),
+            endianness="Big" if self.dformat.is_big_endian else "Little",
+            packet_separator=self.dformat.tlast_char,
         )
 
         if self.is_allocated:
@@ -273,22 +284,20 @@ class Data:
                 last_fields.append(self.dformat.tlast_char)
 
             if len(last_fields) > 0:
-                out += "; " +  "; ".join(last_fields)
+                out += "; " + "; ".join(last_fields)
 
         self.logger.debug("Data written to raw")
 
-        return out + '\n'
-
-
+        return out + "\n"
 
     @classmethod
     def from_raw(
-            cls,
-            raw: str,
-            base_addr: int,
-            fill_strategy: FillStrategy,
-            is_stream: bool = False
-    ) -> List['Data']:
+        cls,
+        raw: str,
+        base_addr: int,
+        fill_strategy: FillStrategy,
+        is_stream: bool = False,
+    ) -> List["Data"]:
         """
         Reads a sequence with a descriptor and returns a list of Data.
         At every end of packet ('!'), we create a new Data object that is put into the 'out' list.
@@ -313,25 +322,35 @@ class Data:
             ValueError: Parsing error.
             NotImplementedError: Parsing error.
         """
-        cls.logger.debug("Building Data from raw (base_addr = 0x{0:X}, fill_strategy = {1})".format(base_addr, fill_strategy))
+        cls.logger.debug(
+            "Building Data from raw (base_addr = 0x{0:X}, fill_strategy = {1})".format(
+                base_addr, fill_strategy
+            )
+        )
 
-        fields = raw.split('\n')
+        fields = raw.split("\n")
         fields = list(filter(None, fields))
 
-        descriptor_fields = fields[0].split(';')
+        descriptor_fields = fields[0].split(";")
         descriptor_fields = [f.strip() for f in descriptor_fields]
 
         # descriptor parsing
         base_addr = int(descriptor_fields[0], 0) + base_addr
 
         input_length = int(descriptor_fields[1], 0)
-                
+
         dformat = DataFormat()
-        dformat.encoding = Encoding.ASCII if descriptor_fields[2] == "ascii" else Encoding.BINARY
+        dformat.encoding = (
+            Encoding.ASCII if descriptor_fields[2] == "ascii" else Encoding.BINARY
+        )
         dformat.word_size = int(descriptor_fields[3])
 
         if descriptor_fields[4] not in ["Big", "Little"]:
-            raise ValueError("Wrong endianness: {} should be either Big or Little".format(descriptor_fields[4]))
+            raise ValueError(
+                "Wrong endianness: {} should be either Big or Little".format(
+                    descriptor_fields[4]
+                )
+            )
         dformat.is_big_endian = descriptor_fields[4] == "Big"
         dformat.tlast_char = descriptor_fields[5]
 
@@ -346,9 +365,9 @@ class Data:
         data = bytearray()
         ends_with_tlast = False
         for x in range(len(data_fields)):
-            dfields = data_fields[x].split(';')
+            dfields = data_fields[x].split(";")
             dfields = [d.strip() for d in dfields]
-            
+
             # Handling optional fields 1&2 (last word size and end of packet descriptor)
             i = 1
             word_size = dformat.word_size
@@ -361,81 +380,98 @@ class Data:
                 finally:
                     if not ex:
                         if word_size > dformat.word_size:
-                            raise ValueError("The last word size ({}) cannot be superior to the base word size ({})" \
-                                    .format(word_size, dformat.word_size))
+                            raise ValueError(
+                                "The last word size ({}) cannot be superior to the base word size ({})".format(
+                                    word_size, dformat.word_size
+                                )
+                            )
                         i += 1
-                        if x != len(data_fields)-1:
-                            raise NotImplementedError("A smaller size can only be defined for the last data word")
-
+                        if x != len(data_fields) - 1:
+                            raise NotImplementedError(
+                                "A smaller size can only be defined for the last data word"
+                            )
 
                 if i < len(dfields):
                     if dfields[i] != dformat.tlast_char:
-                        raise ValueError("End of packet descriptor isn't {} but {}" \
-                                .format(dformat.tlast_char, dfields[i]))
+                        raise ValueError(
+                            "End of packet descriptor isn't {} but {}".format(
+                                dformat.tlast_char, dfields[i]
+                            )
+                        )
                     ends_with_tlast = True
                     i += 1
 
                 if i < len(dfields):
-                    raise ValueError("Too many fields on this data line (max is 3: data; last_word_size;"
-                                     "end_descriptor but current is {})".format(len(dfields)))
-
+                    raise ValueError(
+                        "Too many fields on this data line (max is 3: data; last_word_size;"
+                        "end_descriptor but current is {})".format(len(dfields))
+                    )
 
             # Handling the actual data (field 0)
             word = int(dfields[0], 0)
-            if word.bit_length() > 8*word_size:
+            if word.bit_length() > 8 * word_size:
                 cls.logger.warning(
-                        "Data word 0x{word:X} is {word_size} bits long which is higher than the word size"
-                        "in the descriptor ({descriptor_word_size} bits)" \
-                        .format(word = word, word_size = word.bit_length(), descriptor_word_size = 8*word_size)
+                    "Data word 0x{word:X} is {word_size} bits long which is higher than the word size"
+                    "in the descriptor ({descriptor_word_size} bits)".format(
+                        word=word,
+                        word_size=word.bit_length(),
+                        descriptor_word_size=8 * word_size,
+                    )
                 )
-                word &= (2**(8*word_size) - 1)
+                word &= 2 ** (8 * word_size) - 1
 
-            data += bytearray(word.to_bytes(word_size, 'big' if dformat.is_big_endian else 'little'))
-
+            data += bytearray(
+                word.to_bytes(word_size, "big" if dformat.is_big_endian else "little")
+            )
 
             # Cutting the sequence in multiple Data if we have an end of packet in the middle of it
             # Also handle the last data (even if it doesn't end with an end of packet)
-            if ends_with_tlast or x == len(data_fields)-1:
+            if ends_with_tlast or x == len(data_fields) - 1:
                 addr = base_addr if is_stream else base_addr + current_length
                 out.append(Data(addr, data, ends_with_tlast, dformat))
-            
+
                 # Reset vars for new data
                 current_length += len(data)
                 data = bytearray()
                 ends_with_tlast = False
-        
 
         # Expansion or Cutting of the data
 
         # In case it's just a descriptor with no data defined
         if len(out) == 0:
             if input_length == 0:
-                raise ValueError("An empty descriptor of size 0 isn't valid (because it wouldn't do anything)")
+                raise ValueError(
+                    "An empty descriptor of size 0 isn't valid (because it wouldn't do anything)"
+                )
             out.append(Data(base_addr, data, False, dformat))
 
-        # Handling input_length vs current_length (cutting or filling data) 
+        # Handling input_length vs current_length (cutting or filling data)
         # input_length == 0 -> we already have the right size
         if input_length != 0:
             if current_length > input_length:
                 cls.logger.warning(
-                        "Described data length ({}) is higher than the length specified in the descriptor ({})" \
-                                .format(current_length, input_length)
+                    "Described data length ({}) is higher than the length specified in the descriptor ({})".format(
+                        current_length, input_length
+                    )
                 )
 
-                while len(out) > 0 and current_length - len(out[-1].data) >= input_length:
+                while (
+                    len(out) > 0 and current_length - len(out[-1].data) >= input_length
+                ):
                     current_length -= len(out[-1].data)
                     out.pop()
                 if current_length > input_length:
-                    del out[-1].data[-(current_length-input_length):]
+                    del out[-1].data[-(current_length - input_length) :]
             else:
-                FillStrategy.exec_on(fill_strategy, out[-1].data, input_length-current_length)
-        
+                FillStrategy.exec_on(
+                    fill_strategy, out[-1].data, input_length - current_length
+                )
+
         cls.logger.debug("Data built from raw")
 
         return out
 
-
-    def represents_same_data_as(self, other: 'Data', addr_offset: int = 0) -> bool:
+    def represents_same_data_as(self, other: "Data", addr_offset: int = 0) -> bool:
         """
         Almost like the == operator but checking only what's meaningfull.
 
@@ -448,8 +484,7 @@ class Data:
             True if the data and address represented by self and other are the same, taking the address offset into
             account.
         """
-        return self.data == other.data and self.addr == other.addr+addr_offset
-
+        return self.data == other.data and self.addr == other.addr + addr_offset
 
     def last_word_size(self) -> int:
         """
@@ -461,12 +496,12 @@ class Data:
 
 
 def data_default_generator(
-        min_addr: int,
-        max_addr: int,
-        size_range: Sequence[int],
-        word_size_range: Sequence[int] = [4],
-        word_aligned: bool = True,
-        fill_data: bool = True
+    min_addr: int,
+    max_addr: int,
+    size_range: Sequence[int],
+    word_size_range: Sequence[int] = [4],
+    word_aligned: bool = True,
+    fill_data: bool = True,
 ) -> Data:
     """
     Default random data generator for AXI and AXI-Lite buses.
@@ -485,7 +520,7 @@ def data_default_generator(
     """
     size = random.choice(size_range)
     word_size = random.choice(word_size_range)
-    addr = random.choice(range(min_addr, max_addr-size))
+    addr = random.choice(range(min_addr, max_addr - size))
     if word_aligned:
         addr = addr - (addr % word_size)
 
@@ -499,13 +534,12 @@ def data_default_generator(
     return data
 
 
-
 def stream_data_default_generator(
-        tdest_range: Sequence[int],
-        size_range: Sequence[int],
-        word_size_range: Sequence[int] = [4],
-        ends_with_tlast: bool = True,
-        fill_data: bool = True
+    tdest_range: Sequence[int],
+    size_range: Sequence[int],
+    word_size_range: Sequence[int] = [4],
+    ends_with_tlast: bool = True,
+    fill_data: bool = True,
 ) -> Data:
     """
     Default random data generator for AXI-Stream buses.
@@ -526,7 +560,7 @@ def stream_data_default_generator(
     word_size = random.choice(word_size_range)
     addr = random.choice(tdest_range)
 
-    if ends_with_tlast == None:
+    if ends_with_tlast is None:
         ends_with_tlast = bool(random.getrandbits(1))
 
     if fill_data:
@@ -534,5 +568,3 @@ def stream_data_default_generator(
         return Data(addr, data, ends_with_tlast, DataFormat(word_size))
     else:
         return Data.build_empty(addr, size, ends_with_tlast, DataFormat(word_size))
-
-

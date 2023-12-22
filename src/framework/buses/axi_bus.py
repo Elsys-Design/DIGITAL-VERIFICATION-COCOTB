@@ -1,5 +1,3 @@
-
-from cocotb.handle import ModifiableObject
 from cocotb.binary import BinaryValue
 import cocotbext.axi
 
@@ -13,13 +11,14 @@ class FixHandle:
     Attributes:
         value: A cocotb.binary.BinaryValue object representing the current value.
     """
+
     def __init__(self, value: BinaryValue) -> None:
         self.value = value
 
     def setimmediatevalue(self, value: BinaryValue) -> None:
-        """ cocotbext.axi uses this method so it must be defined to avoid errors """
+        """cocotbext.axi uses this method so it must be defined to avoid errors"""
         self.value = value
-    
+
     def __len__(self) -> int:
         return len(self.value)
 
@@ -36,7 +35,6 @@ class AxiBus(cocotbext.axi.AxiBus):
     def __init__(self, write=None, read=None, **kwargs):
         super().__init__(write, read)
 
-
         def add_id_signal(bus, attr):
             if getattr(bus, attr, None) is None:
                 fix_signal = FixHandle(BinaryValue(0))
@@ -47,4 +45,3 @@ class AxiBus(cocotbext.axi.AxiBus):
         add_id_signal(self.write.b, "bid")
         add_id_signal(self.read.ar, "arid")
         add_id_signal(self.read.r, "rid")
-

@@ -1,6 +1,4 @@
 import cocotb
-from cocotb.triggers import Combine, Timer
-from cocotb.result import TestFailure
 import os
 
 from framework import Data
@@ -25,7 +23,9 @@ async def cocotb_run(dut):
 
     # Reading the rams to a file in read_data/
     for i in range(2):
-        tb.out_axilite_rams[i].read_data_to_file("read_data/lite_ram{}.dat".format(i), Data.build_empty(0, 16))
+        tb.out_axilite_rams[i].read_data_to_file(
+            "read_data/lite_ram{}.dat".format(i), Data.build_empty(0, 16)
+        )
     tb.out_axi_ram.read_data_to_file("read_data/ram.dat", Data.build_empty(0x100, 8))
 
     # Comparing inputs/ and read_data/

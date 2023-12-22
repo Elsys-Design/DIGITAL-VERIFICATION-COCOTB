@@ -1,11 +1,9 @@
 from collections import deque
 import os
 import logging
-from typing import List, Union, Dict, Type, Optional
+from typing import Union, Dict, Type, Optional
 
 import cocotb
-from cocotb.triggers import RisingEdge
-from cocotb.queue import Queue
 import cocotbext.axi
 
 from ..time import Time
@@ -32,15 +30,16 @@ class BaseAxiMonitor:
             Instanciated only if the default_stimuli_logger_class is not None in the constructor.
     """
 
-
     def __init__(
-            self,
-            name: str,
-            bus: Union[cocotbext.axi.AxiBus, cocotbext.axi.AxiLiteBus],
-            clock, reset, reset_active_level,
-            default_stimuli_logger_class: Type,
-            bus_monitors : Dict[str, Type],
-            logger: logging.Logger
+        self,
+        name: str,
+        bus: Union[cocotbext.axi.AxiBus, cocotbext.axi.AxiLiteBus],
+        clock,
+        reset,
+        reset_active_level,
+        default_stimuli_logger_class: Type,
+        bus_monitors: Dict[str, Type],
+        logger: logging.Logger,
     ) -> None:
         """
         Args:
@@ -61,56 +60,71 @@ class BaseAxiMonitor:
         # Building default logger
         self.default_stimuli_logger = None
         if default_stimuli_logger_class is not None:
-            self.default_stimuli_logger = default_stimuli_logger_class(os.path.join("stimlogs/" + self.name))
+            self.default_stimuli_logger = default_stimuli_logger_class(
+                os.path.join("stimlogs/" + self.name)
+            )
             self.analysis_port.subscribe(self.default_stimuli_logger.write)
 
         # Building channel monitors
         # after this, self.aw is a cocotbext.axi.AxiAWMonitor (or AxiLiteAWMonitor),
         # self.w is a cocotbext.axi.AxiWMonitor, ...
-        channels = {
-            bus.write: ["aw", "w", "b"],
-            bus.read: ["ar", "r"]
-        }
+        channels = {bus.write: ["aw", "w", "b"], bus.read: ["ar", "r"]}
         for write_read_bus, channel_list in channels.items():
             for channel in channel_list:
                 # Building bus monitor
-                bus_mon = bus_monitors[channel](getattr(write_read_bus, channel), clock, reset, reset_active_level)
+                bus_mon = bus_monitors[channel](
+                    getattr(write_read_bus, channel), clock, reset, reset_active_level
+                )
                 # Setting it as attribute
                 setattr(self, channel, bus_mon)
 
-
         # Helpers to avoid using hasattr() everywhere
-        self.has_write_id =  hasattr(self.aw.bus, "awid")
-        self.has_read_id =  hasattr(self.ar.bus, "arid")
-        self.has_wid =  hasattr(self.w.bus, "wid") # for AXI3 support
+        self.has_write_id = hasattr(self.aw.bus, "awid")
+        self.has_read_id = hasattr(self.ar.bus, "arid")
+        self.has_wid = hasattr(self.w.bus, "wid")  # for AXI3 support
 
         # Queues to contain channel transaction items until the transaction ends so we can process them all at once
         # If there is no ids (AXI-Lite or AXI without id) these are just [deque()] so basically no overhead
         # -> this is a general solution for ids since Axi-Lite and Axi without id buses behave (id wise) like Axi buses
         #       with transactions ids being only 0.
-        self.aw_queues = [deque() for _ in range(2**len(self.aw.bus.awid) if self.has_write_id else 1)]
-        self.w_queues = [deque() for _ in range(2**len(self.w.bus.wid) if self.has_wid else 1)]
-        self.write_start_time_queues = [deque() for _ in range(2**len(self.aw.bus.awid) if self.has_write_id else 1)]
+        self.aw_queues = [
+            deque()
+            for _ in range(2 ** len(self.aw.bus.awid) if self.has_write_id else 1)
+        ]
+        self.w_queues = [
+            deque() for _ in range(2 ** len(self.w.bus.wid) if self.has_wid else 1)
+        ]
+        self.write_start_time_queues = [
+            deque()
+            for _ in range(2 ** len(self.aw.bus.awid) if self.has_write_id else 1)
+        ]
 
-        self.ar_queues = [deque() for _ in range(2**len(self.ar.bus.arid) if self.has_read_id else 1)]
-        self.r_queues = [deque() for _ in range(2**len(self.r.bus.rid) if self.has_read_id else 1)]
-        self.read_start_time_queues = [deque() for _ in range(2**len(self.ar.bus.arid) if self.has_read_id else 1)]
+        self.ar_queues = [
+            deque()
+            for _ in range(2 ** len(self.ar.bus.arid) if self.has_read_id else 1)
+        ]
+        self.r_queues = [
+            deque() for _ in range(2 ** len(self.r.bus.rid) if self.has_read_id else 1)
+        ]
+        self.read_start_time_queues = [
+            deque()
+            for _ in range(2 ** len(self.ar.bus.arid) if self.has_read_id else 1)
+        ]
 
         # Data sizes for write and read buses
-        self.wsize = len(self.w.bus.wdata)//8
-        self.rsize = len(self.r.bus.rdata)//8
+        self.wsize = len(self.w.bus.wdata) // 8
+        self.rsize = len(self.r.bus.rdata) // 8
 
         # Address size for write and read buses
-        self.waddr_size = len(self.aw.bus.awaddr)//8
-        self.raddr_size = len(self.ar.bus.araddr)//8
-        
+        self.waddr_size = len(self.aw.bus.awaddr) // 8
+        self.raddr_size = len(self.ar.bus.araddr) // 8
+
         # Id counter for stimulis
         self.current_id = 0
 
         # Last end_time for rel_time computation
-        self.last_write_start_time = Time(0, 'fs')
-        self.last_read_start_time = Time(0, 'fs')
-
+        self.last_write_start_time = Time(0, "fs")
+        self.last_read_start_time = Time(0, "fs")
 
         # Starting all channel monitor tasks
         cocotb.start_soon(self.monitor_aw())
@@ -118,7 +132,6 @@ class BaseAxiMonitor:
         cocotb.start_soon(self.monitor_b())
         cocotb.start_soon(self.monitor_ar())
         cocotb.start_soon(self.monitor_r())
-
 
     async def monitor_aw(self) -> None:
         """
@@ -129,7 +142,9 @@ class BaseAxiMonitor:
             awid = int(aw_t.awid) if self.has_write_id else 0
             self.aw_queues[awid].append(aw_t)
             current_time = Time.now()
-            self.write_start_time_queues[awid].append((current_time, self.last_write_start_time))
+            self.write_start_time_queues[awid].append(
+                (current_time, self.last_write_start_time)
+            )
             self.last_write_start_time = current_time
 
     async def monitor_w(self) -> None:
@@ -156,8 +171,6 @@ class BaseAxiMonitor:
             # We have received a complete transaction, we can build the Stimuli
             self._build_write_stimuli(b_t)
 
-
-
     async def monitor_ar(self) -> None:
         """
         Monitors the ar channel.
@@ -167,7 +180,9 @@ class BaseAxiMonitor:
             arid = int(ar_t.arid) if self.has_read_id else 0
             self.ar_queues[arid].append(ar_t)
             current_time = Time.now()
-            self.read_start_time_queues[arid].append((current_time, self.last_read_start_time))
+            self.read_start_time_queues[arid].append(
+                (current_time, self.last_read_start_time)
+            )
             self.last_read_start_time = current_time
 
     async def monitor_r(self) -> None:
@@ -191,16 +206,14 @@ class BaseAxiMonitor:
             if not hasattr(r_t, "rlast") or r_t.rlast:
                 self._build_read_stimuli(rid)
 
-
-
     def _log_write_stimuli(
-            self,
-            data_obj: Data,
-            start_time: Time,
-            old_start_time: Time,
-            first_id: Optional[str] = None,
-            diff_awsize: Optional[int] = None,
-            wstrb: Optional[int] = None
+        self,
+        data_obj: Data,
+        start_time: Time,
+        old_start_time: Time,
+        first_id: Optional[str] = None,
+        diff_awsize: Optional[int] = None,
+        wstrb: Optional[int] = None,
     ) -> str:
         """
         Private helper method used in build_write_stimuli.
@@ -217,7 +230,7 @@ class BaseAxiMonitor:
         # Building id and desc
         new_id = "{}_{}".format(self.name, self.current_id)
         self.current_id += 1
-        if first_id == None:
+        if first_id is None:
             first_id = new_id
             desc = ""
         else:
@@ -232,16 +245,16 @@ class BaseAxiMonitor:
             if len(desc) > 0:
                 desc += "| "
             desc += "awsize = {}".format(diff_awsize)
-        
+
         # Building Stimuli
         stim = Stimuli(
-                new_id,
-                Access.WRITE,
-                start_time - old_start_time,
-                DataList([data_obj]),
-                desc,
-                start_time,
-                Time.now()
+            new_id,
+            Access.WRITE,
+            start_time - old_start_time,
+            DataList([data_obj]),
+            desc,
+            start_time,
+            Time.now(),
         )
 
         # Logging write Stimuli
@@ -252,8 +265,9 @@ class BaseAxiMonitor:
 
         return first_id
 
-    
-    def _build_write_stimuli(self, b_t: cocotbext.axi.axi_channels.AxiBTransaction) -> None:
+    def _build_write_stimuli(
+        self, b_t: cocotbext.axi.axi_channels.AxiBTransaction
+    ) -> None:
         """
         Builds (and logs) a write Stimuli and the associated Data objects from:
         - aw_t = the last aw channel item for this id (= b_t.bid)
@@ -276,70 +290,103 @@ class BaseAxiMonitor:
         start_time, old_start_time = self.write_start_time_queues[bid].popleft()
 
         awlen = int(aw_t.awlen) if hasattr(aw_t, "awlen") else 0
-        
-        diff_awsize = 2**int(aw_t.awsize) if hasattr(aw_t, "awsize") and 2**int(aw_t.awsize) != self.wsize else None
+
+        diff_awsize = (
+            2 ** int(aw_t.awsize)
+            if hasattr(aw_t, "awsize") and 2 ** int(aw_t.awsize) != self.wsize
+            else None
+        )
 
         # Support for wstrb
         current_addr = int(aw_t.awaddr)
         current_data = bytearray()
         first_id = None
-        for i in range(awlen+1):
+        for i in range(awlen + 1):
             w_t = self.w_queues[wid].popleft()
             word = bytearray(reversed(w_t.wdata.buff))
 
-            if int(w_t.wstrb) == 2**self.wsize-1:
+            if int(w_t.wstrb) == 2**self.wsize - 1:
                 # Full word
                 current_data += word
             else:
-
                 is_continuous = True
                 if i == awlen:
                     # The enabled bytes that are still continuous to the transfert can be added since it's the end of
                     # a burst
                     last_word_size = 0
-                    while w_t.wstrb[-(1+last_word_size)] == 1:
+                    while w_t.wstrb[-(1 + last_word_size)] == 1:
                         last_word_size += 1
-                    
+
                     # Continuing to check wstrb to see if there isn't another 1 after the first 0
-                    for x in range(last_word_size+1, self.wsize):
+                    for x in range(last_word_size + 1, self.wsize):
                         if w_t.wstrb[-x] == 1:
                             is_continuous = False
-                    
+
                     if is_continuous and last_word_size > 0:
                         # Add the last incomplete word and log the stimuli
                         last_word = word[:last_word_size]
                         current_data += last_word
 
-                        data_obj = Data(current_addr, current_data, False, DataFormat(self.wsize, addr_size = self.waddr_size))
+                        data_obj = Data(
+                            current_addr,
+                            current_data,
+                            False,
+                            DataFormat(self.wsize, addr_size=self.waddr_size),
+                        )
                         current_addr += len(current_data)
                         current_data = bytearray()
 
-                        first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, diff_awsize)
+                        first_id = self._log_write_stimuli(
+                            data_obj, start_time, old_start_time, first_id, diff_awsize
+                        )
 
                 # We arrive here either because i != awlen or because i == awlen and the last word isn't continuous
                 # (it's not an elif bus just a if)
                 if i != awlen or not is_continuous:
-
                     if len(current_data) != 0:
                         # Logging the current_data that is continuous
-                        data_obj = Data(current_addr, current_data, False, DataFormat(self.wsize, addr_size = self.waddr_size))
-                        first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, diff_awsize)
+                        data_obj = Data(
+                            current_addr,
+                            current_data,
+                            False,
+                            DataFormat(self.wsize, addr_size=self.waddr_size),
+                        )
+                        first_id = self._log_write_stimuli(
+                            data_obj, start_time, old_start_time, first_id, diff_awsize
+                        )
                         current_addr += len(current_data)
                         current_data = bytearray()
 
                     # Logging unitary Stimuli with non continuous wstrb
-                    data_obj = Data(current_addr, word, False, DataFormat(self.wsize, addr_size = self.waddr_size))
-                    first_id = self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, diff_awsize, str(w_t.wstrb)[::-1])
+                    data_obj = Data(
+                        current_addr,
+                        word,
+                        False,
+                        DataFormat(self.wsize, addr_size=self.waddr_size),
+                    )
+                    first_id = self._log_write_stimuli(
+                        data_obj,
+                        start_time,
+                        old_start_time,
+                        first_id,
+                        diff_awsize,
+                        str(w_t.wstrb)[::-1],
+                    )
                     # To handle addresses that are not aligned on the bus size
                     current_addr += self.wsize - (current_addr % self.wsize)
 
         # If we only had full wstrb for the last bytes, we log them at the end
         if len(current_data) > 0:
-            data_obj = Data(current_addr, current_data, False, DataFormat(self.wsize, addr_size = self.waddr_size))
+            data_obj = Data(
+                current_addr,
+                current_data,
+                False,
+                DataFormat(self.wsize, addr_size=self.waddr_size),
+            )
 
-            self._log_write_stimuli(data_obj, start_time, old_start_time, first_id, diff_awsize)
-
-
+            self._log_write_stimuli(
+                data_obj, start_time, old_start_time, first_id, diff_awsize
+            )
 
     def _build_read_stimuli(self, rid: int) -> None:
         """
@@ -355,9 +402,13 @@ class BaseAxiMonitor:
 
         start_time, old_start_time = self.read_start_time_queues[rid].popleft()
 
-        arlen = int(ar_t.arlen) if hasattr(ar_t, "arlen") else 0
-        
-        diff_arsize = 2**int(ar_t.arsize) if hasattr(ar_t, "arsize") and 2**int(ar_t.arsize) != self.rsize else None
+        # arlen = int(ar_t.arlen) if hasattr(ar_t, "arlen") else 0
+
+        diff_arsize = (
+            2 ** int(ar_t.arsize)
+            if hasattr(ar_t, "arsize") and 2 ** int(ar_t.arsize) != self.rsize
+            else None
+        )
 
         # Concatenation of all r channel items' data
         data = bytearray()
@@ -368,20 +419,25 @@ class BaseAxiMonitor:
         end_time = Time.now()
 
         # Building Data
-        data_obj = Data(int(ar_t.araddr), data, True, DataFormat(self.rsize, addr_size = self.raddr_size))
-        
+        data_obj = Data(
+            int(ar_t.araddr),
+            data,
+            True,
+            DataFormat(self.rsize, addr_size=self.raddr_size),
+        )
+
         # Building Stimuli
         new_id = "{}_{}".format(self.name, self.current_id)
         self.current_id += 1
         stim = Stimuli(
-                new_id,
-                Access.READ,
-                # diff_or_zero if the difference is negative because of access pipelining
-                start_time - old_start_time,
-                DataList([data_obj]),
-                "arsize = {}".format(diff_arsize) if diff_arsize is not None else "",
-                start_time,
-                end_time
+            new_id,
+            Access.READ,
+            # diff_or_zero if the difference is negative because of access pipelining
+            start_time - old_start_time,
+            DataList([data_obj]),
+            "arsize = {}".format(diff_arsize) if diff_arsize is not None else "",
+            start_time,
+            end_time,
         )
 
         # Logging read Stimuli
@@ -389,4 +445,3 @@ class BaseAxiMonitor:
         self.analysis_port.send(stim)
 
         self.logger.info("Logged " + stim.short_desc())
-

@@ -1,4 +1,4 @@
-from cocotb.utils import get_sim_time, get_sim_steps
+from cocotb.utils import get_sim_time
 from cocotb.triggers import Timer
 import cocotb
 
@@ -14,17 +14,10 @@ class Time:
         value: Time in the 'step' unit (the simulator's unit).
         scale: Class attribute that allows to get the unit name from a power of ten.
     """
-    scale = {
-            -15: 'fs',
-            -12: 'ps',
-            -9:  'ns',
-            -6:  'us',
-            -3:  'ms',
-            0:   'sec'
-    }
 
+    scale = {-15: "fs", -12: "ps", -9: "ns", -6: "us", -3: "ms", 0: "sec"}
 
-    def __init__(self, value : float, unit : str) -> None:
+    def __init__(self, value: float, unit: str) -> None:
         """
         Args:
             value: Time value, must be positive.
@@ -38,26 +31,29 @@ class Time:
 
         if unit in self.scale.values():
             self.value = cocotb.utils.get_sim_steps(value, unit, round_mode="round")
-        elif unit == 'step':
+        elif unit == "step":
             self.value = value
         else:
-            raise ValueError("{} unit isn't supported (supported units: {} + 'step')".format(unit, *self.scale.values()))
+            raise ValueError(
+                "{} unit isn't supported (supported units: {} + 'step')".format(
+                    unit, *self.scale.values()
+                )
+            )
 
     @classmethod
-    def now(cls) -> 'Time':
+    def now(cls) -> "Time":
         """
         Returns:
             The current simulation time as a Time object.
         """
-        return cls(get_sim_time('step'), 'step')
-
+        return cls(get_sim_time("step"), "step")
 
     async def wait(self) -> None:
         """
         Waits for the Time duration.
         """
         if self.value > 0:
-            await Timer(self.value, units='step', round_mode="round")
+            await Timer(self.value, units="step", round_mode="round")
 
     def __str__(self) -> str:
         """
@@ -93,14 +89,15 @@ class Time:
         https://ghdl.github.io/ghdl/using/InvokingGHDL.html#cmdoption-ghdl-time-resolution
         And even if it's not the default, it only supports full units (ps, ns, ... and not 10ns or 100ps).
         """
-        return "{:d} {}".format(self.value, self.scale[cocotb.utils._get_simulator_precision()])
+        return "{:d} {}".format(
+            self.value, self.scale[cocotb.utils._get_simulator_precision()]
+        )
 
+    def __add__(self, other) -> "Time":
+        return Time(self.value + other.value, "step")
 
-    def __add__(self, other) -> 'Time':
-        return Time(self.value + other.value, 'step')
-
-    def __sub__(self, other) -> 'Time':
-        return Time(self.value - other.value, 'step')
+    def __sub__(self, other) -> "Time":
+        return Time(self.value - other.value, "step")
 
     def __eq__(self, other) -> bool:
         return self.value == other.value

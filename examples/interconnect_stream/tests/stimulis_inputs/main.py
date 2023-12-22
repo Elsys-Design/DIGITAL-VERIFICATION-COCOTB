@@ -1,14 +1,11 @@
 import os
 
 import cocotb
-import cocotbext
-from cocotb.triggers import Edge, RisingEdge, FallingEdge, Timer, Join, Combine
-from cocotb.result import TestFailure, TestError
+from cocotb.triggers import Combine
 
 from test_utils.filecmp import check_dirs_equal
 
 from tb import TB
-
 
 
 @cocotb.test()
@@ -25,7 +22,9 @@ async def cocotb_run(dut):
     # Starting read stimulis on axi stream sink
     read_tasks = []
     for i in range(3):
-        read_tasks.append(tb.axis_out[i].init_run("inputs/read_stimulis{}.json".format(i)))
+        read_tasks.append(
+            tb.axis_out[i].init_run("inputs/read_stimulis{}.json".format(i))
+        )
 
     # Letting the scenarios execute (passing simulation time)
     await Combine(write_task, *read_tasks)
@@ -35,4 +34,3 @@ async def cocotb_run(dut):
 
     # Comparing stimlogs/ and golden_stimlogs/
     check_dirs_equal("stimlogs", "golden_stimlogs")
-

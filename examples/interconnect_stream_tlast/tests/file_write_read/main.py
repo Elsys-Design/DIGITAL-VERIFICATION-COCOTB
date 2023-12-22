@@ -2,9 +2,7 @@ import os
 from functools import partial
 
 import cocotb
-import cocotbext
-from cocotb.triggers import Edge, RisingEdge, FallingEdge, Timer, Join, Combine
-from cocotb.result import TestFailure, TestError
+from cocotb.triggers import Combine
 
 import framework
 
@@ -13,28 +11,21 @@ from test_utils.filecmp import compare_to_golden
 from tb import TB
 
 
-
 def generate_write_datalist():
     """
     Builds the Data and DataList generators, returns a generated DataList.
     """
     data_gen = partial(
-            framework.stream_data_default_generator,
-            tdest_range = [0x0, 0x1, 0x2],
-            size_range = range(1, 0x10),
-            word_size_range = [2**i for i in range(4)],
-            ends_with_tlast = None
+        framework.stream_data_default_generator,
+        tdest_range=[0x0, 0x1, 0x2],
+        size_range=range(1, 0x10),
+        word_size_range=[2**i for i in range(4)],
+        ends_with_tlast=None,
     )
 
-    datalist_gen = partial(
-            framework.datalist_default_generator,
-            data_gen,
-            [10]
-    )
-    
+    datalist_gen = partial(framework.datalist_default_generator, data_gen, [10])
+
     return datalist_gen()
-
-
 
 
 @cocotb.test()
@@ -50,7 +41,7 @@ async def cocotb_run(dut):
     data_list = generate_write_datalist()
 
     # Computing the length the read requests must be for each AxiStreamSink
-    read_length = [0,0,0]
+    read_length = [0, 0, 0]
     for data in data_list:
         read_length[data.addr] += len(data.data)
 
@@ -61,19 +52,19 @@ async def cocotb_run(dut):
     # Building tasks
 
     # Creating a new thread for the axi source
-    write_task = cocotb.start_soon(
-            tb.axis_in.write_data_from_file(data_filename)
-    )
+    write_task = cocotb.start_soon(tb.axis_in.write_data_from_file(data_filename))
 
     read_tasks = []
     for i in range(3):
         # Saving the new thread handle for each sink
         read_tasks.append(
-                # Creating a new thread for each sink
-                cocotb.start_soon(
-                    # Function to execute in the thread
-                    tb.axis_out[i].read_data_to_file("read_data/{}.dat".format(i), read_length[i])
+            # Creating a new thread for each sink
+            cocotb.start_soon(
+                # Function to execute in the thread
+                tb.axis_out[i].read_data_to_file(
+                    "read_data/{}.dat".format(i), read_length[i]
                 )
+            )
         )
 
     # Letting the scenarios execute (passing simulation time)
