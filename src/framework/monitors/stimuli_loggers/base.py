@@ -3,6 +3,7 @@ import shutil
 
 from ...stimuli import Stimuli
 
+
 class BaseStimuliLogger:
     """
     Base class for all StimuliLoggers.
@@ -16,7 +17,9 @@ class BaseStimuliLogger:
             easily for all subclasses.
     """
 
-    def __init__(self, dir_path: str, id_base: str = "", is_stream_no_tlast: bool = False):
+    def __init__(
+        self, dir_path: str, id_base: str = "", is_stream_no_tlast: bool = False
+    ):
         """
         If the dir_path directory exists, it's replaced by a new (empty) one to be filled by the new Stimulis.
         If the dir_path directory doesn't exist, it's created.
@@ -36,7 +39,6 @@ class BaseStimuliLogger:
         # make a new directory, recursive if the path doesn't yet exist
         os.makedirs(self.dir_path)
 
-
     def write(self, stimuli: Stimuli) -> None:
         """
         Method to subscribe to AnalisysPorts.
@@ -45,4 +47,6 @@ class BaseStimuliLogger:
         Arguments:
             stimuli: The Stimuli object to log.
         """
-        raise NotImplementedError("BaseStimuliLogger shouldn't be used directly, use child classes.")
+        raise NotImplementedError(
+            "BaseStimuliLogger shouldn't be used directly, use child classes."
+        )

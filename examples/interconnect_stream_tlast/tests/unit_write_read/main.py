@@ -1,16 +1,13 @@
 import os
 
 import cocotb
-import cocotbext
-from cocotb.triggers import Edge, RisingEdge, FallingEdge, Timer, Join, Combine
-from cocotb.result import TestFailure, TestError
+from cocotb.triggers import Combine
 
 from test_utils.filecmp import check_dirs_equal
 
 from framework.data import Data
 
 from tb import TB
-
 
 
 async def unit_write(tb):
@@ -39,12 +36,14 @@ async def read_test(tb, out_idx, length, expected_value):
 
 # There is a tkeep on this DUT
 
+
 async def unit_read0(tb):
     """
     Read scenario for axi sink 0
     """
     await read_test(tb, 0, 3, 0x7B8B9B)
     await read_test(tb, 0, 3, 0xA0B0C0)
+
 
 async def unit_read1(tb):
     """
@@ -54,12 +53,12 @@ async def unit_read1(tb):
     await read_test(tb, 1, 2, 0xABCD)
     await read_test(tb, 1, 2, 0xEF01)
 
+
 async def unit_read2(tb):
     """
     Read scenario for axi sink 2
     """
     await read_test(tb, 2, 2, 0x555)
-
 
 
 @cocotb.test()
@@ -87,4 +86,3 @@ async def cocotb_run(dut):
 
     # Comparing stimlogs/ and golden_stimlogs/
     check_dirs_equal("stimlogs", "golden_stimlogs")
-

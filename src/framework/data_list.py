@@ -15,21 +15,21 @@ class DataList(list):
     Attributes:
         logger: DataList class logger (class attribute).
     """
+
     # Class attribute, never changes
     logger = logging.getLogger("framework.data_list")
 
     def __init__(self, base: List[Data] = []) -> None:
-        """
-        """
+        """ """
         super().__init__(base)
 
     @classmethod
     def from_file(
-            cls,
-            filename: str,
-            base_addr: int = 0,
-            fill_strategy: FillStrategy = FillStrategy.ZEROS,
-            is_stream: bool = False
+        cls,
+        filename: str,
+        base_addr: int = 0,
+        fill_strategy: FillStrategy = FillStrategy.ZEROS,
+        is_stream: bool = False,
     ) -> None:
         """
         Creates a data list from a data text file.
@@ -49,19 +49,24 @@ class DataList(list):
         Raises:
             ValueError: Parsing error.
         """
-        cls.logger.debug("Building DataList from {0}: base_addr = {1:X}, fill_strategy = {2}" \
-                .format(filename, base_addr, fill_strategy))
+        cls.logger.debug(
+            "Building DataList from {0}: base_addr = {1:X}, fill_strategy = {2}".format(
+                filename, base_addr, fill_strategy
+            )
+        )
 
         f = open(filename)
         data = f.read()
         f.close()
 
-        data = data.split('@')
-        if data[0] == '' or data[0].isspace():
+        data = data.split("@")
+        if data[0] == "" or data[0].isspace():
             data = data[1:]
 
         if len(data) == 0:
-            raise ValueError("File {} doesn't contain any valid data description".format(filename))
+            raise ValueError(
+                "File {} doesn't contain any valid data description".format(filename)
+            )
 
         data_list = cls()
         for d in data:
@@ -75,15 +80,14 @@ class DataList(list):
 
         return data_list
 
-
     def __str__(self) -> str:
         """
         Returns:
             The string representation in Data format.
         """
-        return to_str()
+        return self.to_str()
 
-    def to_str(self, addr_to_zero = False) -> str:
+    def to_str(self, addr_to_zero=False) -> str:
         """
         Returns:
             The string representation in Data format.
@@ -103,7 +107,9 @@ class DataList(list):
                 If the directories specified in the path do not exist, they'll be created.
             addr_to_zero: If True, the address in the descriptor of each data sequence will be fixed to zero.
         """
-        self.logger.debug("Writting DataList to {}: addr_to_zero = {}".format(filepath, addr_to_zero))
+        self.logger.debug(
+            "Writting DataList to {}: addr_to_zero = {}".format(filepath, addr_to_zero)
+        )
 
         dirpath = os.path.dirname(filepath)
         if dirpath:
@@ -112,7 +118,7 @@ class DataList(list):
         f = open(filepath, "w")
         f.write(self.to_str(addr_to_zero))
         f.close()
-        
+
         self.logger.debug("DataList written to {}".format(filepath))
 
     def full_bytearray(self) -> bytearray:
@@ -125,8 +131,7 @@ class DataList(list):
             out += d.data
         return out
 
-
-    def represents_same_data_as(self, other: 'DataList', addr_offset: int = 0) -> bool:
+    def represents_same_data_as(self, other: "DataList", addr_offset: int = 0) -> bool:
         """
         Almost like the == operator but checking only what's meaningfull.
 
@@ -145,9 +150,9 @@ class DataList(list):
 
 
 def datalist_default_generator(
-        data_generator: Callable,
-        size_range: Sequence[int],
-        fill_data: Optional[bool] = None
+    data_generator: Callable,
+    size_range: Sequence[int],
+    fill_data: Optional[bool] = None,
 ) -> DataList:
     """
     Random data list generator.
@@ -168,4 +173,3 @@ def datalist_default_generator(
     for i in range(size):
         out.append(data_generator(**data_gen_arg))
     return out
-

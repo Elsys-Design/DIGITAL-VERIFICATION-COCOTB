@@ -20,7 +20,7 @@ logger.propagate = False
 
 # Building the handler up just like in "https://github.com/cocotb/cocotb/blob/master/src/cocotb/log.py#L81"
 # except it's a FileHandler and not a StreamHandler
-hdlr = logging.FileHandler("framework.log", mode='w')
+hdlr = logging.FileHandler("framework.log", mode="w")
 hdlr.addFilter(SimTimeContextFilter())
 hdlr.setFormatter(SimLogFormatter())
 

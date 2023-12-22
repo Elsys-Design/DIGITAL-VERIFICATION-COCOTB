@@ -9,3 +9,10 @@ addopts = "--import-mode=importlib"
 filterwarnings = [
   "ignore:Simulator is not available! Defaulting precision to 1 fs.:RuntimeWarning"
 ]
+
+
+[tool.ruff]
+ignore-init-module-imports = true
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+

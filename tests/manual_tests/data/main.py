@@ -1,7 +1,7 @@
 import sys
 import logging
 
-from framework import DataList, FillStrategy, logger
+from framework import DataList, logger
 
 
 logger.setLevel(logging.CRITICAL + 1)

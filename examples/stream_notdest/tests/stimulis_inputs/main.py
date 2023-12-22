@@ -1,14 +1,11 @@
 import os
 
 import cocotb
-import cocotbext
-from cocotb.triggers import Edge, RisingEdge, FallingEdge, Timer, Join, Combine
-from cocotb.result import TestFailure, TestError
+from cocotb.triggers import Combine
 
 from test_utils.filecmp import check_dirs_equal
 
 from tb import TB
-
 
 
 @cocotb.test()
@@ -33,4 +30,3 @@ async def cocotb_run(dut):
 
     # Comparing stimlogs/ and golden_stimlogs/
     check_dirs_equal("stimlogs", "golden_stimlogs")
-

@@ -1,18 +1,14 @@
 import os
-import random
 from functools import partial
-import filecmp
 
 import cocotb
-from cocotb.triggers import Combine, Timer
-from cocotb.result import TestFailure
+from cocotb.triggers import Combine
 
 import framework
 
 from test_utils.filecmp import compare_to_golden
 
 from tb import TB
-
 
 
 @cocotb.test()
@@ -25,20 +21,15 @@ async def cocotb_run(dut):
 
     # Building Data generator
     data_gen = partial(
-            framework.data_default_generator,
-            min_addr = 0x44A00000,
-            max_addr = 0x44A4FFFF,
-            size_range = range(1, 0x20),
-            word_size_range = [2**i for i in range(4)]
+        framework.data_default_generator,
+        min_addr=0x44A00000,
+        max_addr=0x44A4FFFF,
+        size_range=range(1, 0x20),
+        word_size_range=[2**i for i in range(4)],
     )
 
     # Building DataList generator using the Data generator
-    datalist_gen = partial(
-            framework.datalist_default_generator,
-            data_gen,
-            [10]
-    )
-
+    datalist_gen = partial(framework.datalist_default_generator, data_gen, [10])
 
     # Loading scenarios
     tasks = []
@@ -51,11 +42,11 @@ async def cocotb_run(dut):
 
         # Saving the new thread handle for each master
         tasks.append(
-                # Creating a new thread for each master
-                cocotb.start_soon(
-                    # Function to execute in the thread
-                    tb.masters_in[i].write_data_from_file(data_filepath)
-                )
+            # Creating a new thread for each master
+            cocotb.start_soon(
+                # Function to execute in the thread
+                tb.masters_in[i].write_data_from_file(data_filepath)
+            )
         )
 
     # Letting the scenarios execute (passing simulation time)
@@ -68,7 +59,3 @@ async def cocotb_run(dut):
     compare_to_golden("stimlogs")
 
     print("file_write test passed")
-
-
-
-

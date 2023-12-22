@@ -1,18 +1,12 @@
 import os
-import random
-from functools import partial
-import filecmp
 
 import cocotb
-from cocotb.triggers import Combine, Timer, Join
-from cocotb.result import TestFailure
+from cocotb.triggers import Combine
 
-import framework
 
 from test_utils.filecmp import compare_to_golden
 
 from tb import TB
-
 
 
 @cocotb.test()
@@ -36,7 +30,3 @@ async def cocotb_run(dut):
     compare_to_golden("stimlogs")
 
     print("id_interleaving test passed")
-
-
-
-

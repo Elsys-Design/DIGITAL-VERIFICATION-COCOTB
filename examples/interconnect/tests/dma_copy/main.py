@@ -30,7 +30,6 @@ async def cocotb_run(dut):
     # It's not a cocotb master but one that is in the DUT so the Combine(*tasks) won't wait for it
     await Timer(1000, units="ns")
 
-
     # Printing out_axilite_ram[0] that we wrote directly
     # and out_axilite_ram[1] that was written with the AXI DMA
     print("\n\n")
@@ -45,7 +44,6 @@ async def cocotb_run(dut):
     # Testing that both memories contain the same data
     if not memory_final[0].represents_same_data_as(memory_final[1]):
         raise TestFailure("AXI DMA didn't copy ram_out[0] in ram_out[1] properly")
-
 
     # Writing the stimulis and data logged by monitors (uses the monitors' default logger)
     tb.write_monitor_data()

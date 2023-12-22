@@ -1,11 +1,8 @@
 import os
-import random
 from functools import partial
-import filecmp
 
 import cocotb
-from cocotb.triggers import Combine, Timer
-from cocotb.result import TestFailure
+from cocotb.triggers import Combine
 
 import framework
 
@@ -17,8 +14,7 @@ from tb import TB
 async def run_reads(master, data_list, dirpath):
     for i in range(len(data_list)):
         await master.read_data_to_file(
-                os.path.join(dirpath, "{}.dat".format(i)),
-                data_list[i]
+            os.path.join(dirpath, "{}.dat".format(i)), data_list[i]
         )
 
 
@@ -37,21 +33,16 @@ async def cocotb_run(dut):
     # we use the data_default_generator to generate only an address and length (fill_data = False)
     # and not the actual data since we're going to read
     data_gen = partial(
-            framework.data_default_generator,
-            min_addr = 0x44A00000,
-            max_addr = 0x44A4FFFF,
-            size_range = range(1, 0x20),
-            word_size_range = [2**i for i in range(4)],
-            fill_data = False
+        framework.data_default_generator,
+        min_addr=0x44A00000,
+        max_addr=0x44A4FFFF,
+        size_range=range(1, 0x20),
+        word_size_range=[2**i for i in range(4)],
+        fill_data=False,
     )
 
     # Building DataList generator using the Data generator
-    datalist_gen = partial(
-            framework.datalist_default_generator,
-            data_gen,
-            [10]
-    )
-
+    datalist_gen = partial(framework.datalist_default_generator, data_gen, [10])
 
     # Loading scenarios
     tasks = []
@@ -64,11 +55,11 @@ async def cocotb_run(dut):
 
         # Saving the new thread handle for each master
         tasks.append(
-                # Creating a new thread for each master
-                cocotb.start_soon(
-                    # Function to execute in the thread
-                    run_reads(tb.masters_in[i], data_list, "read_data/{}/".format(i))
-                )
+            # Creating a new thread for each master
+            cocotb.start_soon(
+                # Function to execute in the thread
+                run_reads(tb.masters_in[i], data_list, "read_data/{}/".format(i))
+            )
         )
 
     # Letting the scenarios execute (passing simulation time)
@@ -82,7 +73,3 @@ async def cocotb_run(dut):
     compare_to_golden("read_data")
 
     print("file_write test passed")
-
-
-
-

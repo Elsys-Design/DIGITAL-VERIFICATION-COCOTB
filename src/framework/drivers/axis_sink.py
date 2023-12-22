@@ -1,13 +1,12 @@
 import cocotbext.axi.axis
 import cocotb
-from cocotb.triggers import RisingEdge, Event, Combine, Timer
+from cocotb.triggers import RisingEdge, Event
 import logging
 from typing import Union
 
 from ..stimuli_list import StimuliList
 from ..data_list import DataList
 from ..data import Data, DataFormat
-
 
 
 class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
@@ -20,15 +19,17 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         logger: Custom logger inheriting framework's logger but with the name of the bus.
     """
 
-    def __init__(self, bus, clock, reset=None, reset_active_level=True, **kwargs): 
+    def __init__(self, bus, clock, reset=None, reset_active_level=True, **kwargs):
         super().__init__(bus, clock, reset, reset_active_level, **kwargs)
 
         self.read_start = Event()
         self.read_done = Event()
 
-        self.bus_tdest_size = len(self.bus.tdest.value) // 8 if hasattr(self.bus, "tdest") else 1
+        self.bus_tdest_size = (
+            len(self.bus.tdest.value) // 8 if hasattr(self.bus, "tdest") else 1
+        )
         self.bus_data_size = len(self.bus.tdata.value) // 8
-        
+
         self.logger = logging.getLogger("framework.axis_sink." + bus._name)
 
     async def read_data(self, length: Union[int, Data]) -> DataList:
@@ -68,14 +69,12 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         data = data_list.full_bytearray()
         return int(data.hex(), 16)
 
-
     async def read_data_to_file(self, filepath: str, length: int) -> None:
         data_list = await self.read_data(length)
         data_list.to_file(filepath)
 
     async def write_data(self, data):
         raise NotImplementedError("write_data isn't supported for AxiStreamSink.")
-
 
     def init_run(self, file: str) -> cocotb.triggers.Task:
         """
@@ -93,11 +92,10 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         self.logger.info("Starting run with {}".format(stim_list.name))
         return cocotb.start_soon(stim_list.run(self))
 
-
     async def _run(self) -> None:
         if not hasattr(self.bus, "tready"):
             return NotImplementedError("Bus has no tready")
-        
+
         if not hasattr(self.bus, "tvalid"):
             return NotImplementedError("Bus has no tvalid")
 
@@ -108,7 +106,9 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         self.bus.tready.value = 0
 
         def new_current_data():
-            dformat = DataFormat(word_size = self.bus_data_size, addr_size = self.bus_tdest_size)
+            dformat = DataFormat(
+                word_size=self.bus_data_size, addr_size=self.bus_tdest_size
+            )
             return Data(0, bytearray(), False, dformat)
 
         while True:
@@ -132,8 +132,10 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
 
                     if has_tkeep:
                         for i in range(len(self.bus.tkeep.value)):
-                            if self.bus.tkeep.value[-(1+i)]:
-                                current_data.data.append(self.bus.tdata.value.buff[-(1+i)])
+                            if self.bus.tkeep.value[-(1 + i)]:
+                                current_data.data.append(
+                                    self.bus.tdata.value.buff[-(1 + i)]
+                                )
                                 current_idx += 1
                             if current_idx == length:
                                 break
@@ -144,18 +146,14 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
                         current_data.data += received_word[:toadd]
                         current_idx += toadd
 
-
                     if has_tlast:
                         if int(self.bus.tlast.value) == 1:
                             current_data.ends_with_tlast = True
                             data_list.append(current_data)
                             current_data = new_current_data()
-                    
 
                     if current_idx == length:
                         self.bus.tready.value = 0
                         if len(current_data.data) > 0:
                             data_list.append(current_data)
-                        self.read_done.set(data = data_list)
-
-
+                        self.read_done.set(data=data_list)
