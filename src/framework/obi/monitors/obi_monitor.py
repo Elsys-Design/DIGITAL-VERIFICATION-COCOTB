@@ -9,6 +9,7 @@ from ...data import Data, DataFormat
 from ...data_list import DataList
 from ...stimuli import Stimuli, Access
 from ...monitors.analysis_port import AnalysisPort
+from ...monitors.stimuli_loggers.efficient import EfficientStimuliLogger
 
 
 class ObiMonitor(cocotbext.obi.ObiMonitor):
@@ -16,21 +17,20 @@ class ObiMonitor(cocotbext.obi.ObiMonitor):
 
     def __init__(
         self,
-        name: str,
-        bus: Union[cocotbext.axi.AxiBus, cocotbext.axi.AxiLiteBus],
+        bus: cocotbext.obi.ObiBus,
         clock,
-        default_stimuli_logger_class: Type,
+        default_stimuli_logger_class: Type = EfficientStimuliLogger
     ) -> None:
         """
         Args:
             bus: The bus to monitor.
             default_stimuli_logger_class: If None, no default StimuliLogger is instancianted.
                 If not None, a new StimuliLogger is instanciated with this class.
-            bus_monitors: Dictionnary of the types of all bus monitors with their name (aw, w, b, ar, r) as keys.
-                This allows to use either cocotbext.axi.AxiLite*Monitor or cocotbext.axi.Axi*Monitor classes.
         """
-        self.name = name
-        self.logger = (logging.getLogger("framework.obi.obi_monitor." + name),)
+        super().__init__(bus, clock)
+
+        self.name = bus._name
+        self.logger = logging.getLogger("framework.obi.obi_monitor." + self.name)
 
         # Building analysis ports
         self.write_analysis_port = AnalysisPort()
@@ -48,6 +48,8 @@ class ObiMonitor(cocotbext.obi.ObiMonitor):
         # Id counter for stimulis
         self.current_id = 0
 
+        self.full_be = (2**len(self.bus.be)) -1
+
     def _on_recv(self, item):
         data_obj = Data(
             item.addr,
@@ -60,7 +62,7 @@ class ObiMonitor(cocotbext.obi.ObiMonitor):
         self.current_id += 1
 
         desc = ""
-        if item.be is not None:
+        if item.be != self.full_be:
             desc += "be = {}".format(item.be)
 
         # Building Stimuli
