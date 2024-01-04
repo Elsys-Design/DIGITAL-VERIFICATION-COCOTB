@@ -3,7 +3,8 @@ from cocotb.clock import Clock
 from cocotb.triggers import Timer
 
 from cocotbext.obi import ObiBus
-from framework import ObiMaster, ObiRam, ObiMonitor
+from cocotbext.axi import AxiLiteBus
+from framework import ObiMaster, ObiMonitor, AxiLiteRam, AxiLiteMonitor
 
 
 class TB:
@@ -14,16 +15,15 @@ class TB:
         self.clk = Clock(dut.clk, 10, units="ns")
         cocotb.start_soon(self.clk.start(start_high=False))
 
-        m_bus = ObiBus(dut, "m")
-        self.master = ObiMaster(m_bus, dut.clk)
-        self.monitor_in = ObiMonitor(m_bus, dut.clk)
+        obi_bus = ObiBus(dut, "obi")
+        self.obi_master = ObiMaster(obi_bus, dut.clk)
+        self.obi_monitor = ObiMonitor(obi_bus, dut.clk)
 
-        self.slaves = []
-        self.monitors_out = []
-        for i in range(2):
-            s_bus = ObiBus(dut, f"s{i}")
-            self.slaves.append(ObiRam(s_bus, dut.clk, 0x1000))
-            self.monitors_out.append(ObiMonitor(s_bus, dut.clk))
+        axil_bus = AxiLiteBus.from_prefix(dut, "axi")
+        self.axil_ram = AxiLiteRam(axil_bus, dut.clk, dut.reset_n, False, size=2**16)
+        self.axil_monitor = AxiLiteMonitor(
+            "axil", axil_bus, dut.clk, dut.reset_n, False
+        )
 
     async def reset(self):
         self.dut.reset_n.value = 0
@@ -35,7 +35,5 @@ class TB:
         Writes the data of all the stimuli loggers to their assigned directory.
         To call at the end of the simulation (or in the middle for an update if needed).
         """
-        self.monitor_in.default_stimuli_logger.write_to_dir()
-
-        for m_out in self.monitors_out:
-            m_out.default_stimuli_logger.write_to_dir()
+        self.obi_monitor.default_stimuli_logger.write_to_dir()
+        self.axil_monitor.default_stimuli_logger.write_to_dir()

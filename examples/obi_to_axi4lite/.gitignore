@@ -1,0 +1,13 @@
+
+
+__pycache__
+sim_build/*
+wave.*
+
+design_1
+*.o
+results.xml
+
+waveform.gtkw
+
+obi_to_axi4lite
