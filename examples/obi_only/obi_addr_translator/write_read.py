@@ -23,7 +23,6 @@ async def write_read(dut):
     await do(tb, 0x14, 0x01234567)
     await do(tb, 0x19, 0x76543210)
 
-
     await do(tb, 0x1018, 0xFEDCAB)
     await do(tb, 0x15AC, 0x11223344)
     await do(tb, 0x1113, 0x12)

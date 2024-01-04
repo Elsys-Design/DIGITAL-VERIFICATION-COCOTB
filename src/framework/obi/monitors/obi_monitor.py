@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import Union, Type
+from typing import Type
 
 import cocotbext.obi
 
@@ -19,7 +19,7 @@ class ObiMonitor(cocotbext.obi.ObiMonitor):
         self,
         bus: cocotbext.obi.ObiBus,
         clock,
-        default_stimuli_logger_class: Type = EfficientStimuliLogger
+        default_stimuli_logger_class: Type = EfficientStimuliLogger,
     ) -> None:
         """
         Args:
@@ -48,7 +48,7 @@ class ObiMonitor(cocotbext.obi.ObiMonitor):
         # Id counter for stimulis
         self.current_id = 0
 
-        self.full_be = (2**len(self.bus.be)) -1
+        self.full_be = (2 ** len(self.bus.be)) - 1
 
     def _on_recv(self, item):
         data_obj = Data(

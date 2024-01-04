@@ -6,16 +6,14 @@ from cocotbext.obi import ObiBus
 from framework import ObiMaster, ObiRam, ObiMonitor
 
 
-
 class TB:
-
     def __init__(self, dut):
         self.dut = dut
 
         # Building the clock
         self.clk = Clock(dut.clk, 10, units="ns")
         cocotb.start_soon(self.clk.start(start_high=False))
-        
+
         m_bus = ObiBus(dut, "m")
         self.master = ObiMaster(m_bus, dut.clk)
         self.monitor_in = ObiMonitor(m_bus, dut.clk)
@@ -29,9 +27,8 @@ class TB:
 
     async def reset(self):
         self.dut.reset_n.value = 0
-        await Timer(100, 'ns')
+        await Timer(100, "ns")
         self.dut.reset_n.value = 1
-
 
     def write_monitor_data(self):
         """
