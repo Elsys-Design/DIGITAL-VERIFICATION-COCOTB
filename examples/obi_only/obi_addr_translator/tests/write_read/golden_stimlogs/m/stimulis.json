@@ -57,6 +57,6 @@
         "Type": "Simple",
         "Address": "0x00001004",
         "Data": "0x0000CCCC",
-        "Size": 4
+        "Size": 2
     }
 ]

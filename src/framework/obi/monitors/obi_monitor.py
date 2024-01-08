@@ -49,6 +49,7 @@ class ObiMonitor(cocotbext.obi.ObiMonitor):
         self.current_id = 0
 
         self.full_be = (2 ** len(self.bus.be)) - 1
+        self.be_bin_format = "{:0" + str(self.bus.size) + "b}"
 
     def _on_recv(self, item):
         data_obj = Data(
@@ -63,7 +64,17 @@ class ObiMonitor(cocotbext.obi.ObiMonitor):
 
         desc = ""
         if item.be != self.full_be:
-            desc += "be = {}".format(item.be)
+            i = 0
+            while item.be & (0b1 << i) == 1:
+                i += 1
+            is_continuous = True
+            for c in range(i+1, self.bus.size):
+                if item.be & (0b1 << c) == 1:
+                    desc += ("be = " + self.be_bin_format).format(item.be)
+                    is_continuous = False
+                    break
+            if is_continuous:
+                data_obj.data = data_obj.data[0:i+1]
 
         # Building Stimuli
         stim = Stimuli(
