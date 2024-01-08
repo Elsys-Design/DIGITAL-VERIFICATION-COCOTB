@@ -56,7 +56,7 @@
         "AbsTime": "255000000 fs",
         "Type": "Simple",
         "Address": "0x00001004",
-        "Data": "0xCCCC0000",
-        "Size": 4
+        "Data": "0x0000CCCC",
+        "Size": 2
     }
 ]
