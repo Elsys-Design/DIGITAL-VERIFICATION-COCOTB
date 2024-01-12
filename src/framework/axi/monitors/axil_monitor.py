@@ -10,12 +10,12 @@ from cocotbext.axi.axil_channels import (
 
 from ...monitors.stimuli_loggers.efficient import EfficientStimuliLogger
 from .base_axi_monitor import BaseAxiMonitor
+from ...utils import get_full_bus_name
 
 
 class AxiLiteMonitor(BaseAxiMonitor):
     def __init__(
         self,
-        name,
         bus,
         clock,
         reset=None,
@@ -23,7 +23,6 @@ class AxiLiteMonitor(BaseAxiMonitor):
         default_stimuli_logger_class=EfficientStimuliLogger,
     ):
         super().__init__(
-            name,
             bus,
             clock,
             reset,
@@ -36,5 +35,5 @@ class AxiLiteMonitor(BaseAxiMonitor):
                 "ar": AxiLiteARMonitor,
                 "r": AxiLiteRMonitor,
             },
-            logger=logging.getLogger("framework.axi_monitor." + name),
+            "axil_monitor"
         )

@@ -11,6 +11,7 @@ from ...data import Data, DataFormat
 from ...data_list import DataList
 from ...stimuli import Stimuli, Access
 from ...monitors.analysis_port import AnalysisPort
+from ...utils import get_full_bus_name
 
 
 class BaseAxiMonitor:
@@ -32,14 +33,13 @@ class BaseAxiMonitor:
 
     def __init__(
         self,
-        name: str,
         bus: Union[cocotbext.axi.AxiBus, cocotbext.axi.AxiLiteBus],
         clock,
         reset,
         reset_active_level,
         default_stimuli_logger_class: Type,
         bus_monitors: Dict[str, Type],
-        logger: logging.Logger,
+        classname: str
     ) -> None:
         """
         Args:
@@ -49,8 +49,8 @@ class BaseAxiMonitor:
             bus_monitors: Dictionnary of the types of all bus monitors with their name (aw, w, b, ar, r) as keys.
                 This allows to use either cocotbext.axi.AxiLite*Monitor or cocotbext.axi.Axi*Monitor classes.
         """
-        self.name = name
-        self.logger = logger
+        self.name = get_full_bus_name(bus.write.aw)
+        self.logger = logging.getLogger(f"framework.{classname}({self.name})")
 
         # Building analysis ports
         self.write_analysis_port = AnalysisPort()

@@ -6,6 +6,7 @@ import logging
 from ...stimuli_list import StimuliList
 from ...data_list import DataList
 from ...data import Data
+from ...utils import get_full_bus_name
 
 
 class AxiStreamSource(cocotbext.axi.AxiStreamSource):
@@ -26,7 +27,7 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
         self.has_tlast = hasattr(self.bus, "tlast")
         self.bus_data_size = len(self.bus.tdata.value) // 8
 
-        self.logger = logging.getLogger("framework.axis_source." + bus._name)
+        self.logger = logging.getLogger(f"framework.axis_source({get_full_bus_name(bus)})")
 
     async def write_data(self, data: Data) -> None:
         """

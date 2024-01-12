@@ -1,6 +1,6 @@
 [
     {
-        "ID": "axil_0",
+        "ID": "axi_0",
         "Access": "W",
         "RelTime": "0.105 us",
         "AbsTime": "105000000 fs",
@@ -10,7 +10,7 @@
         "Size": 4
     },
     {
-        "ID": "axil_1",
+        "ID": "axi_1",
         "Access": "W",
         "RelTime": "0.030 us",
         "AbsTime": "135000000 fs",
@@ -20,7 +20,7 @@
         "Size": 4
     },
     {
-        "ID": "axil_2",
+        "ID": "axi_2",
         "Access": "W",
         "RelTime": "0.030 us",
         "AbsTime": "165000000 fs",
@@ -30,7 +30,7 @@
         "Size": 4
     },
     {
-        "ID": "axil_3",
+        "ID": "axi_3",
         "Access": "W",
         "RelTime": "0.030 us",
         "AbsTime": "195000000 fs",
@@ -40,7 +40,7 @@
         "Size": 4
     },
     {
-        "ID": "axil_4",
+        "ID": "axi_4",
         "Access": "W",
         "RelTime": "0.030 us",
         "AbsTime": "225000000 fs",
@@ -50,7 +50,7 @@
         "Size": 4
     },
     {
-        "ID": "axil_5",
+        "ID": "axi_5",
         "Access": "W",
         "RelTime": "0.030 us",
         "AbsTime": "255000000 fs",
@@ -60,7 +60,7 @@
         "Size": 2
     },
     {
-        "ID": "axil_6",
+        "ID": "axi_6",
         "Access": "R",
         "RelTime": "0.285 us",
         "AbsTime": "285000000 fs",
@@ -70,7 +70,7 @@
         "Size": 4
     },
     {
-        "ID": "axil_7",
+        "ID": "axi_7",
         "Access": "R",
         "RelTime": "0.030 us",
         "AbsTime": "315000000 fs",

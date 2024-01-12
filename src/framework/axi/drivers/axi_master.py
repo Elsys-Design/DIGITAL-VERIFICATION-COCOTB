@@ -5,6 +5,7 @@ import logging
 from ...stimuli_list import StimuliList
 from ...data_list import DataList
 from ...data import Data
+from ...utils import get_full_bus_name
 
 
 class AxiMaster(cocotbext.axi.AxiMaster):
@@ -26,7 +27,7 @@ class AxiMaster(cocotbext.axi.AxiMaster):
     ):
         super().__init__(bus, clock, reset, reset_active_level, max_burst_len, **kwargs)
 
-        self.logger = logging.getLogger("framework.axi_master." + bus.write.aw._name)
+        self.logger = logging.getLogger(f"framework.axi_master({get_full_bus_name(bus.write.aw)})")
 
     async def write_data(self, data: Data) -> None:
         self.logger.info(

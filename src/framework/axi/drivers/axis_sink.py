@@ -7,6 +7,7 @@ from typing import Union
 from ...stimuli_list import StimuliList
 from ...data_list import DataList
 from ...data import Data, DataFormat
+from ...utils import get_full_bus_name
 
 
 class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
@@ -30,7 +31,7 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         )
         self.bus_data_size = len(self.bus.tdata.value) // 8
 
-        self.logger = logging.getLogger("framework.axis_sink." + bus._name)
+        self.logger = logging.getLogger(f"framework.axis_sink({get_full_bus_name(bus)})")
 
     async def read_data(self, length: Union[int, Data]) -> DataList:
         """

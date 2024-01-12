@@ -20,7 +20,7 @@ class TB:
             self.bus_in, dut.aclk, dut.aresetn, reset_active_level=False
         )
         self.axis_in_monitor = AxiStreamMonitor(
-            "axis_in", self.bus_in, dut.aclk, dut.aresetn, reset_active_level=False
+            self.bus_in, dut.aclk, dut.aresetn, reset_active_level=False
         )
 
         # Building axis_out sinks and monitors
@@ -36,7 +36,6 @@ class TB:
             )
             self.axis_out_monitors.append(
                 AxiStreamMonitor(
-                    "axis_out{}".format(i),
                     self.bus_out[i],
                     dut.aclk,
                     dut.aresetn,

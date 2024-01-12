@@ -10,6 +10,7 @@ from ...data_list import DataList
 from ...stimuli import Stimuli, Access
 from ...monitors.analysis_port import AnalysisPort
 from ...monitors.stimuli_loggers.efficient import EfficientStimuliLogger
+from ...utils import get_full_bus_name
 
 
 class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
@@ -28,7 +29,6 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
 
     def __init__(
         self,
-        name,
         bus,
         clock,
         reset=None,
@@ -50,8 +50,8 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
             **kwargs,
         )
 
-        self.name = name
-        self.logger = logging.getLogger("framework.axis_monitor." + name)
+        self.name = get_full_bus_name(bus)
+        self.logger = logging.getLogger(f"framework.axil_monitor({self.name})")
 
         # Id counter for stimulis
         self.current_id = 0

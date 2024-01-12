@@ -10,6 +10,7 @@ from ...data_list import DataList
 from ...stimuli import Stimuli, Access
 from ...monitors.analysis_port import AnalysisPort
 from ...monitors.stimuli_loggers.efficient import EfficientStimuliLogger
+from ...utils import get_full_bus_name
 
 
 class ObiMonitor(cocotbext.obi.ObiMonitor):
@@ -29,8 +30,8 @@ class ObiMonitor(cocotbext.obi.ObiMonitor):
         """
         super().__init__(bus, clock)
 
-        self.name = bus._name
-        self.logger = logging.getLogger("framework.obi.obi_monitor." + self.name)
+        self.name = get_full_bus_name(bus)
+        self.logger = logging.getLogger("framework.obi_monitor({self.name})")
 
         # Building analysis ports
         self.write_analysis_port = AnalysisPort()

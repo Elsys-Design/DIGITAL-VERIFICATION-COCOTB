@@ -19,7 +19,7 @@ class TB:
             self.bus_in, dut.aclk, dut.aresetn, reset_active_level=False
         )
         self.monitor_in = AxiMonitor(
-            "in_axi", self.bus_in, dut.aclk, dut.aresetn, reset_active_level=False
+            self.bus_in, dut.aclk, dut.aresetn, reset_active_level=False
         )
 
         # Building cocotb's axilite output RAMs and Monitors
@@ -43,7 +43,6 @@ class TB:
             # Building the monitor
             self.out_axi_monitors.append(
                 AxiMonitor(
-                    name,
                     self.out_axi_bus[-1],
                     dut.aclk,
                     dut.aresetn,

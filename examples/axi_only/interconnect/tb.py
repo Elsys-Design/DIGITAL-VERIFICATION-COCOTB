@@ -44,7 +44,6 @@ class TB:
             # Building the monitor
             self.monitors_in.append(
                 types[2](
-                    name,
                     self.bus_in[-1],
                     dut.aclk,
                     dut.aresetn,
@@ -91,7 +90,6 @@ class TB:
             # Building the monitor
             self.out_axilite_monitors.append(
                 AxiLiteMonitor(
-                    name,
                     self.out_axilite_bus[-1],
                     dut.aclk,
                     dut.aresetn,
@@ -109,7 +107,7 @@ class TB:
             size=2**16,
         )
         self.out_axi_monitor = AxiMonitor(
-            "out_axi", self.out_axi_bus, dut.aclk, dut.aresetn, reset_active_level=False
+            self.out_axi_bus, dut.aclk, dut.aresetn, reset_active_level=False
         )
 
     async def reset(self):
