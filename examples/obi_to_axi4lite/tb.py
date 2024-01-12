@@ -22,7 +22,7 @@ class TB:
         axil_bus = AxiLiteBus.from_prefix(dut, "axi")
         self.axil_ram = AxiLiteRam(axil_bus, dut.clk, dut.reset_n, False, size=2**16)
         self.axil_monitor = AxiLiteMonitor(
-            "axil", axil_bus, dut.clk, dut.reset_n, False
+            axil_bus, dut.clk, dut.reset_n, False
         )
 
     async def reset(self):

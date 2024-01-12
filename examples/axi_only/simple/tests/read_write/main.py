@@ -33,7 +33,6 @@ async def cocotb_run(dut):
 
     # or create real time logger
     monitor_in = AxiMonitor(  # noqa: F841
-        "S00_AXI_0",
         bus_in,
         dut.aclk_0,
         dut.aresetn_0,

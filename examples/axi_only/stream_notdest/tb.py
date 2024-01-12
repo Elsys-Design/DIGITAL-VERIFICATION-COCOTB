@@ -20,7 +20,7 @@ class TB:
             self.bus_in, dut.aclk, dut.aresetn, reset_active_level=False
         )
         self.axis_in_monitor = AxiStreamMonitor(
-            "axis_in", self.bus_in, dut.aclk, dut.aresetn, reset_active_level=False
+            self.bus_in, dut.aclk, dut.aresetn, reset_active_level=False
         )
 
         # Building axis_out sink and monitor
@@ -29,7 +29,7 @@ class TB:
             self.bus_out, dut.aclk, dut.aresetn, reset_active_level=False
         )
         self.axis_out_monitor = AxiStreamMonitor(
-            "axis_out", self.bus_out, dut.aclk, dut.aresetn, reset_active_level=False
+            self.bus_out, dut.aclk, dut.aresetn, reset_active_level=False
         )
 
     async def reset(self):

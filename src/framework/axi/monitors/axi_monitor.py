@@ -16,7 +16,6 @@ from ...utils import get_full_bus_name
 class AxiMonitor(BaseAxiMonitor):
     def __init__(
         self,
-        name,
         bus,
         clock,
         reset=None,
@@ -24,7 +23,6 @@ class AxiMonitor(BaseAxiMonitor):
         default_stimuli_logger_class=EfficientStimuliLogger,
     ):
         super().__init__(
-            name,
             bus,
             clock,
             reset,
@@ -37,5 +35,5 @@ class AxiMonitor(BaseAxiMonitor):
                 "ar": AxiARMonitor,
                 "r": AxiRMonitor,
             },
-            logger=logging.getLogger(f"framework.axi_monitor({name})"),
+            "axi_monitor"
         )

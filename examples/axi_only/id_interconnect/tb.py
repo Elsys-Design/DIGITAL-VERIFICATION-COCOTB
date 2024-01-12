@@ -19,7 +19,7 @@ class TB:
             self.bus_in, dut.aclk, dut.aresetn, reset_active_level=False
         )
         self.monitor_in = AxiMonitor(
-            "axi_in", self.bus_in, dut.aclk, dut.aresetn, reset_active_level=False
+            self.bus_in, dut.aclk, dut.aresetn, reset_active_level=False
         )
 
         self.bus_out = []
@@ -39,7 +39,6 @@ class TB:
             )
             self.monitor_out.append(
                 AxiMonitor(
-                    name,
                     self.bus_out[-1],
                     dut.aclk,
                     dut.aresetn,

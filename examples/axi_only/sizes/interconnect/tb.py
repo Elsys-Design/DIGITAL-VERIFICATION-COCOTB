@@ -44,7 +44,6 @@ class TB:
             # Building the monitor
             self.monitors_in.append(
                 types[2](
-                    name,
                     self.bus_in[-1],
                     dut.aclk,
                     dut.aresetn,
@@ -81,7 +80,6 @@ class TB:
                 # Building the monitor
                 self.out_monitors.append(
                     types[2](
-                        name,
                         self.out_bus[-1],
                         dut.aclk,
                         dut.aresetn,

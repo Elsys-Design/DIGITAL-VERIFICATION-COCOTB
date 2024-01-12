@@ -1,6 +1,6 @@
 [
     {
-        "ID": "top.s1_0",
+        "ID": "s1_0",
         "Access": "W",
         "RelTime": "0.245 us",
         "AbsTime": "245000000 fs",
@@ -10,7 +10,7 @@
         "Size": 4
     },
     {
-        "ID": "top.s1_1",
+        "ID": "s1_1",
         "Access": "W",
         "RelTime": "0.275 us",
         "AbsTime": "275000000 fs",
@@ -20,7 +20,7 @@
         "Size": 2
     },
     {
-        "ID": "top.s1_2",
+        "ID": "s1_2",
         "Access": "R",
         "RelTime": "0.305 us",
         "AbsTime": "305000000 fs",
@@ -30,7 +30,7 @@
         "Size": 4
     },
     {
-        "ID": "top.s1_3",
+        "ID": "s1_3",
         "Access": "R",
         "RelTime": "0.335 us",
         "AbsTime": "335000000 fs",

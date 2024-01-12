@@ -1,6 +1,6 @@
 [
     {
-        "ID": "obi_to_axi4lite.obi_0",
+        "ID": "obi_0",
         "Access": "W",
         "RelTime": "0.125 us",
         "AbsTime": "125000000 fs",
@@ -10,7 +10,7 @@
         "Size": 4
     },
     {
-        "ID": "obi_to_axi4lite.obi_1",
+        "ID": "obi_1",
         "Access": "W",
         "RelTime": "0.155 us",
         "AbsTime": "155000000 fs",
@@ -20,7 +20,7 @@
         "Size": 4
     },
     {
-        "ID": "obi_to_axi4lite.obi_2",
+        "ID": "obi_2",
         "Access": "W",
         "RelTime": "0.185 us",
         "AbsTime": "185000000 fs",
@@ -30,7 +30,7 @@
         "Size": 4
     },
     {
-        "ID": "obi_to_axi4lite.obi_3",
+        "ID": "obi_3",
         "Access": "W",
         "RelTime": "0.215 us",
         "AbsTime": "215000000 fs",
@@ -40,7 +40,7 @@
         "Size": 4
     },
     {
-        "ID": "obi_to_axi4lite.obi_4",
+        "ID": "obi_4",
         "Access": "W",
         "RelTime": "0.245 us",
         "AbsTime": "245000000 fs",
@@ -50,7 +50,7 @@
         "Size": 4
     },
     {
-        "ID": "obi_to_axi4lite.obi_5",
+        "ID": "obi_5",
         "Access": "W",
         "RelTime": "0.275 us",
         "AbsTime": "275000000 fs",
@@ -60,7 +60,7 @@
         "Size": 2
     },
     {
-        "ID": "obi_to_axi4lite.obi_6",
+        "ID": "obi_6",
         "Access": "R",
         "RelTime": "0.305 us",
         "AbsTime": "305000000 fs",
@@ -70,7 +70,7 @@
         "Size": 4
     },
     {
-        "ID": "obi_to_axi4lite.obi_7",
+        "ID": "obi_7",
         "Access": "R",
         "RelTime": "0.335 us",
         "AbsTime": "335000000 fs",
