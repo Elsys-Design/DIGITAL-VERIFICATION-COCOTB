@@ -18,21 +18,22 @@ class ObiMaster(cocotbext.obi.ObiMaster):
 
     def __init__(self, bus, clock):
         super().__init__(bus, clock)
-
-        self.logger = logging.getLogger("framework.obi_master." + bus._name)
+    
+        name = bus._name if bus._name is not None else "none"
+        self.logger = logging.getLogger("framework.obi_master." + name)
 
     async def write_data(self, data: Data) -> None:
         self.logger.info(
             "Writting Data(addr={}, length={})".format(data.addr, data.length)
         )
         data.alignment_check()
-        await self.write_array(data.addr, data.data)
+        await self.write(data.addr, data.data)
 
     async def read_data(self, data: Data) -> None:
         self.logger.info(
             "Reading Data(addr={}, length={})".format(data.addr, data.length)
         )
-        data.data = await self.read_array(data.addr, data.length)
+        data.data = await self.read(data.addr, data.length)
 
     async def write_datalist(self, data_list: DataList) -> None:
         for d in data_list:
