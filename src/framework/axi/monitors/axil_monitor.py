@@ -36,5 +36,5 @@ class AxiLiteMonitor(BaseAxiMonitor):
                 "ar": AxiLiteARMonitor,
                 "r": AxiLiteRMonitor,
             },
-            logger=logging.getLogger("framework.axi_monitor." + name),
+            logger=logging.getLogger(f"framework.axil_monitor({name})"),
         )

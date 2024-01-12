@@ -51,7 +51,7 @@ class AxiStreamMonitor(cocotbext.axi.AxiStreamMonitor):
         )
 
         self.name = name
-        self.logger = logging.getLogger("framework.axis_monitor." + name)
+        self.logger = logging.getLogger(f"framework.axis_monitor({name})")
 
         # Id counter for stimulis
         self.current_id = 0

@@ -4,6 +4,7 @@ import cocotbext.obi
 
 from ...data_list import DataList
 from ...data import Data
+from ...utils import get_full_bus_name
 
 
 class ObiRam(cocotbext.obi.ObiRam):
@@ -17,7 +18,7 @@ class ObiRam(cocotbext.obi.ObiRam):
     def __init__(self, bus, clock, size=2**64):
         super().__init__(bus, clock, size)
 
-        self.logger = logging.getLogger("framework.obi_ram." + bus._name)
+        self.logger = logging.getLogger(f"framework.obi_ram({get_full_bus_name(bus)})")
 
     def write_data(self, data: Data) -> None:
         self.logger.info(
