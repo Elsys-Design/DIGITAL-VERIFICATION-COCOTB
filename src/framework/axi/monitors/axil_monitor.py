@@ -1,5 +1,3 @@
-import logging
-
 from cocotbext.axi.axil_channels import (
     AxiLiteAWMonitor,
     AxiLiteWMonitor,
@@ -10,7 +8,6 @@ from cocotbext.axi.axil_channels import (
 
 from ...monitors.stimuli_loggers.efficient import EfficientStimuliLogger
 from .base_axi_monitor import BaseAxiMonitor
-from ...utils import get_full_bus_name
 
 
 class AxiLiteMonitor(BaseAxiMonitor):
@@ -35,5 +32,5 @@ class AxiLiteMonitor(BaseAxiMonitor):
                 "ar": AxiLiteARMonitor,
                 "r": AxiLiteRMonitor,
             },
-            "axil_monitor"
+            "axil_monitor",
         )

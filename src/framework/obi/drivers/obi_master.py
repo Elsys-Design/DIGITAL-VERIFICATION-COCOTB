@@ -19,9 +19,10 @@ class ObiMaster(cocotbext.obi.ObiMaster):
 
     def __init__(self, bus, clock):
         super().__init__(bus, clock)
-    
-        name = bus._name if bus._name is not None else "none"
-        self.logger = logging.getLogger(f"framework.obi_master({get_full_bus_name(bus)})")
+
+        self.logger = logging.getLogger(
+            f"framework.obi_master({get_full_bus_name(bus)})"
+        )
 
     async def write_data(self, data: Data) -> None:
         self.logger.info(
