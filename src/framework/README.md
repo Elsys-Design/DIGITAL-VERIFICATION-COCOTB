@@ -23,6 +23,9 @@ Note: a parsed sequence may end up being multiple Data objects since Data object
 sequences (if there is a tlast ('!') in the middle of a sequence, we'll have a first Data object ending with a tlast and
 then another for the rest of the sequence).  
 
+### Protocol support
+The axi/ directory contains the drivers and monitors for Axi, AxiLite and AxiStream buses.  
+The obi/ directory contains the same for OBI buses.  
 
 ### Specific structures
 #### Time
@@ -37,6 +40,7 @@ Simplifies handling of the 'Fill' field in Stimuli json objects.
 The custom logger takes cocotb's formatter but changes the handler to print everything to a framework.log file.
 All framework loggers should inherit from the 'framework' logger.
 Note: It could eventually use a different formatter to have access to the line of the log.
+
 
 
 ### TODO
