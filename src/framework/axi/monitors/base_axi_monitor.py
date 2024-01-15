@@ -39,7 +39,7 @@ class BaseAxiMonitor:
         reset_active_level,
         default_stimuli_logger_class: Type,
         bus_monitors: Dict[str, Type],
-        classname: str
+        classname: str,
     ) -> None:
         """
         Args:

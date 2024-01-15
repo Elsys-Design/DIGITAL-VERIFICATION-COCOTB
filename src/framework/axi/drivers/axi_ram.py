@@ -26,7 +26,9 @@ class AxiRam(cocotbext.axi.AxiRam):
     ):
         super().__init__(bus, clock, reset, reset_active_level, size, mem, **kwargs)
 
-        self.logger = logging.getLogger(f"framework.axi_ram({get_full_bus_name(bus.write.aw)})")
+        self.logger = logging.getLogger(
+            f"framework.axi_ram({get_full_bus_name(bus.write.aw)})"
+        )
 
     def write_data(self, data: Data) -> None:
         self.logger.info(

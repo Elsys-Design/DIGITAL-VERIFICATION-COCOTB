@@ -19,7 +19,9 @@ class AxiLiteMaster(cocotbext.axi.AxiLiteMaster):
     def __init__(self, bus, clock, reset=None, reset_active_level=True, **kwargs):
         super().__init__(bus, clock, reset, reset_active_level, **kwargs)
 
-        self.logger = logging.getLogger(f"framework.axil_master({get_full_bus_name(bus.write.aw)})")
+        self.logger = logging.getLogger(
+            f"framework.axil_master({get_full_bus_name(bus.write.aw)})"
+        )
 
     async def write_data(self, data: Data) -> None:
         self.logger.info(

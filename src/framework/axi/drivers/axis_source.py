@@ -27,7 +27,9 @@ class AxiStreamSource(cocotbext.axi.AxiStreamSource):
         self.has_tlast = hasattr(self.bus, "tlast")
         self.bus_data_size = len(self.bus.tdata.value) // 8
 
-        self.logger = logging.getLogger(f"framework.axis_source({get_full_bus_name(bus)})")
+        self.logger = logging.getLogger(
+            f"framework.axis_source({get_full_bus_name(bus)})"
+        )
 
     async def write_data(self, data: Data) -> None:
         """

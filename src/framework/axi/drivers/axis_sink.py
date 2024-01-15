@@ -31,7 +31,9 @@ class AxiStreamSink(cocotbext.axi.axis.AxiStreamBase):
         )
         self.bus_data_size = len(self.bus.tdata.value) // 8
 
-        self.logger = logging.getLogger(f"framework.axis_sink({get_full_bus_name(bus)})")
+        self.logger = logging.getLogger(
+            f"framework.axis_sink({get_full_bus_name(bus)})"
+        )
 
     async def read_data(self, length: Union[int, Data]) -> DataList:
         """
