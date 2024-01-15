@@ -82,6 +82,7 @@ class BaseAxiMonitor:
         self.has_write_id = hasattr(self.aw.bus, "awid")
         self.has_read_id = hasattr(self.ar.bus, "arid")
         self.has_wid = hasattr(self.w.bus, "wid")  # for AXI3 support
+        self.has_wstrb = hasattr(self.w.bus, "wstrb")
 
         # Queues to contain channel transaction items until the transaction ends so we can process them all at once
         # If there is no ids (AXI-Lite or AXI without id) these are just [deque()] so basically no overhead
@@ -305,7 +306,7 @@ class BaseAxiMonitor:
             w_t = self.w_queues[wid].popleft()
             word = bytearray(reversed(w_t.wdata.buff))
 
-            if int(w_t.wstrb) == 2**self.wsize - 1:
+            if not self.has_wstrb or int(w_t.wstrb) == 2**self.wsize - 1:
                 # Full word
                 current_data += word
             else:
