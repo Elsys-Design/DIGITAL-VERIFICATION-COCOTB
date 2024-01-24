@@ -27,6 +27,7 @@ entity top is
     m_we        : in  std_logic;
     m_be        : in  std_logic_vector(DATA_WIDTH/8-1 downto 0);
     m_wdata     : in  std_logic_vector(DATA_WIDTH-1 downto 0);
+    m_atop      : in  std_logic_vector(5 downto 0);
 
     m_rvalid    : out std_logic;
     m_rready    : in  std_logic;
@@ -52,6 +53,7 @@ entity top is
     s0_we       : out std_logic;
     s0_be       : out std_logic_vector(DATA_WIDTH/8-1 downto 0);
     s0_wdata    : out std_logic_vector(DATA_WIDTH-1 downto 0);
+    s0_atop     : out  std_logic_vector(5 downto 0);
 
     s0_rvalid   : in  std_logic;
     s0_rready   : out std_logic;
@@ -64,6 +66,7 @@ entity top is
     s1_we       : out std_logic;
     s1_be       : out std_logic_vector(DATA_WIDTH/8-1 downto 0);
     s1_wdata    : out std_logic_vector(DATA_WIDTH-1 downto 0);
+    s1_atop     : out  std_logic_vector(5 downto 0);
 
     s1_rvalid   : in  std_logic;
     s1_rready   : out std_logic;
@@ -106,6 +109,7 @@ addr_translator: entity obi_utils.obi_addr_translator
         m_we    => m_we,
         m_be    => m_be,
         m_wdata => m_wdata,
+				m_atop  => m_atop,
         m_rvalid=> m_rvalid,
         m_rready=> m_rready,
         m_rdata => m_rdata,
@@ -128,6 +132,9 @@ addr_translator: entity obi_utils.obi_addr_translator
 
         s_wdata(0)  => s0_wdata,
         s_wdata(1)  => s1_wdata,
+
+				s_atop(0)   => s0_atop,
+				s_atop(1)   => s1_atop,
 
         s_rvalid(0) => s0_rvalid,
         s_rvalid(1) => s1_rvalid,

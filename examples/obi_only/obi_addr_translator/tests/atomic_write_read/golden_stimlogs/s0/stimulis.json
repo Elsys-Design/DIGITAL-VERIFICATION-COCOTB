@@ -1,0 +1,22 @@
+[
+    {
+        "ID": "s0_0",
+        "Access": "R",
+        "RelTime": "460000.001 ps",
+        "AbsTime": "460000001 fs",
+        "Type": "Simple",
+        "Address": "0x00000010",
+        "Data": "0x00000000",
+        "Size": 4
+    },
+    {
+        "ID": "s0_1",
+        "Access": "W",
+        "RelTime": "490000.001 ps",
+        "AbsTime": "490000001 fs",
+        "Type": "Simple",
+        "Address": "0x00000010",
+        "Data": "0x0000ABCD",
+        "Size": 4
+    }
+]
