@@ -24,18 +24,34 @@ class ObiMaster(cocotbext.obi.ObiMaster):
             f"framework.obi_master({get_full_bus_name(bus)})"
         )
 
-    async def write_data(self, data: Data) -> None:
+    async def write_data(self, data: Data, is_atomic: bool = False) -> None:
         self.logger.info(
-            "Writting Data(addr={}, length={})".format(data.addr, data.length)
+            "Writting Data(addr={}, value={})".format(data.addr, data.data)
         )
         data.alignment_check()
         await self.write(data.addr, data.data)
 
-    async def read_data(self, data: Data) -> None:
+    async def read_data(self, data: Data, is_atomic: bool = False) -> None:
         self.logger.info(
             "Reading Data(addr={}, length={})".format(data.addr, data.length)
         )
         data.data = await self.read(data.addr, data.length)
+
+    async def atomic_write_data(self, data: Data):
+        self.logger.info(
+            "Writting Data(addr={}, value={}) atomically".format(data.addr, data.data)
+        )
+        data.alignment_check()
+        # returning what was read because some processors use it (neorv32)
+        data.data = (
+            await self.exec(addr=data.addr, we=True, wdata=data.data, atomic_op=3)
+        ).buff
+
+    async def atomic_read_data(self, data: Data):
+        self.logger.info(
+            "Reading Data(addr={}, length={}) atomically".format(data.addr, data.length)
+        )
+        data.data = (await self.exec(addr=data.addr, we=False, atomic_op=2)).buff
 
     async def write_datalist(self, data_list: DataList) -> None:
         for d in data_list:

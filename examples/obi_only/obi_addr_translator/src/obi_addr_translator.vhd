@@ -19,7 +19,7 @@ entity obi_addr_translator is
         ADDR_WIDTH      : positive := 32;
         DATA_WIDTH      : positive := 32;
         SLAVE_COUNT     : positive := 4;
-        TRANSLATION_TABLE_LENGTH : positive := 2
+        TRANSLATION_TABLE_LENGTH : positive := 5
     );
     port (
         clk			: in  std_logic;
@@ -34,11 +34,11 @@ entity obi_addr_translator is
         m_we        : in  std_logic;
         m_be        : in  std_logic_vector(DATA_WIDTH/8-1 downto 0);
         m_wdata     : in  std_logic_vector(DATA_WIDTH-1 downto 0);
-
         m_rvalid    : out std_logic;
         m_rready    : in  std_logic;
         m_rdata     : out std_logic_vector(DATA_WIDTH-1 downto 0);
         m_err       : out std_logic;
+        m_atop      : in std_logic_vector(5 downto 0);
 
         -- OBI master ports (connect to slaves)
         s_req      : out std_logic_vector(0 to SLAVE_COUNT-1);
@@ -47,11 +47,11 @@ entity obi_addr_translator is
         s_we       : out std_logic_vector(0 to SLAVE_COUNT-1);
         s_be       : out obi_array_t (0 to SLAVE_COUNT-1)(DATA_WIDTH/8-1 downto 0);
         s_wdata    : out obi_array_t(0 to SLAVE_COUNT-1)(DATA_WIDTH-1 downto 0);
-
         s_rvalid   : in  std_logic_vector(0 to SLAVE_COUNT-1);
         s_rready   : out std_logic_vector(0 to SLAVE_COUNT-1);
         s_rdata    : in  obi_array_t(0 to SLAVE_COUNT-1)(DATA_WIDTH-1 downto 0);
-        s_err      : in  std_logic_vector(0 to SLAVE_COUNT-1)
+        s_err      : in  std_logic_vector(0 to SLAVE_COUNT-1);
+        s_atop     : out obi_array_t(0 to SLAVE_COUNT-1)(5 downto 0)
     );
 end entity;
 
@@ -65,7 +65,7 @@ architecture rtl of obi_addr_translator is
     signal error_gnt    : std_logic;
     signal error_rvalid : std_logic;
 
-    type state_t is (AddrCmp, SendReq, SendErr);
+    type state_t is (AddrCmp, TransmitState, SendErr);
     signal state    : state_t := AddrCmp;
     
     type error_state_t is (ErrAddrState, ErrRespState);
@@ -73,26 +73,27 @@ architecture rtl of obi_addr_translator is
 begin
 
 gen_a : for i in 0 to SLAVE_COUNT-1 generate
-    s_req(i) <= m_req when i = slave_select and state = SendReq else '0';
+    s_req(i) <= m_req when i = slave_select and state = TransmitState else '0';
     
     s_addr(i) <= addr_reg;
-
     s_we(i) <= m_we;
     s_be(i) <= m_be;
     s_wdata(i) <= m_wdata;
     s_rready(i) <= m_rready;
+    s_atop(i) <= m_atop;
+
 end generate;
 
-m_gnt <= s_gnt(to_integer(slave_select)) when state = SendReq 
+m_gnt <= s_gnt(to_integer(slave_select)) when state = TransmitState 
     else error_gnt when state = SendErr
     else '0';
-m_rvalid <= s_rvalid(to_integer(slave_select)) when state = SendReq 
+m_rvalid <= s_rvalid(to_integer(slave_select)) when state = TransmitState 
     else error_rvalid when state = SendErr
     else '0';
     
 m_rdata <= s_rdata(to_integer(slave_select));
 
-m_err <= s_err(to_integer(slave_select)) when state = SendReq
+m_err <= s_err(to_integer(slave_select)) when state = TransmitState
     else '1' when state = SendErr
     else '0'; 
 
@@ -106,8 +107,9 @@ begin
     elsif rising_edge(clk) then
         case state is
 
-            when AddrCmp =>
+            when AddrCmp => --wait for request + translate l'addresse
                 if m_req = '1' then
+                    legal_address := '0';
                     for i in translation_table'range loop
                         if translation_table(i).enable = '1' then
                             -- verifier que l'addresse est dans la plage d'addresse de la ième table
@@ -124,12 +126,13 @@ begin
                         error_gnt <= '1';
                         error_rvalid <= '0';
                     else
-                        state <= SendReq;
+                        state <= TransmitState;
                     end if;
                 end if;
 
-            when SendReq => --on attend un rising edge sur rvalid et rready pour finir la transaction
+            when TransmitState => --transmission du bus OBI vers le slave
                 if s_rvalid(to_integer(slave_select)) = '1' and m_rready = '1' then
+                    --fin de l'change OBI
                     state <= AddrCmp;
                     legal_address := '0';
                 end if;
