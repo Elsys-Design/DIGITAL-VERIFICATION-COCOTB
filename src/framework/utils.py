@@ -3,7 +3,7 @@ def int_to_hex_string(word, word_size):
 
 
 def get_full_bus_name(bus):
-    name = bus._entity._name
+    name = bus._entity._path
 
     # adding bus name
     if bus._name is not None:
