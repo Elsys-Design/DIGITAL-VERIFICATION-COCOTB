@@ -66,16 +66,25 @@ class ObiMonitor(cocotbext.obi.ObiMonitor):
         desc = ""
         if item.be != self.full_be:
             i = 0
-            while item.be & (0b1 << i) != 0:
+            while i < self.bus.size and item.be & (0b1 << i) == 0:
                 i += 1
-            is_continuous = True
-            for c in range(i, self.bus.size):
-                if item.be & (0b1 << c) == 1:
-                    desc += ("be = " + self.be_bin_format).format(item.be)
-                    is_continuous = False
-                    break
-            if is_continuous:
-                data_obj.data = data_obj.data[0:i]
+            start_index = i
+
+            if start_index == self.bus.size:
+                self.logger.info("OBI transaction with no byte enabled")
+            else:
+                while item.be & (0b1 << i) != 0:
+                    i += 1
+                end_index = i
+
+                is_continuous = True
+                for c in range(end_index, self.bus.size):
+                    if item.be & (0b1 << c) == 1:
+                        desc += ("be = " + self.be_bin_format).format(item.be)
+                        is_continuous = False
+                        break
+                if is_continuous:
+                    data_obj.data = data_obj.data[start_index:end_index]
 
         # Building Stimuli
         stim = Stimuli(
