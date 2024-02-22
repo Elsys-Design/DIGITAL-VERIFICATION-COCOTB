@@ -1,5 +1,4 @@
 
-export PYTHONPATH := $(PWD):$(PYTHONPATH)
 
 TOPLEVEL_LANG = vhdl
 VHDL_SOURCES = $(PWD)/src/*
