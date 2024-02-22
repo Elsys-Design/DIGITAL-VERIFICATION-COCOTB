@@ -40,8 +40,7 @@ class DataFormat:
         This method should be updated as functionalities are added.
         """
         return (
-            self.is_big_endian
-            and self.encoding == Encoding.ASCII
+            self.encoding == Encoding.ASCII
             and self.tlast_char == "!"
         )
 
@@ -235,12 +234,18 @@ class Data:
         """
         hex_data = []
 
+        endianness = "big" if self.dformat.is_big_endian else "little"
+
         x = 0
         while x < self.length:
             end_x = min(x + self.dformat.word_size, self.length)
             hex_data.append(
                 utils.int_to_hex_string(
-                    int(self.data[x:end_x].hex(), 16), self.dformat.word_size
+                    int.from_bytes(
+                      self.data[x:end_x],
+                      endianness
+                    ),
+                    self.dformat.word_size,
                 )
             )
             x = end_x
