@@ -1,0 +1,103 @@
+[
+    {
+        "ID": "out1_axilite_0",
+        "Desc": "wstrb = 0100",
+        "Access": "W",
+        "RelTime": "17230000.006 ps",
+        "AbsTime": "17230000006 fs",
+        "Type": "Simple",
+        "Address": "0x44A355BA",
+        "Data": "0x00730000",
+        "Size": 4
+    },
+    {
+        "ID": "out1_axilite_1",
+        "Access": "W",
+        "RelTime": "0.190 us",
+        "AbsTime": "17420000006 fs",
+        "Type": "Simple",
+        "Address": "0x44A331AC",
+        "Data": "0x38B04F9D",
+        "Size": 4
+    },
+    {
+        "ID": "out1_axilite_2",
+        "Access": "W",
+        "RelTime": "0.020 us",
+        "AbsTime": "17440000006 fs",
+        "Type": "Simple",
+        "Address": "0x44A331B0",
+        "Data": "0xC8AE82B2",
+        "Size": 4
+    },
+    {
+        "ID": "out1_axilite_3",
+        "Access": "W",
+        "RelTime": "0.020 us",
+        "AbsTime": "17460000006 fs",
+        "Type": "Simple",
+        "Address": "0x44A331B4",
+        "Data": "0x000E3C99",
+        "Size": 3
+    },
+    {
+        "ID": "out1_axilite_4",
+        "Access": "W",
+        "RelTime": "0.600 us",
+        "AbsTime": "18060000006 fs",
+        "Type": "Simple",
+        "Address": "0x44A32518",
+        "Data": "0xE3F43210",
+        "Size": 4
+    },
+    {
+        "ID": "out1_axilite_5",
+        "Access": "W",
+        "RelTime": "0.030 us",
+        "AbsTime": "18090000006 fs",
+        "Type": "Simple",
+        "Address": "0x44A3251C",
+        "Data": "0xA227D7E7",
+        "Size": 4
+    },
+    {
+        "ID": "out1_axilite_6",
+        "Access": "W",
+        "RelTime": "0.120 us",
+        "AbsTime": "18210000006 fs",
+        "Type": "Simple",
+        "Address": "0x44A32520",
+        "Data": "0x6C69725F",
+        "Size": 4
+    },
+    {
+        "ID": "out1_axilite_7",
+        "Access": "W",
+        "RelTime": "0.030 us",
+        "AbsTime": "18240000006 fs",
+        "Type": "Simple",
+        "Address": "0x44A32524",
+        "Data": "0x010B8A68",
+        "Size": 4
+    },
+    {
+        "ID": "out1_axilite_8",
+        "Access": "W",
+        "RelTime": "0.090 us",
+        "AbsTime": "18330000006 fs",
+        "Type": "Simple",
+        "Address": "0x44A32528",
+        "Data": "0x1C70D53C",
+        "Size": 4
+    },
+    {
+        "ID": "out1_axilite_9",
+        "Access": "W",
+        "RelTime": "0.050 us",
+        "AbsTime": "18380000006 fs",
+        "Type": "Simple",
+        "Address": "0x44A3252C",
+        "Data": "0x2B0AE56F",
+        "Size": 4
+    }
+]

@@ -501,6 +501,7 @@ def data_default_generator(
     word_size_range: Sequence[int] = [4],
     word_aligned: bool = True,
     fill_data: bool = True,
+    is_big_endian: bool = True,
 ) -> Data:
     """
     Default random data generator for AXI and AXI-Lite buses.
@@ -523,7 +524,12 @@ def data_default_generator(
     if word_aligned:
         addr = addr - (addr % word_size)
 
-    data = Data.build_empty(addr, size, False, DataFormat(word_size))
+    data = Data.build_empty(
+            addr,
+            size,
+            False,
+            DataFormat(word_size, is_big_endian=is_big_endian)
+    )
 
     if fill_data:
         new_data = bytearray()

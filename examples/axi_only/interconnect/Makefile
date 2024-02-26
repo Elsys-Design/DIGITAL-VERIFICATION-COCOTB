@@ -9,7 +9,8 @@ MODULE = "$\
 	tests.file_read.main,$\
 	tests.ram_from_to_file.main,$\
 	tests.random_stimulis.main,$\
-	tests.special_cases.main$\
+	tests.special_cases.main,$\
+	tests.little_file_write.main$\
 "
 
 SIM = ghdl

@@ -136,9 +136,6 @@ class BaseAxiMonitor:
         cocotb.start_soon(self.monitor_ar())
         cocotb.start_soon(self.monitor_r())
 
-    def to_endianness(self, array):
-        return array[::-1] if self.is_big_endian else array
-
     async def monitor_aw(self) -> None:
         """
         Monitors the aw channel.
@@ -270,6 +267,12 @@ class BaseAxiMonitor:
         self.logger.info("Logged " + stim.short_desc())
 
         return first_id
+    
+    def _get_wdata_format(self) -> DataFormat:
+        return DataFormat(self.wsize, addr_size=self.waddr_size, is_big_endian=self.is_big_endian)
+    def _get_rdata_format(self) -> DataFormat:
+        return DataFormat(self.rsize, addr_size=self.raddr_size, is_big_endian=self.is_big_endian)
+
 
     def _build_write_stimuli(
         self, b_t: cocotbext.axi.axi_channels.AxiBTransaction
@@ -309,7 +312,7 @@ class BaseAxiMonitor:
         first_id = None
         for i in range(awlen + 1):
             w_t = self.w_queues[wid].popleft()
-            word = self.to_endianness(w_t.wdata.buff)
+            word = w_t.wdata.buff[::-1]
 
             if not self.has_wstrb or int(w_t.wstrb) == 2**self.wsize - 1:
                 # Full word
@@ -330,14 +333,14 @@ class BaseAxiMonitor:
 
                     if is_continuous and last_word_size > 0:
                         # Add the last incomplete word and log the stimuli
-                        last_word = self.to_endianness(w_t.wdata.buff[-last_word_size:])
+                        last_word = (w_t.wdata.buff[-last_word_size:])[::-1]
                         current_data += last_word
 
                         data_obj = Data(
                             current_addr,
                             current_data,
                             False,
-                            DataFormat(self.wsize, addr_size=self.waddr_size),
+                            self._get_wdata_format(),
                         )
                         current_addr += len(current_data)
                         current_data = bytearray()
@@ -355,7 +358,7 @@ class BaseAxiMonitor:
                             current_addr,
                             current_data,
                             False,
-                            DataFormat(self.wsize, addr_size=self.waddr_size),
+                            self._get_wdata_format(),
                         )
                         first_id = self._log_write_stimuli(
                             data_obj, start_time, old_start_time, first_id, diff_awsize
@@ -368,7 +371,7 @@ class BaseAxiMonitor:
                         current_addr,
                         word,
                         False,
-                        DataFormat(self.wsize, addr_size=self.waddr_size),
+                        self._get_wdata_format(),
                     )
                     first_id = self._log_write_stimuli(
                         data_obj,
@@ -376,7 +379,7 @@ class BaseAxiMonitor:
                         old_start_time,
                         first_id,
                         diff_awsize,
-                        self.to_endianness(str(w_t.wstrb)),
+                        str(w_t.wstrb)[::-1] if self.is_big_endian else str(w_t.wstrb),
                     )
                     # To handle addresses that are not aligned on the bus size
                     current_addr += self.wsize - (current_addr % self.wsize)
@@ -387,7 +390,7 @@ class BaseAxiMonitor:
                 current_addr,
                 current_data,
                 False,
-                DataFormat(self.wsize, addr_size=self.waddr_size),
+                self._get_wdata_format(),
             )
 
             self._log_write_stimuli(
@@ -420,7 +423,7 @@ class BaseAxiMonitor:
         data = bytearray()
         while len(self.r_queues[rid]) > 0:
             r_t = self.r_queues[rid].popleft()
-            data += self.to_endianness(r_t.rdata.buff)
+            data += r_t.rdata.buff[::-1]
 
         end_time = Time.now()
 
@@ -429,7 +432,7 @@ class BaseAxiMonitor:
             int(ar_t.araddr),
             data,
             True,
-            DataFormat(self.rsize, addr_size=self.raddr_size),
+            self._get_rdata_format(),
         )
 
         # Building Stimuli
