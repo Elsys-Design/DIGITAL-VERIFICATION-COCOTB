@@ -1,11 +1,11 @@
 
 
-@ 0x0; 4; ascii; 4; Big; !;
-0x01000000;!
+@ 0x0; 4; ascii; 4; Little; !;
+0x01;!
 
-@ 0x18; 8; ascii; 4; Big; !;
-0x0000A344
+@ 0x18; 8; ascii; 4; Little; !;
+0x44A30000
 0x0;!
 
-@ 0x28; 4; ascii; 4; Big; !;
-0x10000000;!
+@ 0x28; 4; ascii; 4; Little; !;
+0x10;!
