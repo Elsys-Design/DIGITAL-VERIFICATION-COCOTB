@@ -39,11 +39,7 @@ class DataFormat:
 
         This method should be updated as functionalities are added.
         """
-        return (
-            self.is_big_endian
-            and self.encoding == Encoding.ASCII
-            and self.tlast_char == "!"
-        )
+        return self.encoding == Encoding.ASCII and self.tlast_char == "!"
 
 
 @dataclass(init=False)
@@ -235,12 +231,15 @@ class Data:
         """
         hex_data = []
 
+        endianness = "big" if self.dformat.is_big_endian else "little"
+
         x = 0
         while x < self.length:
             end_x = min(x + self.dformat.word_size, self.length)
             hex_data.append(
                 utils.int_to_hex_string(
-                    int(self.data[x:end_x].hex(), 16), self.dformat.word_size
+                    int.from_bytes(self.data[x:end_x], endianness),
+                    self.dformat.word_size,
                 )
             )
             x = end_x
@@ -502,6 +501,7 @@ def data_default_generator(
     word_size_range: Sequence[int] = [4],
     word_aligned: bool = True,
     fill_data: bool = True,
+    is_big_endian: bool = True,
 ) -> Data:
     """
     Default random data generator for AXI and AXI-Lite buses.
@@ -524,7 +524,12 @@ def data_default_generator(
     if word_aligned:
         addr = addr - (addr % word_size)
 
-    data = Data.build_empty(addr, size, False, DataFormat(word_size))
+    data = Data.build_empty(
+            addr,
+            size,
+            False,
+            DataFormat(word_size, is_big_endian=is_big_endian)
+    )
 
     if fill_data:
         new_data = bytearray()

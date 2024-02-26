@@ -8,8 +8,6 @@
 DataFormat(word_size=4, is_big_endian=True, encoding=<Encoding.BINARY: 1>, tlast_char='!', addr_size=4)
 ./base_data/unsupported_formats/different_end_of_packet.dat                      -- Data format not supported:
 DataFormat(word_size=4, is_big_endian=True, encoding=<Encoding.ASCII: 0>, tlast_char='?', addr_size=4)
-./base_data/unsupported_formats/little_endian.dat                                -- Data format not supported:
-DataFormat(word_size=4, is_big_endian=False, encoding=<Encoding.ASCII: 0>, tlast_char='!', addr_size=4)
 ./base_data/wrong_endianness.dat                                                 -- Wrong endianness: big should be either Big or Little
 ./stimulis/field_added/data.json                                                 -- "Fields {'Data'} are not valid for this Type (File)"
 ./stimulis/field_added/filename.json                                             -- "Fields {'FileName'} are not valid for this Type (Simple)"
