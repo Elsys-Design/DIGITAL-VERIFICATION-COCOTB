@@ -16,7 +16,7 @@ from framework import (
 
 
 class TB:
-    def __init__(self, dut):
+    def __init__(self, dut, is_big_endian=True):
         self.dut = dut
 
         # Building the clock
@@ -31,12 +31,12 @@ class TB:
         # Axi master interface
         self.bus_in.append(AxiBus.from_prefix(dut, "in_axi"))
         self.masters_in.append(
-                AxiMaster(
-                    self.bus_in[0],
-                    dut.aclk,
-                    dut.aresetn,
-                    reset_active_level=False,
-                )
+            AxiMaster(
+                self.bus_in[0],
+                dut.aclk,
+                dut.aresetn,
+                reset_active_level=False,
+            )
         )
         self.monitors_in.append(
             AxiMonitor(
@@ -44,18 +44,19 @@ class TB:
                 dut.aclk,
                 dut.aresetn,
                 reset_active_level=False,
+                is_big_endian=is_big_endian,
             )
         )
     
         # AxiLite master interface
         self.bus_in.append(AxiLiteBus.from_prefix(dut, "in_axilite"))
         self.masters_in.append(
-                AxiLiteMaster(
-                    self.bus_in[1],
-                    dut.aclk,
-                    dut.aresetn,
-                    reset_active_level=False,
-                )
+            AxiLiteMaster(
+                self.bus_in[1],
+                dut.aclk,
+                dut.aresetn,
+                reset_active_level=False,
+            )
         )
         self.monitors_in.append(
             AxiLiteMonitor(
@@ -63,7 +64,7 @@ class TB:
                 dut.aclk,
                 dut.aresetn,
                 reset_active_level=False,
-                is_big_endian=False,
+                is_big_endian=is_big_endian,
             )
         )
             
@@ -111,6 +112,7 @@ class TB:
                     dut.aclk,
                     dut.aresetn,
                     reset_active_level=False,
+                    is_big_endian=is_big_endian,
                 )
             )
 

@@ -15,7 +15,7 @@ async def cocotb_run(dut):
     # Changing current directory to the one of the test
     os.chdir(os.path.abspath(os.path.dirname(__file__)))
 
-    tb = TB(dut)
+    tb = TB(dut, is_big_endian=False)
     await tb.reset()
 
     # Loading scenarios
@@ -28,7 +28,7 @@ async def cocotb_run(dut):
 
     # Waiting for the VHDL DMA to finish the transferts
     # It's not a cocotb master but one that is in the DUT so the Combine(*tasks) won't wait for it
-    await Timer(1000, units="ns")
+    await Timer(500, units="ns")
 
     # Printing out_axilite_ram[0] that we wrote directly
     # and out_axilite_ram[1] that was written with the AXI DMA
@@ -36,6 +36,7 @@ async def cocotb_run(dut):
     memory_final = []
     for i in range(2):
         d = Data.build_empty(0x0, 2**5)
+        d.dformat.is_big_endian = False
         tb.out_axilite_rams[i].read_data(d)
         memory_final.append(d)
         print("RAM {}".format(i))

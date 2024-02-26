@@ -6,7 +6,7 @@
         "AbsTime": "3435000000 fs",
         "Type": "Simple",
         "Address": "0x44A30000",
-        "Data": "0x1234ABCD",
+        "Data": "0xABCD5678",
         "Size": 4
     },
     {
@@ -16,7 +16,7 @@
         "AbsTime": "3455000000 fs",
         "Type": "Simple",
         "Address": "0x44A30004",
-        "Data": "0xEF21007B",
+        "Data": "0x0000EF21",
         "Size": 4
     },
     {
@@ -26,7 +26,7 @@
         "AbsTime": "3475000000 fs",
         "Type": "Simple",
         "Address": "0x44A30008",
-        "Data": "0x56789A00",
+        "Data": "0x0056789A",
         "Size": 4
     },
     {

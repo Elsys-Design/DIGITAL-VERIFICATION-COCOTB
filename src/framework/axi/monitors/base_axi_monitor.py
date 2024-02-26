@@ -136,10 +136,8 @@ class BaseAxiMonitor:
         cocotb.start_soon(self.monitor_ar())
         cocotb.start_soon(self.monitor_r())
 
-    def to_endianness(self, buff):
-        return bytearray(
-                buff[::-1] if self.is_big_endian else buff
-        )
+    def to_endianness(self, array):
+        return array[::-1] if self.is_big_endian else array
 
     async def monitor_aw(self) -> None:
         """
@@ -332,7 +330,7 @@ class BaseAxiMonitor:
 
                     if is_continuous and last_word_size > 0:
                         # Add the last incomplete word and log the stimuli
-                        last_word = word[:last_word_size]
+                        last_word = self.to_endianness(w_t.wdata.buff[-last_word_size:])
                         current_data += last_word
 
                         data_obj = Data(
@@ -378,7 +376,7 @@ class BaseAxiMonitor:
                         old_start_time,
                         first_id,
                         diff_awsize,
-                        str(w_t.wstrb)[::-1],
+                        self.to_endianness(str(w_t.wstrb)),
                     )
                     # To handle addresses that are not aligned on the bus size
                     current_addr += self.wsize - (current_addr % self.wsize)

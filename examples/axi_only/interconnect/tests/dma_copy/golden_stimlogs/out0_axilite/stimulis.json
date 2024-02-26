@@ -31,13 +31,13 @@
     },
     {
         "ID": "out0_axilite_3",
-        "Desc": "wstrb = 0011",
+        "Desc": "wstrb = 1100",
         "Access": "W",
         "RelTime": "0.140 us",
         "AbsTime": "875000000 fs",
         "Type": "Simple",
         "Address": "0x44A20002",
-        "Data": "0x0000ABCD",
+        "Data": "0xABCD0000",
         "Size": 4
     },
     {
@@ -57,7 +57,7 @@
         "AbsTime": "3165000000 fs",
         "Type": "Simple",
         "Address": "0x44A20000",
-        "Data": "0x1234ABCD",
+        "Data": "0xABCD5678",
         "Size": 4
     },
     {
@@ -67,7 +67,7 @@
         "AbsTime": "3175000000 fs",
         "Type": "Simple",
         "Address": "0x44A20004",
-        "Data": "0xEF21007B",
+        "Data": "0x0000EF21",
         "Size": 4
     },
     {
@@ -77,7 +77,7 @@
         "AbsTime": "3185000000 fs",
         "Type": "Simple",
         "Address": "0x44A20008",
-        "Data": "0x56789A00",
+        "Data": "0x0056789A",
         "Size": 4
     },
     {

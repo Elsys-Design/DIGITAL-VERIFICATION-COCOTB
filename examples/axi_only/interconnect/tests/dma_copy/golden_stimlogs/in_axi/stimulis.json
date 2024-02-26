@@ -10,13 +10,13 @@
     },
     {
         "ID": "in_axi_1",
-        "Desc": "wstrb = 0011",
+        "Desc": "wstrb = 1100",
         "Access": "W",
         "RelTime": "0.180 us",
         "AbsTime": "855000000 fs",
         "Type": "Simple",
         "Address": "0x44A20002",
-        "Data": "0x0000ABCD",
+        "Data": "0xABCD0000",
         "Size": 4
     },
     {

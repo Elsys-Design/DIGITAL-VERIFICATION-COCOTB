@@ -1,0 +1,76 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Mon Feb 26 11:42:09 2024
+[*]
+[dumpfile] "/home/paul/Documents/research/ip_tester/23-9950-ED_INTERNE_DIGITAL-VERIFICATION-PYTHON/examples/axi_only/interconnect/wave.vcd"
+[dumpfile_mtime] "Mon Feb 26 11:41:53 2024"
+[dumpfile_size] 25182444
+[savefile] "/home/paul/Documents/research/ip_tester/23-9950-ED_INTERNE_DIGITAL-VERIFICATION-PYTHON/examples/axi_only/interconnect/dma_test.gtkw"
+[timestart] 0
+[size] 1910 971
+[pos] -1 -1
+*-28.922798 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] design_1.
+[sst_width] 297
+[signals_width] 182
+[sst_expanded] 1
+[sst_vpaned_height] 287
+@22
+design_1.in_axi_araddr[31:0]
+@28
+design_1.in_axi_arburst[1:0]
+@22
+design_1.in_axi_arcache[3:0]
+design_1.in_axi_arid[3:0]
+design_1.in_axi_arlen[7:0]
+@28
+design_1.in_axi_arlock[0]
+design_1.in_axi_arprot[2:0]
+@22
+design_1.in_axi_arqos[3:0]
+@28
+design_1.in_axi_arready[0]
+design_1.in_axi_arsize[2:0]
+design_1.in_axi_arvalid[0]
+@22
+design_1.in_axi_awaddr[31:0]
+@28
+design_1.in_axi_awburst[1:0]
+@22
+design_1.in_axi_awcache[3:0]
+design_1.in_axi_awid[3:0]
+design_1.in_axi_awlen[7:0]
+@28
+design_1.in_axi_awlock[0]
+design_1.in_axi_awprot[2:0]
+@22
+design_1.in_axi_awqos[3:0]
+@28
+design_1.in_axi_awready[0]
+design_1.in_axi_awsize[2:0]
+design_1.in_axi_awvalid[0]
+@22
+design_1.in_axi_bid[3:0]
+@28
+design_1.in_axi_bready[0]
+design_1.in_axi_bresp[1:0]
+design_1.in_axi_bvalid[0]
+@22
+design_1.in_axi_rdata[31:0]
+design_1.in_axi_rid[3:0]
+@28
+design_1.in_axi_rlast[0]
+design_1.in_axi_rready[0]
+design_1.in_axi_rresp[1:0]
+design_1.in_axi_rvalid[0]
+@22
+design_1.in_axi_wdata[31:0]
+@28
+design_1.in_axi_wlast[0]
+design_1.in_axi_wready[0]
+@22
+design_1.in_axi_wstrb[3:0]
+@28
+design_1.in_axi_wvalid[0]
+[pattern_trace] 1
+[pattern_trace] 0
