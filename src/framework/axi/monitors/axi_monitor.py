@@ -18,6 +18,7 @@ class AxiMonitor(BaseAxiMonitor):
         reset=None,
         reset_active_level=None,
         default_stimuli_logger_class=EfficientStimuliLogger,
+        is_big_endian=True,
     ):
         super().__init__(
             bus,
@@ -25,6 +26,7 @@ class AxiMonitor(BaseAxiMonitor):
             reset,
             reset_active_level,
             default_stimuli_logger_class,
+            is_big_endian,
             {
                 "aw": AxiAWMonitor,
                 "w": AxiWMonitor,

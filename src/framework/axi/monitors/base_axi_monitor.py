@@ -38,6 +38,7 @@ class BaseAxiMonitor:
         reset,
         reset_active_level,
         default_stimuli_logger_class: Type,
+        is_big_endian: bool,
         bus_monitors: Dict[str, Type],
         classname: str,
     ) -> None:
@@ -51,6 +52,7 @@ class BaseAxiMonitor:
         """
         self.name = get_full_bus_name(bus.write.aw)
         self.logger = logging.getLogger(f"framework.{classname}({self.name})")
+        self.is_big_endian = is_big_endian
 
         # Building analysis ports
         self.write_analysis_port = AnalysisPort()
@@ -133,6 +135,11 @@ class BaseAxiMonitor:
         cocotb.start_soon(self.monitor_b())
         cocotb.start_soon(self.monitor_ar())
         cocotb.start_soon(self.monitor_r())
+
+    def to_endianness(self, buff):
+        return bytearray(
+                buff[::-1] if self.is_big_endian else buff
+        )
 
     async def monitor_aw(self) -> None:
         """
@@ -304,7 +311,7 @@ class BaseAxiMonitor:
         first_id = None
         for i in range(awlen + 1):
             w_t = self.w_queues[wid].popleft()
-            word = bytearray(reversed(w_t.wdata.buff))
+            word = self.to_endianness(w_t.wdata.buff)
 
             if not self.has_wstrb or int(w_t.wstrb) == 2**self.wsize - 1:
                 # Full word
@@ -415,7 +422,7 @@ class BaseAxiMonitor:
         data = bytearray()
         while len(self.r_queues[rid]) > 0:
             r_t = self.r_queues[rid].popleft()
-            data += bytearray(reversed(r_t.rdata.buff))
+            data += self.to_endianness(r_t.rdata.buff)
 
         end_time = Time.now()
 

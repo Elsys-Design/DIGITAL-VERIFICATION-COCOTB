@@ -27,29 +27,46 @@ class TB:
         self.bus_in = []
         self.masters_in = []
         self.monitors_in = []
-        # This is just to build both axi and axilite elements in one loop
-        names = {
-            "in_axi": [AxiBus, AxiMaster, AxiMonitor],
-            "in_axilite": [AxiLiteBus, AxiLiteMaster, AxiLiteMonitor],
-        }
-        for name, types in names.items():
-            # Building the bus representation for cocotb
-            self.bus_in.append(types[0].from_prefix(dut, name))
-            # Building the cocotb master
-            self.masters_in.append(
-                types[1](
-                    self.bus_in[-1], dut.aclk, dut.aresetn, reset_active_level=False
-                )
-            )
-            # Building the monitor
-            self.monitors_in.append(
-                types[2](
-                    self.bus_in[-1],
+
+        # Axi master interface
+        self.bus_in.append(AxiBus.from_prefix(dut, "in_axi"))
+        self.masters_in.append(
+                AxiMaster(
+                    self.bus_in[0],
                     dut.aclk,
                     dut.aresetn,
                     reset_active_level=False,
                 )
+        )
+        self.monitors_in.append(
+            AxiMonitor(
+                self.bus_in[0],
+                dut.aclk,
+                dut.aresetn,
+                reset_active_level=False,
             )
+        )
+    
+        # AxiLite master interface
+        self.bus_in.append(AxiLiteBus.from_prefix(dut, "in_axilite"))
+        self.masters_in.append(
+                AxiLiteMaster(
+                    self.bus_in[1],
+                    dut.aclk,
+                    dut.aresetn,
+                    reset_active_level=False,
+                )
+        )
+        self.monitors_in.append(
+            AxiLiteMonitor(
+                self.bus_in[1],
+                dut.aclk,
+                dut.aresetn,
+                reset_active_level=False,
+                is_big_endian=False,
+            )
+        )
+            
 
         # Building the cocotb RAMs for each AXI Data FIFO's output bus
         self.fifo_out_axilite_bus = AxiLiteBus.from_prefix(dut, "fifo_out_axilite")
