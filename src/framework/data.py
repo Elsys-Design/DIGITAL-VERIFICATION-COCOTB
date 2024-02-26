@@ -39,10 +39,7 @@ class DataFormat:
 
         This method should be updated as functionalities are added.
         """
-        return (
-            self.encoding == Encoding.ASCII
-            and self.tlast_char == "!"
-        )
+        return self.encoding == Encoding.ASCII and self.tlast_char == "!"
 
 
 @dataclass(init=False)
@@ -241,10 +238,7 @@ class Data:
             end_x = min(x + self.dformat.word_size, self.length)
             hex_data.append(
                 utils.int_to_hex_string(
-                    int.from_bytes(
-                      self.data[x:end_x],
-                      endianness
-                    ),
+                    int.from_bytes(self.data[x:end_x], endianness),
                     self.dformat.word_size,
                 )
             )

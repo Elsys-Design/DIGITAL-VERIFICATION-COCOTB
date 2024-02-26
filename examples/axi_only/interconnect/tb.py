@@ -47,7 +47,7 @@ class TB:
                 is_big_endian=is_big_endian,
             )
         )
-    
+
         # AxiLite master interface
         self.bus_in.append(AxiLiteBus.from_prefix(dut, "in_axilite"))
         self.masters_in.append(
@@ -67,7 +67,6 @@ class TB:
                 is_big_endian=is_big_endian,
             )
         )
-            
 
         # Building the cocotb RAMs for each AXI Data FIFO's output bus
         self.fifo_out_axilite_bus = AxiLiteBus.from_prefix(dut, "fifo_out_axilite")
