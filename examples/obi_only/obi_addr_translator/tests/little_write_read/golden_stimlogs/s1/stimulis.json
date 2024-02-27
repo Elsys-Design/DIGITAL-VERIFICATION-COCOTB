@@ -1,0 +1,42 @@
+[
+    {
+        "ID": "s1_0",
+        "Access": "W",
+        "RelTime": "795000.002 ps",
+        "AbsTime": "795000002 fs",
+        "Type": "Simple",
+        "Address": "0x00000000",
+        "Data": "0xAAAABBBB",
+        "Size": 4
+    },
+    {
+        "ID": "s1_1",
+        "Access": "W",
+        "RelTime": "825000.002 ps",
+        "AbsTime": "825000002 fs",
+        "Type": "Simple",
+        "Address": "0x00000004",
+        "Data": "0x0000CCCC",
+        "Size": 2
+    },
+    {
+        "ID": "s1_2",
+        "Access": "R",
+        "RelTime": "855000.002 ps",
+        "AbsTime": "855000002 fs",
+        "Type": "Simple",
+        "Address": "0x00000000",
+        "Data": "0xAAAABBBB",
+        "Size": 4
+    },
+    {
+        "ID": "s1_3",
+        "Access": "R",
+        "RelTime": "885000.002 ps",
+        "AbsTime": "885000002 fs",
+        "Type": "Simple",
+        "Address": "0x00000004",
+        "Data": "0x0000CCCC",
+        "Size": 2
+    }
+]

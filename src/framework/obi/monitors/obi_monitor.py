@@ -20,6 +20,7 @@ class ObiMonitor(cocotbext.obi.ObiMonitor):
         self,
         bus: cocotbext.obi.ObiBus,
         clock,
+        is_big_endian=True,
         default_stimuli_logger_class: Type = EfficientStimuliLogger,
     ) -> None:
         """
@@ -32,6 +33,8 @@ class ObiMonitor(cocotbext.obi.ObiMonitor):
 
         self.name = get_full_bus_name(bus)
         self.logger = logging.getLogger("framework.obi_monitor({self.name})")
+
+        self.is_big_endian = is_big_endian
 
         # Building analysis ports
         self.write_analysis_port = AnalysisPort()
@@ -85,6 +88,9 @@ class ObiMonitor(cocotbext.obi.ObiMonitor):
                         break
                 if is_continuous:
                     data_obj.data = data_obj.data[start_index:end_index]
+
+        if not self.is_big_endian:
+            data_obj.data = data_obj.data[::-1]
 
         # Building Stimuli
         stim = Stimuli(

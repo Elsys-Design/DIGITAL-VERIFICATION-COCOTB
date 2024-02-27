@@ -7,7 +7,7 @@ from framework import ObiMaster, ObiRam, ObiMonitor
 
 
 class TB:
-    def __init__(self, dut):
+    def __init__(self, dut, is_big_endian=True):
         self.dut = dut
 
         # Building the clock
@@ -16,14 +16,14 @@ class TB:
 
         m_bus = ObiBus(dut, "m")
         self.master = ObiMaster(m_bus, dut.clk)
-        self.monitor_in = ObiMonitor(m_bus, dut.clk)
+        self.monitor_in = ObiMonitor(m_bus, dut.clk, is_big_endian=is_big_endian)
 
         self.slaves = []
         self.monitors_out = []
         for i in range(2):
             s_bus = ObiBus(dut, f"s{i}")
             self.slaves.append(ObiRam(s_bus, dut.clk, 0x1000))
-            self.monitors_out.append(ObiMonitor(s_bus, dut.clk))
+            self.monitors_out.append(ObiMonitor(s_bus, dut.clk, is_big_endian=is_big_endian))
 
     async def reset(self):
         self.dut.reset_n.value = 0
