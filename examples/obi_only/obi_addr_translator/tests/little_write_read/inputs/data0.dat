@@ -1,0 +1,10 @@
+
+@ 0x0; 12; ascii; 4; Little; !;
+0x12345678
+123
+0x0056789A
+
+@ 0x100; 4; ascii; 2; Little; !;
+0xABCD
+0xEF21
+
