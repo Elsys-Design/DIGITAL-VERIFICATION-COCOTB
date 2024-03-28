@@ -24,14 +24,14 @@ class ObiMaster(cocotbext.obi.ObiMaster):
             f"framework.obi_master({get_full_bus_name(bus)})"
         )
 
-    async def write_data(self, data: Data, is_atomic: bool = False) -> None:
+    async def write_data(self, data: Data) -> None:
         self.logger.info(
             "Writting Data(addr={}, value={})".format(data.addr, data.data)
         )
         data.alignment_check()
         await self.write(data.addr, data.data)
 
-    async def read_data(self, data: Data, is_atomic: bool = False) -> None:
+    async def read_data(self, data: Data) -> None:
         self.logger.info(
             "Reading Data(addr={}, length={})".format(data.addr, data.length)
         )
