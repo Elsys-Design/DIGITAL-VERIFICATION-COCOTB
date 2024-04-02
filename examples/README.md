@@ -37,7 +37,9 @@ there is only AXI-Stream interfaces)
 - `Makefile`: allows to
     * compile the design with GHDL using `make analyse`
     * run the tests listed in the Makefile's MODULE variable using `make`
-    * run all tests in a file using `make MODULE=tests.testname`
+    * run all tests in a file using `make MODULE=tests.testname`  
+Note: [base.make](base.make) is included in every Makefile and contains generic
+declarations.
 - `wave.ghw` and `wave.vcd`: signal dump that can be opened with gtkwave. It
 contains all the tests launched durign the last run, each separated by a reset.
 - `results.xml` contains the results of all the last tests launched
