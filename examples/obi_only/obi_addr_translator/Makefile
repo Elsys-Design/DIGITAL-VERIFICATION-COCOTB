@@ -7,6 +7,8 @@ VHDL_SOURCES_obi_utils = $(PWD)/src/obi_pkg.vhd $(PWD)/src/obi_addr_translator.v
 VHDL_SOURCES = $(PWD)/src/top.vhd
 TOPLEVEL = top
 
+COMPILE_ARGS += --std=08
+
 MODULE = "$\
     tests.write_read.main,$\
     tests.atomic_write_read.main,$\

@@ -11,7 +11,7 @@ ifeq ($(SIM), nvc)
     SIM_ARGS ?= --format=fst --wave=wave.fst
     EXTRA_ARGS ?= -M100m
 else ifeq ($(SIM), ghdl)
-    COMPILE_ARGS ?= --std=08 -fsynopsys -fexplicit -P$(GHDL_UNISIM_PATH)
+    COMPILE_ARGS ?= -fsynopsys -fexplicit -P$(GHDL_UNISIM_PATH)
     SIM_ARGS ?= --wave=wave.ghw --vcd=wave.vcd
 else
     $(error \
