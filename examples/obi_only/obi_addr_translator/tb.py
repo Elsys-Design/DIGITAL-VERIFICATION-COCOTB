@@ -23,7 +23,9 @@ class TB:
         for i in range(2):
             s_bus = ObiBus(dut, f"s{i}")
             self.slaves.append(ObiRam(s_bus, dut.clk, 0x1000))
-            self.monitors_out.append(ObiMonitor(s_bus, dut.clk, is_big_endian=is_big_endian))
+            self.monitors_out.append(
+                ObiMonitor(s_bus, dut.clk, is_big_endian=is_big_endian)
+            )
 
     async def reset(self):
         self.dut.reset_n.value = 0

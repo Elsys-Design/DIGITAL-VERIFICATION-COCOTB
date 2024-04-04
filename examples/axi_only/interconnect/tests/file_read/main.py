@@ -1,5 +1,4 @@
 import os
-from functools import partial
 
 import cocotb
 from cocotb.triggers import Combine
@@ -32,8 +31,7 @@ async def cocotb_run(dut):
     # Building Data generator
     # we use the data_default_generator to generate only an address and length (fill_data = False)
     # and not the actual data since we're going to read
-    data_gen = partial(
-        framework.data_default_generator,
+    data_gen = framework.DataDefaultGenerator(
         min_addr=0x44A00000,
         max_addr=0x44A4FFFF,
         size_range=range(1, 0x20),
@@ -42,7 +40,7 @@ async def cocotb_run(dut):
     )
 
     # Building DataList generator using the Data generator
-    datalist_gen = partial(framework.datalist_default_generator, data_gen, [10])
+    datalist_gen = framework.DataListDefaultGenerator(data_gen, [10])
 
     # Loading scenarios
     tasks = []

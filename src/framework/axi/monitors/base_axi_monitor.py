@@ -267,12 +267,16 @@ class BaseAxiMonitor:
         self.logger.info("Logged " + stim.short_desc())
 
         return first_id
-    
-    def _get_wdata_format(self) -> DataFormat:
-        return DataFormat(self.wsize, addr_size=self.waddr_size, is_big_endian=self.is_big_endian)
-    def _get_rdata_format(self) -> DataFormat:
-        return DataFormat(self.rsize, addr_size=self.raddr_size, is_big_endian=self.is_big_endian)
 
+    def _get_wdata_format(self) -> DataFormat:
+        return DataFormat(
+            self.wsize, addr_size=self.waddr_size, is_big_endian=self.is_big_endian
+        )
+
+    def _get_rdata_format(self) -> DataFormat:
+        return DataFormat(
+            self.rsize, addr_size=self.raddr_size, is_big_endian=self.is_big_endian
+        )
 
     def _build_write_stimuli(
         self, b_t: cocotbext.axi.axi_channels.AxiBTransaction

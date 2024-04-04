@@ -1,5 +1,4 @@
 import os
-from functools import partial
 
 import cocotb
 from cocotb.triggers import Combine
@@ -15,15 +14,14 @@ def generate_write_datalist():
     """
     Builds the Data and DataList generators, returns a generated DataList.
     """
-    data_gen = partial(
-        framework.stream_data_default_generator,
+    data_gen = framework.StreamDataDefaultGenerator(
         tdest_range=[0x0, 0x1, 0x2],
         size_range=range(1, 0x10),
         word_size_range=[2**i for i in range(4)],
         ends_with_tlast=None,
     )
 
-    datalist_gen = partial(framework.datalist_default_generator, data_gen, [10])
+    datalist_gen = framework.DataListDefaultGenerator(data_gen, [10])
 
     return datalist_gen()
 
