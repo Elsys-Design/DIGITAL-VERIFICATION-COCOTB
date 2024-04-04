@@ -1,16 +1,14 @@
 import os
-from functools import partial
 import logging
 
-from framework import data_default_generator, datalist_default_generator, DataList
+from framework import DataList, DataDefaultGenerator, DataListDefaultGenerator
 
 
 tests_nb = 100
 tmp_filepath = "tmp.dat"
 
 
-data_gen = partial(
-    data_default_generator,
+data_gen = DataDefaultGenerator(
     min_addr=0x0,
     max_addr=0x44A2FFFF,
     size_range=range(1, 0x100),
@@ -18,7 +16,7 @@ data_gen = partial(
     word_aligned=True,
 )
 
-datalist_gen = partial(datalist_default_generator, data_gen, range(1, 100))
+datalist_gen = DataListDefaultGenerator(data_gen, range(1, 100))
 
 
 def test_random():

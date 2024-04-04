@@ -1,5 +1,4 @@
 import os
-from functools import partial
 
 import cocotb
 from cocotb.triggers import Join
@@ -20,8 +19,7 @@ async def cocotb_run(dut):
     await tb.reset()
 
     # Building Data generator
-    data_gen = partial(
-        framework.data_default_generator,
+    data_gen = framework.DataDefaultGenerator(
         min_addr=0x44A00000,
         max_addr=0x44A1FFFF,
         size_range=range(1, 0x20),
@@ -29,19 +27,16 @@ async def cocotb_run(dut):
     )
 
     # Building DataList generator using the Data generator
-    datalist_gen = partial(framework.datalist_default_generator, data_gen, [1])
+    datalist_gen = framework.DataListDefaultGenerator(data_gen, [1])
 
     # Building Stimuli generator using the DataList generator
-    stimuli_gen = partial(
-        framework.stimuli_default_generator,
+    stimuli_gen = framework.StimuliDefaultGenerator(
         datalist_gen,
         delay_range=range(0, framework.Time(100, "ns").value),
     )
 
     # Building the StimuliList generator using the Stimuli Generator
-    stimulilist_gen = partial(
-        framework.stimulilist_default_generator, stimuli_gen, size_range=[4]
-    )
+    stimulilist_gen = framework.StimuliListDefaultGenerator(stimuli_gen, size_range=[4])
 
     # Loading scenario
     # StimuliList random generation

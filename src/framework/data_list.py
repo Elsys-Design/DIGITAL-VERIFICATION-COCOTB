@@ -1,5 +1,6 @@
 import random
 import os
+from dataclasses import dataclass
 import logging
 from typing import List, Sequence, Optional, Callable
 
@@ -149,27 +150,32 @@ class DataList(list):
         return True
 
 
-def datalist_default_generator(
-    data_generator: Callable,
-    size_range: Sequence[int],
-    fill_data: Optional[bool] = None,
-) -> DataList:
+@dataclass
+class DataListDefaultGenerator:
     """
     Random data list generator.
 
-    Args:
+    Attributes:
         data_generator: Data generator function.
         size_range: Sequence of possible data lengths.
         fill_data: Propagated to the data_generator if it's not None.
             If fill_data is None, the data_generator must specify a default fill_data argument
             (the data_default_generator does that already).
-
-    Returns:
-        A randomly generated DataList object.
     """
-    size = random.choice(size_range)
-    out = DataList()
-    data_gen_arg = {} if fill_data is None else {"fill_data": fill_data}
-    for i in range(size):
-        out.append(data_generator(**data_gen_arg))
-    return out
+
+    data_generator: Callable
+    size_range: Sequence[int]
+    fill_data: Optional[bool] = None
+
+    def __call__(self):
+        """
+        Returns:
+            A randomly generated DataList object.
+        """
+        size = random.choice(self.size_range)
+        out = DataList()
+        if self.fill_data is not None:
+            self.data_generator.fill_data = self.fill_data
+        for i in range(size):
+            out.append(self.data_generator())
+        return out

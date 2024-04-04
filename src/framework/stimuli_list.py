@@ -1,6 +1,7 @@
 import os
 import shutil
 import json
+from dataclasses import dataclass
 import random
 from pathlib import Path
 import logging
@@ -111,21 +112,26 @@ class StimuliList(list):
         self.logger.info("StimuliList's run ended")
 
 
-def stimulilist_default_generator(
-    stimuli_generator: Callable, size_range: Sequence[int]
-) -> StimuliList:
+@dataclass
+class StimuliListDefaultGenerator:
     """
     Random StimuliList generator.
 
-    Args:
+    Attributes:
         stimuli_generator: Stimuli generator function.
         size_range: Sequence of possible sizes.
-
-    Returns:
-        A randomly generated StimuliList.
     """
-    size = random.choice(size_range)
-    out = StimuliList()
-    for i in range(size):
-        out.append(stimuli_generator(id_=str(i)))
-    return out
+
+    stimuli_generator: Callable
+    size_range: Sequence[int]
+
+    def __call__(self):
+        """
+        Returns:
+            A randomly generated StimuliList.
+        """
+        size = random.choice(self.size_range)
+        out = StimuliList()
+        for i in range(size):
+            out.append(self.stimuli_generator(id_=str(i)))
+        return out

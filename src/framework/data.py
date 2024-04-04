@@ -1,6 +1,6 @@
 from enum import Enum
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import logging
 from typing import List, Union, Sequence, Optional
 
@@ -494,82 +494,88 @@ class Data:
         return val if val != 0 else self.dformat.word_size
 
 
-def data_default_generator(
-    min_addr: int,
-    max_addr: int,
-    size_range: Sequence[int],
-    word_size_range: Sequence[int] = [4],
-    word_aligned: bool = True,
-    fill_data: bool = True,
-    is_big_endian: bool = True,
-) -> Data:
+@dataclass
+class DataDefaultGenerator:
     """
     Default random data generator for AXI and AXI-Lite buses.
     Provided as an example but it fits many usecases.
 
-    Args:
+    Attributes:
         min_addr: Smallest start address that can be generated.
         max_addr: Maximum end address that can be generated.
         size_range: Sequence of possible data lengths.
         word_size_range: Sequence of possible word_sizes.
         word_aligned: If True, the generated Data object will have an address aligned with its word_size.
         fill_data: If True, the data is randomly generated. If False, an empty Data object is created.
-
-    Returns:
-        A randomly generated Data object.
     """
-    size = random.choice(size_range)
-    word_size = random.choice(word_size_range)
-    addr = random.choice(range(min_addr, max_addr - size))
-    if word_aligned:
-        addr = addr - (addr % word_size)
 
-    data = Data.build_empty(
-            addr,
-            size,
-            False,
-            DataFormat(word_size, is_big_endian=is_big_endian)
-    )
+    min_addr: int
+    max_addr: int
+    size_range: Sequence[int]
+    word_size_range: Sequence[int] = field(default_factory=lambda: [4])
+    word_aligned: bool = True
+    fill_data: bool = True
+    is_big_endian: bool = True
 
-    if fill_data:
-        new_data = bytearray()
-        FillStrategy.exec_on(FillStrategy.RANDOM, new_data, data.length)
-        data.data = new_data
+    def __call__(self):
+        """
+        Returns:
+            A randomly generated Data object.
+        """
+        size = random.choice(self.size_range)
+        word_size = random.choice(self.word_size_range)
+        addr = random.choice(range(self.min_addr, self.max_addr - size))
+        if self.word_aligned:
+            addr = addr - (addr % word_size)
 
-    return data
+        data = Data.build_empty(
+            addr, size, False, DataFormat(word_size, is_big_endian=self.is_big_endian)
+        )
+
+        if self.fill_data:
+            new_data = bytearray()
+            FillStrategy.exec_on(FillStrategy.RANDOM, new_data, data.length)
+            data.data = new_data
+
+        return data
 
 
-def stream_data_default_generator(
-    tdest_range: Sequence[int],
-    size_range: Sequence[int],
-    word_size_range: Sequence[int] = [4],
-    ends_with_tlast: bool = True,
-    fill_data: bool = True,
-) -> Data:
+@dataclass
+class StreamDataDefaultGenerator:
     """
     Default random data generator for AXI-Stream buses.
     Provided as an example but it fits many usecases.
 
-    Args:
+    Attributes:
         tdest_range: Sequence of possible tdest values.
         size_range: Sequence of possible data lengths.
         word_size_range: Sequence of possible word_sizes.
         ends_with_tlast: If True, the generated Data will have an end of packet descriptor at the end.
             If False, it won't have one. If None, there is 1/2 chance it will (and 1/2 chance it won't).
         fill_data: If True, the data is randomly generated. If False, an empty Data object is created.
-
-    Returns:
-        A randomly generated Data object.
     """
-    size = random.choice(size_range)
-    word_size = random.choice(word_size_range)
-    addr = random.choice(tdest_range)
 
-    if ends_with_tlast is None:
-        ends_with_tlast = bool(random.getrandbits(1))
+    tdest_range: Sequence[int]
+    size_range: Sequence[int]
+    word_size_range: Sequence[int] = field(default_factory=lambda: [4])
+    ends_with_tlast: bool = True
+    fill_data: bool = True
 
-    if fill_data:
-        data = bytearray([random.randrange(0, 2**8) for _ in range(size)])
-        return Data(addr, data, ends_with_tlast, DataFormat(word_size))
-    else:
-        return Data.build_empty(addr, size, ends_with_tlast, DataFormat(word_size))
+    def __call__(self):
+        """
+        Returns:
+            A randomly generated Data object.
+        """
+        size = random.choice(self.size_range)
+        word_size = random.choice(self.word_size_range)
+        addr = random.choice(self.tdest_range)
+
+        ends_with_tlast = self.ends_with_tlast
+        if ends_with_tlast is None:
+            ends_with_tlast = bool(random.getrandbits(1))
+
+        if self.fill_data:
+            data = bytearray([random.randrange(0, 2**8) for _ in range(size)])
+            return Data(addr, data, ends_with_tlast, DataFormat(word_size))
+        else:
+            return Data.build_empty(addr, size, ends_with_tlast, DataFormat(word_size))

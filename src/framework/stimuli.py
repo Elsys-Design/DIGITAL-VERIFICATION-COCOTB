@@ -432,34 +432,40 @@ class Stimuli:
         )
 
 
-def stimuli_default_generator(
-    data_list_generator: Callable,
-    delay_range: Sequence[int],
-    access: Access = Access.ALL,
-    desc: str = "Stimuli {id_} generated using the default generator",
-    id_: str = "",
-) -> Stimuli:
+@dataclass
+class StimuliDefaultGenerator:
     """
     Default random stimuli generator.
     Provided as an example but it fits many usecases.
 
-    Args:
+    Attributes:
         data_list_generator: DataList generator function.
         delay_range: Sequence of possible delays in simulator 'step' (unit = 'step').
         access: Access type, if it's Access.ALL then the access type is random (equal probability of write and read).
         desc: Description of the generated Stimulis. The `{id_}` in it will be replaced by the id of the Stimuli.
         id_: ID of the Stimuli, there is no randomisation on this field.
-
-    Returns:
-        A randomly generated Stimuli.
     """
-    if access == Access.ALL:
-        access = random.choice([Access.WRITE, Access.READ])
 
-    return Stimuli(
-        id_,
-        access,
-        Time(random.choice(delay_range), "step"),
-        data_list_generator(fill_data=access == Access.WRITE),
-        desc.format(id_=id_),
-    )
+    data_list_generator: Callable
+    delay_range: Sequence[int]
+    access: Access = Access.ALL
+    desc: str = "Stimuli {id_} generated using the default generator"
+
+    def __call__(self, id_: int = 0):
+        """
+        Returns:
+            A randomly generated Stimuli.
+        """
+        access = self.access
+        if access == Access.ALL:
+            access = random.choice([Access.WRITE, Access.READ])
+
+        self.data_list_generator.fill_data = access == Access.WRITE
+
+        return Stimuli(
+            id_,
+            access,
+            Time(random.choice(self.delay_range), "step"),
+            self.data_list_generator(),
+            self.desc.format(id_=id_),
+        )
