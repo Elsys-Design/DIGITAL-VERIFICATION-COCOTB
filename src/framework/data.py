@@ -101,7 +101,7 @@ class Data:
         self._data_or_length = None
         if isinstance(data, int):
             self._data_or_length = bytearray(
-                data.to_bytes((data.bit_length() + 7) // 8, byteorder="big")
+                data.to_bytes(max(1,(data.bit_length() + 7) // 8), byteorder="big")
             )
             if self.dformat is None:
                 self.dformat = DataFormat(len(self.data))
