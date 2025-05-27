@@ -1,0 +1,6 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="123456789" />
+    <testcase name="cocotb_run" classname="tests.read_write.main" file="/home/paul/research/23-9950-ED_INTERNE_DIGITAL-VERIFICATION-PYTHON/examples/simple/tests/read_write/main.py" lineno="22" time="0.24633479118347168" sim_time_ns="1625.000001" ratio_time="6596.713331450164" />
+  </testsuite>
+</testsuites>

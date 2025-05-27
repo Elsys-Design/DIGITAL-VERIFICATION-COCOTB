@@ -45,7 +45,8 @@ async def cocotb_run(dut):
     #monitor_in=AxiMonitor("S00_AXI_0",bus_in,dut.aclk_0, dut.aresetn_0,reset_active_level=False )
 
     #or create real time logger
-    monitor_in=AxiMonitor("S00_AXI_0",bus_in,dut.aclk_0, dut.aresetn_0,reset_active_level=False,
+    # UPDATE NOTE: now monitors are named after the bus they monitor automatically, the name parameter doesn't exist
+    monitor_in=AxiMonitor(bus_in,dut.aclk_0, dut.aresetn_0,reset_active_level=False,
                       default_stimuli_logger_class = RealTimeStimuliLogger)
 
     

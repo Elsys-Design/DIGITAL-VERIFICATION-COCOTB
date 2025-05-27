@@ -10,7 +10,7 @@ MODULE = "$\
 "
 
 SIM = ghdl
-COMPILE_ARGS = -fsynopsys -fexplicit -P$(UNISIM_PATH)
+COMPILE_ARGS = -fsynopsys -fexplicit -P$(GHDL_UNISIM_PATH)
 SIM_ARGS = --wave=wave.ghw --vcd=wave.vcd
 
 # Fixes the result file for all tests with an ABSOLUTE PATH
