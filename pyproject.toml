@@ -1,0 +1,18 @@
+
+[tool.pytest.ini_options]
+
+# Allows to have multiple test_main.py files
+# (the same test file names can make pytest throw errors)
+addopts = "--import-mode=importlib" 
+
+# Filters the "Simulator is not available" warning
+filterwarnings = [
+  "ignore:Simulator is not available! Defaulting precision to 1 fs.:RuntimeWarning"
+]
+
+
+[tool.ruff]
+lint.ignore-init-module-imports = true
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+

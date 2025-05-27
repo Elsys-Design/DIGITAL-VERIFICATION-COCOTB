@@ -3,7 +3,6 @@ from typing import Callable
 from ..stimuli import Stimuli
 
 
-
 class AnalysisPort:
     """
     Analysis ports belong to monitors and any function or method can be connected to them.
@@ -19,7 +18,6 @@ class AnalysisPort:
     def subscribe(self, function: Callable[[Stimuli], None]) -> None:
         self.subscribers.append(function)
 
-    def send(self, stimuli : Stimuli) -> None:
+    def send(self, stimuli: Stimuli) -> None:
         for s in self.subscribers:
             s(stimuli)
-

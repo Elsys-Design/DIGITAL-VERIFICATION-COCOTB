@@ -1,0 +1,27 @@
+[
+    {
+        "Access": "W",
+        "RelTime": "0 ps",
+        "Type": "File",
+        "FileName": "data0.dat",
+        "Address": "0x0",
+        "Fill": 0
+    },
+    {
+        "Access": "W",
+        "RelTime": "0 ps",
+        "Type": "File",
+        "FileName": "data1.dat",
+        "Address": "0x1000",
+        "Fill": 0
+    },
+    {
+        "Access": "R",
+        "RelTime": "0 ps",
+        "Type": "Simple",
+        "Address": "0x1000",
+        "Size": 6
+    }
+
+
+]

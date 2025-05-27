@@ -1,8 +1,7 @@
 import sys
-import json
 import logging
 
-from framework import DataList, StimuliList, FillStrategy, logger
+from framework import StimuliList, logger
 
 logger.setLevel(logging.CRITICAL + 1)
 

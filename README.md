@@ -1,9 +1,16 @@
-# Simulation Framework cocotb_axi
+# Simulation Framework
 
-This framework allows AXI light, AXI full and AXI stream testbenches based on python framework cocotb. 
-It uses files to create input stimuli and output logs.    
-- The main AXI test scenario is describes in a `stimuli file`. It is an array of `JSON` `Stimuli` elements giving details (about R/W access, Timing, and Data location). Is detailed in the file : [Format du fichier Stimuli](./Stimuli_Format.md)
-- Additionnal `Data file`  storing data to sent, relative address and packet information. Is detailed in the file : [Format du fichier Data](./Data_Format.md)
+This framework allows to build testbenches based on cocotb.  
+It uses files to create input stimuli and output logs.  
+- The main test scenario is described in a `stimuli file`. It is an array of `JSON` `Stimuli` elements giving details (about R/W access, Timing, and Data location). Is detailed in the file : [Format du fichier Stimuli](./Stimuli_Format.md)
+- An additionnal `Data file` may be used to store the data to send, relative address and packet information. It's detailed in the file : [Format du fichier Data](./Data_Format.md)
+
+## Framework evolution
+This framework was first designed for Axi, AxiLite and AxiStream components but was later extended to also support OBI buses.  
+Any protocol that is somewhat similar to Axi in term of usage (Wishbone, ...) may be implemented.  
+The goal of this framework is only to provide a simple interface to JSON and Data files, the cocotb Drivers & Monitors
+for each types of buses should be implemented in an external, general package (such as cocotbext-axi or cocotbext-obi)
+(cocotbext-obi was implemented internally since it did not exist).  
 
 ## Getting started
 
