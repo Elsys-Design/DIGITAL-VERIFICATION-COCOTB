@@ -15,4 +15,3 @@ from .stimuli_list import StimuliList, StimuliListDefaultGenerator
 from .monitors import *
 
 from .axi import *
-from .obi import *
